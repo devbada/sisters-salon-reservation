@@ -16,6 +16,11 @@ function AppContent() {
   const [editingData, setEditingData] = useState<AppointmentData | null>(null);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    // Initialize with today's date in YYYY-MM-DD format
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  });
 
   // Toast message functions
   const addToast = (message: string, type: ToastMessage['type'] = 'info') => {
@@ -33,42 +38,58 @@ function AppContent() {
     setToasts(prev => prev.filter(toast => toast.id !== id));
   };
 
-  useEffect(() => {
+  // Function to fetch reservations by date
+  const fetchReservations = async (date?: string) => {
     setIsLoading(true);
-    axios.get('http://localhost:3000/api/reservations')
-      .then(response => {
-        setReservations(response.data);
-        setIsLoading(false);
-      })
-      .catch(error => {
-        console.error('Error fetching reservations:', error);
-        if (error.response?.status === 401) {
-          addToast('로그인이 필요합니다.', 'error');
-        } else if (error.response?.status === 403) {
-          addToast('접근 권한이 없습니다.', 'error');
-        } else {
-          addToast('서버 오류가 발생했습니다. 다시 시도해주세요.', 'error');
-        }
-        setIsLoading(false);
-      });
+    try {
+      const url = date 
+        ? `http://localhost:4000/api/reservations?date=${date}`
+        : 'http://localhost:4000/api/reservations';
+      
+      const response = await axios.get(url);
+      setReservations(response.data);
+    } catch (error: any) {
+      console.error('Error fetching reservations:', error);
+      if (error.response?.status === 401) {
+        addToast('로그인이 필요합니다.', 'error');
+      } else if (error.response?.status === 403) {
+        addToast('접근 권한이 없습니다.', 'error');
+      } else {
+        addToast('서버 오류가 발생했습니다. 다시 시도해주세요.', 'error');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Initial load with today's date
+  useEffect(() => {
+    fetchReservations(selectedDate);
   }, []);
+
+  // Fetch reservations when selected date changes
+  useEffect(() => {
+    if (selectedDate) {
+      fetchReservations(selectedDate);
+    }
+  }, [selectedDate]);
 
   const handleAppointmentSubmit = async (formData: AppointmentData) => {
     try {
       if (editingIndex !== null && editingData) {
         // Update existing reservation via API
-        const response = await axios.put(`http://localhost:3000/api/reservations/${editingData._id}`, formData);
-        const updatedReservations = [...reservations];
-        updatedReservations[editingIndex] = response.data;
-        setReservations(updatedReservations);
+        await axios.put(`http://localhost:4000/api/reservations/${editingData._id}`, formData);
         setEditingIndex(null);
         setEditingData(null);
         addToast('예약이 성공적으로 수정되었습니다!', 'success');
+        // Refresh the reservations for the current date
+        await fetchReservations(selectedDate);
       } else {
         // Add new reservation
-        const response = await axios.post('http://localhost:3000/api/reservations', formData);
-        setReservations([...reservations, response.data]);
+        await axios.post('http://localhost:4000/api/reservations', formData);
         addToast('예약이 성공적으로 완료되었습니다!', 'success');
+        // Refresh the reservations for the current date
+        await fetchReservations(selectedDate);
       }
     } catch (error: any) {
       console.error('Error with reservation:', error);
@@ -117,10 +138,10 @@ function AppContent() {
     const reservation = reservations[index];
     if (window.confirm(`${reservation.customerName}님의 예약을 삭제하시겠습니까?`)) {
       try {
-        await axios.delete(`http://localhost:3000/api/reservations/${reservation._id}`);
-        const updatedReservations = reservations.filter((_, i) => i !== index);
-        setReservations(updatedReservations);
+        await axios.delete(`http://localhost:4000/api/reservations/${reservation._id}`);
         addToast('예약이 성공적으로 삭제되었습니다.', 'success');
+        // Refresh the reservations for the current date
+        await fetchReservations(selectedDate);
       } catch (error: any) {
         console.error('Error deleting reservation:', error);
         if (error.response?.status === 401) {
@@ -129,9 +150,8 @@ function AppContent() {
           addToast('접근 권한이 없습니다.', 'error');
         } else if (error.response?.status === 404) {
           addToast('이미 삭제된 예약입니다.', 'warning');
-          // Remove from local state as well
-          const updatedReservations = reservations.filter((_, i) => i !== index);
-          setReservations(updatedReservations);
+          // Refresh the reservations for the current date
+          await fetchReservations(selectedDate);
         } else {
           addToast('예약 삭제에 실패했습니다. 다시 시도해주세요.', 'error');
         }
@@ -152,6 +172,34 @@ function AppContent() {
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
+      {/* Date Selector Calendar */}
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">날짜 선택</h2>
+        <div className="flex items-center space-x-4">
+          <label htmlFor="date-select" className="text-sm font-medium text-gray-700">
+            예약 날짜:
+          </label>
+          <input
+            id="date-select"
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+          <span className="text-sm text-gray-600">
+            {selectedDate === new Date().toISOString().split('T')[0] ? '(오늘)' : ''}
+          </span>
+        </div>
+        <p className="mt-2 text-sm text-gray-500">
+          선택한 날짜: {new Date(selectedDate + 'T00:00:00').toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            weekday: 'long'
+          })}
+        </p>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <AppointmentForm
           onSubmit={handleAppointmentSubmit}
@@ -162,6 +210,7 @@ function AppContent() {
           reservations={reservations}
           onEdit={(reservation, index) => handleEdit(reservation, index)}
           onDelete={handleDelete}
+          selectedDate={selectedDate}
         />
       </div>
 
