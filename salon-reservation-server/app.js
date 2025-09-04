@@ -12,37 +12,26 @@ var authRouter = require('./routes/auth');
 
 var app = express();
 
-// CORS 설정
-const getAllowedOrigins = () => {
-  if (process.env.NODE_ENV === 'production') {
-    return process.env.ALLOWED_ORIGINS?.split(',') || [];
-  }
-  return [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'http://localhost:3001'
-  ];
-};
-
-const corsOptions = {
-  origin: (origin, callback) => {
-    const allowedOrigins = getAllowedOrigins();
-    if (!origin && process.env.NODE_ENV !== 'production') {
-      return callback(null, true);
-    }
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  credentials: true,
-  optionsSuccessStatus: 200
-};
-
-app.use(cors(corsOptions));
+// CORS 설정 (개발 환경에서는 모든 요청 허용)
+if (process.env.NODE_ENV === 'production') {
+  const corsOptions = {
+    origin: process.env.ALLOWED_ORIGINS?.split(',') || [],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    credentials: true,
+    optionsSuccessStatus: 200
+  };
+  app.use(cors(corsOptions));
+} else {
+  // 개발 환경에서는 모든 origin 허용
+  app.use(cors({
+    origin: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    credentials: true,
+    optionsSuccessStatus: 200
+  }));
+}
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

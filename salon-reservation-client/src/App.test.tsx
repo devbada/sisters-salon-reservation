@@ -51,6 +51,7 @@ describe('ReservationTable Component', () => {
         reservations={mockReservations}
         onEdit={jest.fn()}
         onDelete={jest.fn()}
+        selectedDate="2024-01-15"
       />
     );
     
@@ -64,6 +65,7 @@ describe('ReservationTable Component', () => {
         reservations={[]}
         onEdit={jest.fn()}
         onDelete={jest.fn()}
+        selectedDate="2024-01-15"
       />
     );
     
@@ -76,6 +78,7 @@ describe('ReservationTable Component', () => {
         reservations={mockReservations}
         onEdit={jest.fn()}
         onDelete={jest.fn()}
+        selectedDate="2024-01-15"
       />
     );
     

@@ -5,19 +5,40 @@ interface ReservationTableProps {
   reservations: AppointmentData[];
   onEdit: (reservation: AppointmentData, index: number) => void;
   onDelete: (index: number) => void;
+  selectedDate: string;
 }
 
 const ReservationTable: React.FC<ReservationTableProps> = ({ 
   reservations, 
   onEdit, 
-  onDelete 
+  onDelete,
+  selectedDate 
 }) => {
   return (
     <div className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg reservation-table backdrop-blur-sm bg-opacity-95">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">예약 목록</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-800">
+          {selectedDate === new Date().toISOString().split('T')[0] 
+            ? '오늘의 예약 목록' 
+            : `${new Date(selectedDate + 'T00:00:00').toLocaleDateString('ko-KR', {
+                month: 'long',
+                day: 'numeric'
+              })} 예약 목록`}
+        </h2>
+        <div className="text-sm text-gray-500">
+          총 {reservations.length}건
+        </div>
+      </div>
 
       {reservations.length === 0 ? (
-        <p className="text-gray-500 text-center py-4">예약이 없습니다.</p>
+        <div className="text-center py-8">
+          <div className="text-gray-400 text-6xl mb-4">📅</div>
+          <p className="text-gray-500 text-lg">
+            {selectedDate === new Date().toISOString().split('T')[0] 
+              ? '오늘 예약이 없습니다.' 
+              : '선택한 날짜에 예약이 없습니다.'}
+          </p>
+        </div>
       ) : (
         <>
           {/* Desktop Table View */}
