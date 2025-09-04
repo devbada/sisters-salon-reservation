@@ -12,7 +12,8 @@
       "Bash(PORT=3001 npm start)",
       "Bash(lsof:*)",
       "Bash(PORT=4000 npm start)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(open:*)"
     ],
     "deny": [],
     "ask": []
