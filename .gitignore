@@ -161,3 +161,4 @@ Desktop.ini
 # Build directories
 build/
 dist/
+.claude/settings.local.json
