@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "say '작업이 끝났습니다'"
+          }
+        ]
+      }
+    ]
+  }
+}
