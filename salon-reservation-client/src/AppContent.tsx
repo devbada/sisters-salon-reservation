@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import AppointmentForm from './components/AppointmentForm';
 import ReservationTable from './components/ReservationTable';
@@ -23,7 +23,7 @@ function AppContent() {
   });
 
   // Toast message functions
-  const addToast = (message: string, type: ToastMessage['type'] = 'info') => {
+  const addToast = useCallback((message: string, type: ToastMessage['type'] = 'info') => {
     const id = Math.random().toString(36).substr(2, 9);
     const newToast: ToastMessage = { id, message, type };
     setToasts(prev => [...prev, newToast]);
@@ -32,14 +32,14 @@ function AppContent() {
     setTimeout(() => {
       setToasts(prev => prev.filter(toast => toast.id !== id));
     }, 5000);
-  };
+  }, []);
 
   const removeToast = (id: string) => {
     setToasts(prev => prev.filter(toast => toast.id !== id));
   };
 
   // Function to fetch reservations by date
-  const fetchReservations = async (date?: string) => {
+  const fetchReservations = useCallback(async (date?: string) => {
     setIsLoading(true);
     try {
       const url = date 
@@ -60,19 +60,19 @@ function AppContent() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [addToast]);
 
   // Initial load with today's date
   useEffect(() => {
     fetchReservations(selectedDate);
-  }, []);
+  }, [fetchReservations, selectedDate]);
 
   // Fetch reservations when selected date changes
   useEffect(() => {
     if (selectedDate) {
       fetchReservations(selectedDate);
     }
-  }, [selectedDate]);
+  }, [fetchReservations, selectedDate]);
 
   const handleAppointmentSubmit = async (formData: AppointmentData) => {
     try {
@@ -161,22 +161,26 @@ function AppContent() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p className="mt-2 text-gray-600">예약 목록을 불러오는 중...</p>
+      <div className="App-content">
+        <div className="text-center py-20">
+          <div className="glass-card p-8 max-w-sm mx-auto">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-white/30 border-t-white mb-4"></div>
+            <p className="text-gray-700 text-lg font-medium">🔄 예약 목록을 불러오는 중...</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-8">
+    <div className="App-content space-y-8">
       {/* Date Selector Calendar */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">날짜 선택</h2>
-        <div className="flex items-center space-x-4">
-          <label htmlFor="date-select" className="text-sm font-medium text-gray-700">
+      <div className="glass-card p-6 max-w-2xl mx-auto animate-fadeInUp">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">
+          📅 날짜 선택
+        </h2>
+        <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+          <label htmlFor="date-select" className="text-gray-800 font-semibold">
             예약 날짜:
           </label>
           <input
@@ -184,13 +188,13 @@ function AppContent() {
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="glass-input px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent"
           />
-          <span className="text-sm text-gray-600">
-            {selectedDate === new Date().toISOString().split('T')[0] ? '(오늘)' : ''}
+          <span className="glass-card px-3 py-1 text-gray-800 text-sm font-medium rounded-full">
+            {selectedDate === new Date().toISOString().split('T')[0] ? '🌅 오늘' : '📅 예약일'}
           </span>
         </div>
-        <p className="mt-2 text-sm text-gray-500">
+        <p className="mt-4 text-center text-gray-700 font-medium">
           선택한 날짜: {new Date(selectedDate + 'T00:00:00').toLocaleDateString('ko-KR', {
             year: 'numeric',
             month: 'long',
@@ -239,7 +243,7 @@ function AppContent() {
                   {toast.type === 'warning' && '⚠'}
                   {toast.type === 'info' && 'ℹ'}
                 </div>
-                <p className="ml-3 text-sm font-medium text-gray-900">{toast.message}</p>
+                <p className="ml-3 text-sm font-medium text-gray-800">{toast.message}</p>
                 <button
                   onClick={() => removeToast(toast.id)}
                   className="ml-auto flex-shrink-0 text-gray-400 hover:text-gray-600"

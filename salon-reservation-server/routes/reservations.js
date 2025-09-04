@@ -114,7 +114,7 @@ router.get('/', authenticateToken, function(req, res) {
 });
 
 // GET a specific reservation by ID
-router.get('/:id', function(req, res) {
+router.get('/:id', authenticateToken, function(req, res) {
   try {
     const id = req.params.id;
     const reservation = getReservationById.get(id);
