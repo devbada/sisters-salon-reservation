@@ -6,14 +6,34 @@ interface ReservationTableProps {
   onEdit: (reservation: AppointmentData, index: number) => void;
   onDelete: (index: number) => void;
   selectedDate: string;
+  searchTerm?: string;
 }
 
 const ReservationTable: React.FC<ReservationTableProps> = ({ 
   reservations, 
   onEdit, 
   onDelete,
-  selectedDate 
+  selectedDate,
+  searchTerm = ''
 }) => {
+  // Highlight search term in text
+  const highlightText = (text: string, highlight: string) => {
+    if (!highlight.trim()) return text;
+    
+    const regex = new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    const parts = text.split(regex);
+    
+    return parts.map((part, index) => 
+      regex.test(part) ? (
+        <span key={index} className="bg-yellow-200 dark:bg-yellow-600 px-1 rounded font-semibold">
+          {part}
+        </span>
+      ) : (
+        part
+      )
+    );
+  };
+
   const getServiceIcon = (serviceType: string) => {
     const icons = {
       'Haircut': '💇‍♀️',
@@ -88,7 +108,7 @@ const ReservationTable: React.FC<ReservationTableProps> = ({
                         className="border-b border-white/10 hover:bg-white/5 transition-colors duration-200"
                       >
                         <td className="py-4 px-6 text-gray-800 font-medium">
-                          {reservation.customerName}
+                          {highlightText(reservation.customerName, searchTerm)}
                         </td>
                         <td className="py-4 px-6 text-gray-700">
                           {new Date(reservation.date + 'T00:00:00').toLocaleDateString('ko-KR', {
@@ -151,7 +171,7 @@ const ReservationTable: React.FC<ReservationTableProps> = ({
               >
                 <div className="flex justify-between items-start mb-4">
                   <h3 className="text-xl font-bold text-gray-800">
-                    <span className="mr-2">👤</span>{reservation.customerName}
+                    <span className="mr-2">👤</span>{highlightText(reservation.customerName, searchTerm)}
                   </h3>
                   <div className="flex space-x-2">
                     <button

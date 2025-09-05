@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
+    "start:interactive": "bash scripts/start-with-init.sh",
+    "init-db": "node scripts/initDatabase.js",
     "build": "webpack --config webpack.config.js",
     "watch": "webpack --watch --config webpack.config.js"
   },

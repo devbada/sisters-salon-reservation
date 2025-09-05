@@ -30,6 +30,7 @@ function AppContent() {
     const today = new Date();
     return today.toISOString().split('T')[0];
   });
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   // Toast message functions
   const addToast = useCallback((message: string, type: ToastMessage['type'] = 'info') => {
@@ -290,6 +291,7 @@ function AppContent() {
             <SearchFilter
               reservations={reservations}
               onFilteredResults={setFilteredReservations}
+              onSearchTermChange={setSearchTerm}
               stylists={activeDesigners}
             />
           </div>
@@ -309,6 +311,7 @@ function AppContent() {
                 handleDelete(originalIndex);
               }}
               selectedDate={selectedDate}
+              searchTerm={searchTerm}
             />
           </div>
         </>

@@ -4,6 +4,7 @@ import { AppointmentData } from './AppointmentForm';
 interface SearchFilterProps {
   reservations: AppointmentData[];
   onFilteredResults: (filtered: AppointmentData[]) => void;
+  onSearchTermChange?: (searchTerm: string) => void;
   stylists?: string[];
   serviceTypes?: string[];
 }
@@ -35,6 +36,7 @@ const useDebounce = (value: string, delay: number) => {
 const SearchFilter: React.FC<SearchFilterProps> = ({
   reservations,
   onFilteredResults,
+  onSearchTermChange,
   stylists = ['John', 'Sarah', 'Michael', 'Emma'],
   serviceTypes = ['Haircut', 'Coloring', 'Styling', 'Treatment']
 }) => {
@@ -96,6 +98,13 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
 
     return () => clearTimeout(timer);
   }, [filteredResults, onFilteredResults]);
+
+  // Notify parent component of search term changes
+  useEffect(() => {
+    if (onSearchTermChange) {
+      onSearchTermChange(debouncedSearchTerm);
+    }
+  }, [debouncedSearchTerm, onSearchTermChange]);
 
   const handleFilterChange = useCallback((key: keyof FilterState, value: string) => {
     setFilters(prev => ({
