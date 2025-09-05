@@ -230,7 +230,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
         {/* Service Type */}
         <div>
           <label htmlFor="serviceType" className="block text-gray-800 text-sm font-semibold mb-2">
-            ✨ 서비스 종류
+            ✨ 서비스 유형
           </label>
           <select
             id="serviceType"
