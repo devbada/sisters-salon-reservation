@@ -2,8 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import AppointmentForm from './components/AppointmentForm';
 import ReservationTable from './components/ReservationTable';
+import CalendarComponent from './components/Calendar';
 import DesignerManagement from './components/DesignerManagement';
 import { AppointmentData } from './components/AppointmentForm';
+import './styles/Calendar.css';
 
 interface ToastMessage {
   id: string;
@@ -14,6 +16,7 @@ interface ToastMessage {
 function AppContent() {
   const [activeTab, setActiveTab] = useState<'reservations' | 'designers'>('reservations');
   const [reservations, setReservations] = useState<AppointmentData[]>([]);
+  const [allReservations, setAllReservations] = useState<AppointmentData[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingData, setEditingData] = useState<AppointmentData | null>(null);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
@@ -39,6 +42,16 @@ function AppContent() {
   const removeToast = (id: string) => {
     setToasts(prev => prev.filter(toast => toast.id !== id));
   };
+
+  // Function to fetch all reservations for calendar markers
+  const fetchAllReservations = useCallback(async () => {
+    try {
+      const response = await axios.get('http://localhost:4000/api/reservations');
+      setAllReservations(response.data);
+    } catch (error: any) {
+      console.error('Error fetching all reservations:', error);
+    }
+  }, []);
 
   // Function to fetch reservations by date
   const fetchReservations = useCallback(async (date?: string) => {
@@ -67,7 +80,8 @@ function AppContent() {
   // Initial load with today's date
   useEffect(() => {
     fetchReservations(selectedDate);
-  }, [fetchReservations, selectedDate]);
+    fetchAllReservations();
+  }, [fetchReservations, fetchAllReservations, selectedDate]);
 
   // Fetch reservations when selected date changes
   useEffect(() => {
@@ -86,12 +100,14 @@ function AppContent() {
         addToast('예약이 성공적으로 수정되었습니다!', 'success');
         // Refresh the reservations for the current date
         await fetchReservations(selectedDate);
+        await fetchAllReservations();
       } else {
         // Add new reservation
         await axios.post('http://localhost:4000/api/reservations', formData);
         addToast('예약이 성공적으로 완료되었습니다!', 'success');
         // Refresh the reservations for the current date
         await fetchReservations(selectedDate);
+        await fetchAllReservations();
       }
     } catch (error: any) {
       console.error('Error with reservation:', error);
@@ -144,6 +160,7 @@ function AppContent() {
         addToast('예약이 성공적으로 삭제되었습니다.', 'success');
         // Refresh the reservations for the current date
         await fetchReservations(selectedDate);
+        await fetchAllReservations();
       } catch (error: any) {
         console.error('Error deleting reservation:', error);
         if (error.response?.status === 401) {
@@ -154,6 +171,7 @@ function AppContent() {
           addToast('이미 삭제된 예약입니다.', 'warning');
           // Refresh the reservations for the current date
           await fetchReservations(selectedDate);
+          await fetchAllReservations();
         } else {
           addToast('예약 삭제에 실패했습니다. 다시 시도해주세요.', 'error');
         }
@@ -176,70 +194,27 @@ function AppContent() {
 
   return (
     <div className="App-content space-y-8">
-      {/* Tab Navigation */}
-      <div className="glass-card p-2 max-w-md mx-auto animate-fadeInUp">
-        <div className="flex rounded-xl bg-white/20 p-1">
-          <button
-            onClick={() => setActiveTab('reservations')}
-            className={`flex-1 py-3 px-4 text-center rounded-lg font-semibold transition-all duration-300 ${
-              activeTab === 'reservations'
-                ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
-                : 'text-gray-700 hover:text-gray-900 hover:bg-white/20'
-            }`}
-          >
-            📅 예약 관리
-          </button>
-          <button
-            onClick={() => setActiveTab('designers')}
-            className={`flex-1 py-3 px-4 text-center rounded-lg font-semibold transition-all duration-300 ${
-              activeTab === 'designers'
-                ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
-                : 'text-gray-700 hover:text-gray-900 hover:bg-white/20'
-            }`}
-          >
-            👨‍🎨 디자이너 관리
-          </button>
-        </div>
-      </div>
-
-      {activeTab === 'reservations' ? (
-        <>
-          {/* Date Selector Calendar */}
-          <div className="glass-card p-6 max-w-2xl mx-auto animate-fadeInUp">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">
-              📅 날짜 선택
-            </h2>
-        <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-          <label htmlFor="date-select" className="text-gray-800 font-semibold">
-            예약 날짜:
-          </label>
-          <input
-            id="date-select"
-            type="date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className="glass-input px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent"
+      {/* Calendar Component */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-1">
+          <CalendarComponent
+            selectedDate={selectedDate}
+            onDateSelect={setSelectedDate}
+            reservations={allReservations}
+            isLoading={isLoading}
           />
-          <span className="glass-card px-3 py-1 text-gray-800 text-sm font-medium rounded-full">
-            {selectedDate === new Date().toISOString().split('T')[0] ? '🌅 오늘' : '📅 예약일'}
-          </span>
         </div>
-        <p className="mt-4 text-center text-gray-700 font-medium">
-          선택한 날짜: {new Date(selectedDate + 'T00:00:00').toLocaleDateString('ko-KR', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            weekday: 'long'
-          })}
-        </p>
+        <div className="lg:col-span-2">
+          <AppointmentForm
+            onSubmit={handleAppointmentSubmit}
+            initialData={editingData || undefined}
+            onCancelEdit={handleCancelEdit}
+          />
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <AppointmentForm
-          onSubmit={handleAppointmentSubmit}
-          initialData={editingData || undefined}
-          onCancelEdit={handleCancelEdit}
-        />
+      {/* Reservation Table */}
+      <div className="max-w-6xl mx-auto">
         <ReservationTable
           reservations={reservations}
           onEdit={(reservation, index) => handleEdit(reservation, index)}
