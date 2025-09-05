@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 const db = require('../db/database');
-const authenticateToken = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
 
 // Prepared statements for better performance
 const getAllDesigners = db.prepare('SELECT * FROM hair_designers WHERE deleted = 0 ORDER BY name');

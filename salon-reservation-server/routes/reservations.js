@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 const db = require('../db/database');
-const authenticateToken = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
 
 // Prepared statements for better performance
 const getAllReservations = db.prepare('SELECT * FROM reservations ORDER BY date, time');

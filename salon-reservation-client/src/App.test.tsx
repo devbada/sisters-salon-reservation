@@ -25,22 +25,21 @@ jest.mock('axios', () => ({
 
 describe('AppointmentForm Component', () => {
   test('renders all form fields', () => {
-    render(<AppointmentForm onSubmit={jest.fn()} />);
+    render(<AppointmentForm onSubmit={jest.fn()} selectedDate="2025-09-05" />);
     
     expect(screen.getByLabelText(/고객 이름/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/날짜/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/시간/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/헤어 디자이너/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/서비스 유형/i)).toBeInTheDocument();
   });
 
   test('renders submit button', () => {
-    render(<AppointmentForm onSubmit={jest.fn()} />);
+    render(<AppointmentForm onSubmit={jest.fn()} selectedDate="2025-09-05" />);
     expect(screen.getByRole('button', { name: /예약하기/i })).toBeInTheDocument();
   });
 
   test('renders correctly without validation errors prop', () => {
-    render(<AppointmentForm onSubmit={jest.fn()} />);
+    render(<AppointmentForm onSubmit={jest.fn()} selectedDate="2025-09-05" />);
     expect(screen.getByLabelText(/고객 이름/i)).toBeInTheDocument();
   });
 });
@@ -272,7 +271,7 @@ describe('DesignerTable Component', () => {
 
 describe('AppointmentForm with Designer Integration', () => {
   test('renders designer field instead of stylist', async () => {
-    render(<AppointmentForm onSubmit={jest.fn()} />);
+    render(<AppointmentForm onSubmit={jest.fn()} selectedDate="2025-09-05" />);
     
     await waitFor(() => {
       expect(screen.getByLabelText(/헤어 디자이너/i)).toBeInTheDocument();
@@ -280,7 +279,7 @@ describe('AppointmentForm with Designer Integration', () => {
   });
 
   test('shows loading state for designers', () => {
-    render(<AppointmentForm onSubmit={jest.fn()} />);
+    render(<AppointmentForm onSubmit={jest.fn()} selectedDate="2025-09-05" />);
     
     expect(screen.getByText(/디자이너 목록 로딩 중/i)).toBeInTheDocument();
   });

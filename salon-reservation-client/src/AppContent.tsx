@@ -4,6 +4,7 @@ import AppointmentForm from './components/AppointmentForm';
 import ReservationTable from './components/ReservationTable';
 import CalendarComponent from './components/Calendar';
 import DesignerManagement from './components/DesignerManagement';
+import BusinessHoursManagement from './components/BusinessHours';
 import { AppointmentData } from './components/AppointmentForm';
 import './styles/Calendar.css';
 
@@ -14,7 +15,7 @@ interface ToastMessage {
 }
 
 function AppContent() {
-  const [activeTab, setActiveTab] = useState<'reservations' | 'designers'>('reservations');
+  const [activeTab, setActiveTab] = useState<'reservations' | 'designers' | 'business-hours'>('reservations');
   const [reservations, setReservations] = useState<AppointmentData[]>([]);
   const [allReservations, setAllReservations] = useState<AppointmentData[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -194,48 +195,104 @@ function AppContent() {
 
   return (
     <div className="App-content space-y-6">
-      {/* Top Section: Calendar Selection | Customer Registration */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 max-w-7xl mx-auto">
-        {/* Calendar Selection */}
-        <div className="glass-card p-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
-            📅 캘린더 선택
-          </h2>
-          <CalendarComponent
-            selectedDate={selectedDate}
-            onDateSelect={setSelectedDate}
-            reservations={allReservations}
-            isLoading={isLoading}
-          />
-        </div>
-
-        {/* Customer Registration */}
-        <div className="glass-card p-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
-            ✏️ 고객 등록
-          </h2>
-          <AppointmentForm
-            onSubmit={handleAppointmentSubmit}
-            initialData={editingData || undefined}
-            onCancelEdit={handleCancelEdit}
-          />
-        </div>
-      </div>
-
-      {/* Bottom Section: Reservation List */}
+      {/* Navigation Tabs */}
       <div className="max-w-7xl mx-auto">
-        <div className="glass-card p-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
-            📋 예약 목록
-          </h2>
-          <ReservationTable
-            reservations={reservations}
-            onEdit={(reservation, index) => handleEdit(reservation, index)}
-            onDelete={handleDelete}
-            selectedDate={selectedDate}
-          />
-        </div>
+        <nav className="glass-card p-2">
+          <div className="flex space-x-4">
+            <button
+              onClick={() => setActiveTab('reservations')}
+              className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
+                activeTab === 'reservations'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                  : 'text-gray-700 hover:bg-white/20'
+              }`}
+            >
+              📅 예약 관리
+            </button>
+            <button
+              onClick={() => setActiveTab('designers')}
+              className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
+                activeTab === 'designers'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                  : 'text-gray-700 hover:bg-white/20'
+              }`}
+            >
+              👨‍🎨 디자이너 관리
+            </button>
+            <button
+              onClick={() => setActiveTab('business-hours')}
+              className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
+                activeTab === 'business-hours'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                  : 'text-gray-700 hover:bg-white/20'
+              }`}
+            >
+              🕐 영업시간 관리
+            </button>
+          </div>
+        </nav>
       </div>
+
+      {/* Tab Content */}
+      {activeTab === 'reservations' && (
+        <>
+          {/* Top Section: Calendar Selection | Customer Registration */}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 max-w-7xl mx-auto">
+            {/* Calendar Selection */}
+            <div className="glass-card p-6">
+              <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                📅 캘린더 선택
+              </h2>
+              <CalendarComponent
+                selectedDate={selectedDate}
+                onDateSelect={setSelectedDate}
+                reservations={allReservations}
+                isLoading={isLoading}
+              />
+            </div>
+
+            {/* Customer Registration */}
+            <div className="glass-card p-6">
+              <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                ✏️ 고객 등록
+              </h2>
+              <AppointmentForm
+                onSubmit={handleAppointmentSubmit}
+                initialData={editingData || undefined}
+                onCancelEdit={handleCancelEdit}
+                selectedDate={selectedDate}
+              />
+            </div>
+          </div>
+
+          {/* Bottom Section: Reservation List */}
+          <div className="max-w-7xl mx-auto">
+            <div className="glass-card p-6">
+              <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                📋 예약 목록
+              </h2>
+              <ReservationTable
+                reservations={reservations}
+                onEdit={(reservation, index) => handleEdit(reservation, index)}
+                onDelete={handleDelete}
+                selectedDate={selectedDate}
+              />
+            </div>
+          </div>
+        </>
+      )}
+
+      {activeTab === 'designers' && (
+        <div className="max-w-7xl mx-auto">
+          <DesignerManagement />
+        </div>
+      )}
+
+      {activeTab === 'business-hours' && (
+        <div className="max-w-7xl mx-auto">
+          <BusinessHoursManagement />
+        </div>
+      )}
 
       {/* Toast Messages */}
       <div className="fixed top-4 right-4 z-50 space-y-2">
