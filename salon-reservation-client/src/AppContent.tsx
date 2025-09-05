@@ -193,10 +193,14 @@ function AppContent() {
   }
 
   return (
-    <div className="App-content space-y-8">
-      {/* Calendar Component */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-1">
+    <div className="App-content space-y-6">
+      {/* Top Section: Calendar Selection | Customer Registration */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 max-w-7xl mx-auto">
+        {/* Calendar Selection */}
+        <div className="glass-card p-6">
+          <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+            📅 캘린더 선택
+          </h2>
           <CalendarComponent
             selectedDate={selectedDate}
             onDateSelect={setSelectedDate}
@@ -204,7 +208,12 @@ function AppContent() {
             isLoading={isLoading}
           />
         </div>
-        <div className="lg:col-span-2">
+
+        {/* Customer Registration */}
+        <div className="glass-card p-6">
+          <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+            ✏️ 고객 등록
+          </h2>
           <AppointmentForm
             onSubmit={handleAppointmentSubmit}
             initialData={editingData || undefined}
@@ -213,20 +222,20 @@ function AppContent() {
         </div>
       </div>
 
-      {/* Reservation Table */}
-      <div className="max-w-6xl mx-auto">
-        <ReservationTable
-          reservations={reservations}
-          onEdit={(reservation, index) => handleEdit(reservation, index)}
-          onDelete={handleDelete}
-          selectedDate={selectedDate}
-        />
+      {/* Bottom Section: Reservation List */}
+      <div className="max-w-7xl mx-auto">
+        <div className="glass-card p-6">
+          <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+            📋 예약 목록
+          </h2>
+          <ReservationTable
+            reservations={reservations}
+            onEdit={(reservation, index) => handleEdit(reservation, index)}
+            onDelete={handleDelete}
+            selectedDate={selectedDate}
+          />
+        </div>
       </div>
-        </>
-      ) : (
-        /* Designer Management Tab */
-        <DesignerManagement />
-      )}
 
       {/* Toast Messages */}
       <div className="fixed top-4 right-4 z-50 space-y-2">

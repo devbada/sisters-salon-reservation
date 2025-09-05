@@ -86,7 +86,7 @@ const DesignerForm: React.FC<DesignerFormProps> = ({
     // Experience years validation
     if (formData.experience_years !== undefined && 
         (formData.experience_years < 0 || formData.experience_years > 50)) {
-      newErrors.experience_years = '경력은 0-50년 사이여야 합니다';
+      (newErrors as any).experience_years = '경력은 0-50년 사이여야 합니다';
     }
 
     // Bio validation (optional)
@@ -225,7 +225,7 @@ const DesignerForm: React.FC<DesignerFormProps> = ({
             type="text"
             id="specialization"
             name="specialization"
-            value={formData.specialization || ''}
+            value={formData.specialization ?? ''}
             onChange={handleChange}
             className="w-full px-4 py-3 glass-input focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent hover:bg-white/15 transition-all duration-300"
             placeholder="예: 헤어컷, 염색, 펌 전문"
@@ -242,7 +242,7 @@ const DesignerForm: React.FC<DesignerFormProps> = ({
               type="text"
               id="phone"
               name="phone"
-              value={formData.phone || ''}
+              value={formData.phone ?? ''}
               onChange={handleChange}
               className={`w-full px-4 py-3 glass-input focus:outline-none focus:ring-2 transition-all duration-300 ${
                 errors.phone 
@@ -291,7 +291,7 @@ const DesignerForm: React.FC<DesignerFormProps> = ({
             type="email"
             id="email"
             name="email"
-            value={formData.email || ''}
+            value={formData.email ?? ''}
             onChange={handleChange}
             className={`w-full px-4 py-3 glass-input focus:outline-none focus:ring-2 transition-all duration-300 ${
               errors.email 
@@ -313,7 +313,7 @@ const DesignerForm: React.FC<DesignerFormProps> = ({
           <textarea
             id="bio"
             name="bio"
-            value={formData.bio || ''}
+            value={formData.bio ?? ''}
             onChange={handleChange}
             rows={3}
             className={`w-full px-4 py-3 glass-input focus:outline-none focus:ring-2 transition-all duration-300 resize-none ${
