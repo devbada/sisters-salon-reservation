@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 export interface AppointmentData {
   _id?: string;
@@ -7,6 +8,13 @@ export interface AppointmentData {
   time: string;
   stylist: string;
   serviceType: string;
+}
+
+interface Designer {
+  _id: string;
+  name: string;
+  specialization?: string;
+  is_active: boolean;
 }
 
 interface AppointmentFormProps {
@@ -26,6 +34,27 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
 
   const [errors, setErrors] = useState<Partial<AppointmentData>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [designers, setDesigners] = useState<Designer[]>([]);
+  const [loadingDesigners, setLoadingDesigners] = useState(true);
+
+  // Fetch designers on component mount
+  useEffect(() => {
+    const fetchDesigners = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:4000/api/designers', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setDesigners(response.data.filter((designer: Designer) => designer.is_active));
+      } catch (error) {
+        console.error('Error fetching designers:', error);
+      } finally {
+        setLoadingDesigners(false);
+      }
+    };
+
+    fetchDesigners();
+  }, []);
 
   // Update form data when initialData changes (for editing)
   useEffect(() => {
@@ -64,7 +93,9 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
 
     // Stylist validation
     if (!formData.stylist) {
-      newErrors.stylist = '스타일리스트를 선택해주세요';
+      newErrors.stylist = '디자이너를 선택해주세요';
+    } else if (!designers.find(designer => designer.name === formData.stylist)) {
+      newErrors.stylist = '유효하지 않은 디자이너입니다';
     }
 
     // Service type validation
@@ -199,31 +230,38 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
           )}
         </div>
 
-        {/* Stylist */}
+        {/* Designer */}
         <div>
           <label htmlFor="stylist" className="block text-gray-800 text-sm font-semibold mb-2">
-            ✂️ 스타일리스트
+            👨‍🎨 헤어 디자이너
           </label>
           <select
             id="stylist"
             name="stylist"
             value={formData.stylist}
             onChange={handleChange}
+            disabled={loadingDesigners}
             className={`w-full px-4 py-3 glass-input focus:outline-none focus:ring-2 transition-all duration-300 ${
               errors.stylist 
                 ? 'border-red-400 focus:ring-red-400' 
                 : 'focus:ring-purple-400 focus:border-transparent hover:bg-white/15'
-            }`}
+            } ${loadingDesigners ? 'opacity-50 cursor-not-allowed' : ''}`}
             required
           >
-            <option value="" className="bg-gray-800 text-white">스타일리스트 선택</option>
-            <option value="John" className="bg-gray-800 text-white">John</option>
-            <option value="Sarah" className="bg-gray-800 text-white">Sarah</option>
-            <option value="Michael" className="bg-gray-800 text-white">Michael</option>
-            <option value="Emma" className="bg-gray-800 text-white">Emma</option>
+            <option value="" className="bg-gray-800 text-white">
+              {loadingDesigners ? '디자이너 목록 로딩 중...' : '디자이너 선택'}
+            </option>
+            {designers.map((designer) => (
+              <option key={designer._id} value={designer.name} className="bg-gray-800 text-white">
+                {designer.name}{designer.specialization ? ` (${designer.specialization})` : ''}
+              </option>
+            ))}
           </select>
           {errors.stylist && (
             <p className="text-red-600 text-sm mt-1 font-medium">⚠️ {errors.stylist}</p>
+          )}
+          {designers.length === 0 && !loadingDesigners && (
+            <p className="text-yellow-600 text-sm mt-1 font-medium">⚠️ 활성화된 디자이너가 없습니다. 관리자에게 문의하세요.</p>
           )}
         </div>
 

@@ -13,7 +13,11 @@
       "Bash(lsof:*)",
       "Bash(PORT=4000 npm start)",
       "Bash(grep:*)",
-      "Bash(open:*)"
+      "Bash(open:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "ask": []

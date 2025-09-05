@@ -37,17 +37,39 @@ const createAdministratorsTable = `
   )
 `;
 
+// Create hair designers table
+const createDesignersTable = `
+  CREATE TABLE IF NOT EXISTS hair_designers (
+    _id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    specialization TEXT,
+    phone TEXT,
+    email TEXT,
+    experience_years INTEGER DEFAULT 0,
+    profile_image TEXT,
+    bio TEXT,
+    is_active BOOLEAN DEFAULT 1,
+    deleted BOOLEAN DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )
+`;
+
 // Create indexes for performance
 const createIndexes = [
   'CREATE INDEX IF NOT EXISTS idx_reservations_date ON reservations(date)',
   'CREATE INDEX IF NOT EXISTS idx_reservations_stylist ON reservations(stylist)',
-  'CREATE INDEX IF NOT EXISTS idx_reservations_stylist_date_time ON reservations(stylist, date, time)'
+  'CREATE INDEX IF NOT EXISTS idx_reservations_stylist_date_time ON reservations(stylist, date, time)',
+  'CREATE INDEX IF NOT EXISTS idx_designers_active ON hair_designers(is_active)',
+  'CREATE INDEX IF NOT EXISTS idx_designers_deleted ON hair_designers(deleted)',
+  'CREATE INDEX IF NOT EXISTS idx_designers_name ON hair_designers(name)'
 ];
 
 // Initialize database schema
 try {
   db.exec(createReservationsTable);
   db.exec(createAdministratorsTable);
+  db.exec(createDesignersTable);
   createIndexes.forEach(index => db.exec(index));
   console.log('Database initialized successfully');
 } catch (error) {

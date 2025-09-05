@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import AppointmentForm from './components/AppointmentForm';
 import ReservationTable from './components/ReservationTable';
+import DesignerManagement from './components/DesignerManagement';
 import { AppointmentData } from './components/AppointmentForm';
 
 interface ToastMessage {
@@ -11,6 +12,7 @@ interface ToastMessage {
 }
 
 function AppContent() {
+  const [activeTab, setActiveTab] = useState<'reservations' | 'designers'>('reservations');
   const [reservations, setReservations] = useState<AppointmentData[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingData, setEditingData] = useState<AppointmentData | null>(null);
@@ -174,11 +176,39 @@ function AppContent() {
 
   return (
     <div className="App-content space-y-8">
-      {/* Date Selector Calendar */}
-      <div className="glass-card p-6 max-w-2xl mx-auto animate-fadeInUp">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">
-          📅 날짜 선택
-        </h2>
+      {/* Tab Navigation */}
+      <div className="glass-card p-2 max-w-md mx-auto animate-fadeInUp">
+        <div className="flex rounded-xl bg-white/20 p-1">
+          <button
+            onClick={() => setActiveTab('reservations')}
+            className={`flex-1 py-3 px-4 text-center rounded-lg font-semibold transition-all duration-300 ${
+              activeTab === 'reservations'
+                ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
+                : 'text-gray-700 hover:text-gray-900 hover:bg-white/20'
+            }`}
+          >
+            📅 예약 관리
+          </button>
+          <button
+            onClick={() => setActiveTab('designers')}
+            className={`flex-1 py-3 px-4 text-center rounded-lg font-semibold transition-all duration-300 ${
+              activeTab === 'designers'
+                ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
+                : 'text-gray-700 hover:text-gray-900 hover:bg-white/20'
+            }`}
+          >
+            👨‍🎨 디자이너 관리
+          </button>
+        </div>
+      </div>
+
+      {activeTab === 'reservations' ? (
+        <>
+          {/* Date Selector Calendar */}
+          <div className="glass-card p-6 max-w-2xl mx-auto animate-fadeInUp">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">
+              📅 날짜 선택
+            </h2>
         <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
           <label htmlFor="date-select" className="text-gray-800 font-semibold">
             예약 날짜:
@@ -217,6 +247,11 @@ function AppContent() {
           selectedDate={selectedDate}
         />
       </div>
+        </>
+      ) : (
+        /* Designer Management Tab */
+        <DesignerManagement />
+      )}
 
       {/* Toast Messages */}
       <div className="fixed top-4 right-4 z-50 space-y-2">

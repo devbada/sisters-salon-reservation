@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">17.24% </span>
+                <span class="strong">20.83% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>10/58</span>
+                <span class='fraction'>10/48</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">26.15% </span>
+                <span class="strong">30.9% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>17/65</span>
+                <span class='fraction'>17/55</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">17.85% </span>
+                <span class="strong">21.73% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>10/56</span>
+                <span class='fraction'>10/46</span>
             </div>
         
             
@@ -345,17 +345,7 @@
 <a name='L280'></a><a href='#L280'>280</a>
 <a name='L281'></a><a href='#L281'>281</a>
 <a name='L282'></a><a href='#L282'>282</a>
-<a name='L283'></a><a href='#L283'>283</a>
-<a name='L284'></a><a href='#L284'>284</a>
-<a name='L285'></a><a href='#L285'>285</a>
-<a name='L286'></a><a href='#L286'>286</a>
-<a name='L287'></a><a href='#L287'>287</a>
-<a name='L288'></a><a href='#L288'>288</a>
-<a name='L289'></a><a href='#L289'>289</a>
-<a name='L290'></a><a href='#L290'>290</a>
-<a name='L291'></a><a href='#L291'>291</a>
-<a name='L292'></a><a href='#L292'>292</a>
-<a name='L293'></a><a href='#L293'>293</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L283'></a><a href='#L283'>283</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -388,8 +378,6 @@
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -401,8 +389,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -418,21 +404,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -494,6 +468,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -680,61 +660,45 @@ const AppointmentForm: React.FC&lt;AppointmentFormProps&gt; = ({ onSubmit, initi
   useEffect(() =&gt; {
     <span class="missing-if-branch" title="if path not taken" >I</span>if (initialData) {
 <span class="cstat-no" title="statement not covered" >      setFormData(initialData);</span>
-<span class="cstat-no" title="statement not covered" >      setErrors({});</span>
     }
   }, [initialData]);
 &nbsp;
-  // Validation functions
   const validateForm = <span class="fstat-no" title="function not covered" >()</span>: boolean =&gt; {
     const newErrors: Partial&lt;AppointmentData&gt; = <span class="cstat-no" title="statement not covered" >{};</span>
-    
+&nbsp;
     // Customer name validation
 <span class="cstat-no" title="statement not covered" >    if (!formData.customerName.trim()) {</span>
-<span class="cstat-no" title="statement not covered" >      newErrors.customerName = '고객 이름을 입력해주세요.';</span>
+<span class="cstat-no" title="statement not covered" >      newErrors.customerName = '고객 이름은 필수입니다';</span>
     } else <span class="cstat-no" title="statement not covered" >if (formData.customerName.trim().length &lt; 2) {</span>
-<span class="cstat-no" title="statement not covered" >      newErrors.customerName = '고객 이름은 2글자 이상이어야 합니다.';</span>
-    } else <span class="cstat-no" title="statement not covered" >if (formData.customerName.trim().length &gt; 50) {</span>
-<span class="cstat-no" title="statement not covered" >      newErrors.customerName = '고객 이름은 50글자 이하여야 합니다.';</span>
+<span class="cstat-no" title="statement not covered" >      newErrors.customerName = '고객 이름은 2글자 이상이어야 합니다';</span>
     }
 &nbsp;
     // Date validation
 <span class="cstat-no" title="statement not covered" >    if (!formData.date) {</span>
-<span class="cstat-no" title="statement not covered" >      newErrors.date = '예약 날짜를 선택해주세요.';</span>
+<span class="cstat-no" title="statement not covered" >      newErrors.date = '예약 날짜는 필수입니다';</span>
     } else {
       const selectedDate = <span class="cstat-no" title="statement not covered" >new Date(formData.date);</span>
       const today = <span class="cstat-no" title="statement not covered" >new Date();</span>
 <span class="cstat-no" title="statement not covered" >      today.setHours(0, 0, 0, 0);</span>
       
 <span class="cstat-no" title="statement not covered" >      if (selectedDate &lt; today) {</span>
-<span class="cstat-no" title="statement not covered" >        newErrors.date = '과거 날짜는 선택할 수 없습니다.';</span>
-      }
-      
-      // 3개월 이후 예약 제한
-      const maxDate = <span class="cstat-no" title="statement not covered" >new Date();</span>
-<span class="cstat-no" title="statement not covered" >      maxDate.setMonth(maxDate.getMonth() + 3);</span>
-<span class="cstat-no" title="statement not covered" >      if (selectedDate &gt; maxDate) {</span>
-<span class="cstat-no" title="statement not covered" >        newErrors.date = '3개월 이후 예약은 불가능합니다.';</span>
+<span class="cstat-no" title="statement not covered" >        newErrors.date = '과거 날짜는 선택할 수 없습니다';</span>
       }
     }
 &nbsp;
     // Time validation
 <span class="cstat-no" title="statement not covered" >    if (!formData.time) {</span>
-<span class="cstat-no" title="statement not covered" >      newErrors.time = '예약 시간을 선택해주세요.';</span>
-    } else {
-      const [hours, minutes] = <span class="cstat-no" title="statement not covered" >formData.time.split(':').map(Number);</span>
-<span class="cstat-no" title="statement not covered" >      if (hours &lt; 9 || hours &gt; 18 || (hours === 18 &amp;&amp; minutes &gt; 0)) {</span>
-<span class="cstat-no" title="statement not covered" >        newErrors.time = '영업시간은 09:00-18:00입니다.';</span>
-      }
+<span class="cstat-no" title="statement not covered" >      newErrors.time = '예약 시간은 필수입니다';</span>
     }
 &nbsp;
     // Stylist validation
 <span class="cstat-no" title="statement not covered" >    if (!formData.stylist) {</span>
-<span class="cstat-no" title="statement not covered" >      newErrors.stylist = '스타일리스트를 선택해주세요.';</span>
+<span class="cstat-no" title="statement not covered" >      newErrors.stylist = '스타일리스트를 선택해주세요';</span>
     }
 &nbsp;
     // Service type validation
 <span class="cstat-no" title="statement not covered" >    if (!formData.serviceType) {</span>
-<span class="cstat-no" title="statement not covered" >      newErrors.serviceType = '서비스 유형을 선택해주세요.';</span>
+<span class="cstat-no" title="statement not covered" >      newErrors.serviceType = '서비스 종류를 선택해주세요';</span>
     }
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    setErrors(newErrors);</span>
@@ -743,8 +707,8 @@ const AppointmentForm: React.FC&lt;AppointmentFormProps&gt; = ({ onSubmit, initi
 &nbsp;
   const handleChange = <span class="fstat-no" title="function not covered" >(e</span>: React.ChangeEvent&lt;HTMLInputElement | HTMLSelectElement&gt;) =&gt; {
     const { name, value } = <span class="cstat-no" title="statement not covered" >e.target;</span>
-<span class="cstat-no" title="statement not covered" >    setFormData(<span class="fstat-no" title="function not covered" >pr</span>evData =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
-      ...prevData,
+<span class="cstat-no" title="statement not covered" >    setFormData(<span class="fstat-no" title="function not covered" >pr</span>ev =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
+      ...prev,
       [name]: value,
     }));
     
@@ -786,14 +750,15 @@ const AppointmentForm: React.FC&lt;AppointmentFormProps&gt; = ({ onSubmit, initi
   };
 &nbsp;
   return (
-    &lt;div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg reservation-form backdrop-blur-sm bg-opacity-95"&gt;
-      &lt;h2 className="text-2xl font-bold text-gray-800 mb-6"&gt;
-        {initialData ? <span class="branch-0 cbranch-no" title="branch not covered" >'예약 수정' </span>: '예약하기'}
+    &lt;div className="max-w-md mx-auto glass-card p-8 reservation-form animate-fadeInUp"&gt;
+      &lt;h2 className="text-2xl font-bold text-gray-800 mb-6 text-center"&gt;
+        {initialData ? <span class="branch-0 cbranch-no" title="branch not covered" >'✏️ 예약 수정' </span>: '✨ 예약하기'}
       &lt;/h2&gt;
-      &lt;form onSubmit={handleSubmit}&gt;
-        &lt;div className="mb-4"&gt;
-          &lt;label htmlFor="customerName" className="block text-gray-700 text-sm font-bold mb-2"&gt;
-            고객 이름
+      &lt;form onSubmit={handleSubmit} className="space-y-6"&gt;
+        {/* Customer Name */}
+        &lt;div&gt;
+          &lt;label htmlFor="customerName" className="block text-gray-800 text-sm font-semibold mb-2"&gt;
+            👤 고객 이름
           &lt;/label&gt;
           &lt;input
             type="text"
@@ -801,21 +766,23 @@ const AppointmentForm: React.FC&lt;AppointmentFormProps&gt; = ({ onSubmit, initi
             name="customerName"
             value={formData.customerName}
             onChange={handleChange}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+            className={`w-full px-4 py-3 glass-input focus:outline-none focus:ring-2 transition-all duration-300 ${
               errors.customerName 
-                ? <span class="branch-0 cbranch-no" title="branch not covered" >'border-red-500 focus:ring-red-500' </span>
-                : 'border-gray-300 focus:ring-blue-500'
+                ? <span class="branch-0 cbranch-no" title="branch not covered" >'border-red-400 focus:ring-red-400' </span>
+                : 'focus:ring-purple-400 focus:border-transparent hover:bg-white/15'
             }`}
+            placeholder="고객님의 성함을 입력해주세요"
             required
           /&gt;
           {errors.customerName &amp;&amp; (
-<span class="branch-1 cbranch-no" title="branch not covered" >            &lt;p className="text-red-500 text-sm mt-1"&gt;{errors.customerName}&lt;/p&gt;</span>
+<span class="branch-1 cbranch-no" title="branch not covered" >            &lt;p className="text-red-600 text-sm mt-1 font-medium"&gt;⚠️ {errors.customerName}&lt;/p&gt;</span>
           )}
         &lt;/div&gt;
 &nbsp;
-        &lt;div className="mb-4"&gt;
-          &lt;label htmlFor="date" className="block text-gray-700 text-sm font-bold mb-2"&gt;
-            날짜
+        {/* Date */}
+        &lt;div&gt;
+          &lt;label htmlFor="date" className="block text-gray-800 text-sm font-semibold mb-2"&gt;
+            📅 날짜
           &lt;/label&gt;
           &lt;input
             type="date"
@@ -823,22 +790,22 @@ const AppointmentForm: React.FC&lt;AppointmentFormProps&gt; = ({ onSubmit, initi
             name="date"
             value={formData.date}
             onChange={handleChange}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+            className={`w-full px-4 py-3 glass-input focus:outline-none focus:ring-2 transition-all duration-300 ${
               errors.date 
-                ? <span class="branch-0 cbranch-no" title="branch not covered" >'border-red-500 focus:ring-red-500' </span>
-                : 'border-gray-300 focus:ring-blue-500'
+                ? <span class="branch-0 cbranch-no" title="branch not covered" >'border-red-400 focus:ring-red-400' </span>
+                : 'focus:ring-purple-400 focus:border-transparent hover:bg-white/15'
             }`}
-            min={new Date().toISOString().split('T')[0]}
             required
           /&gt;
           {errors.date &amp;&amp; (
-<span class="branch-1 cbranch-no" title="branch not covered" >            &lt;p className="text-red-500 text-sm mt-1"&gt;{errors.date}&lt;/p&gt;</span>
+<span class="branch-1 cbranch-no" title="branch not covered" >            &lt;p className="text-red-600 text-sm mt-1 font-medium"&gt;⚠️ {errors.date}&lt;/p&gt;</span>
           )}
         &lt;/div&gt;
 &nbsp;
-        &lt;div className="mb-4"&gt;
-          &lt;label htmlFor="time" className="block text-gray-700 text-sm font-bold mb-2"&gt;
-            시간
+        {/* Time */}
+        &lt;div&gt;
+          &lt;label htmlFor="time" className="block text-gray-800 text-sm font-semibold mb-2"&gt;
+            ⏰ 시간
           &lt;/label&gt;
           &lt;input
             type="time"
@@ -846,90 +813,94 @@ const AppointmentForm: React.FC&lt;AppointmentFormProps&gt; = ({ onSubmit, initi
             name="time"
             value={formData.time}
             onChange={handleChange}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-              errors.time 
-                ? <span class="branch-0 cbranch-no" title="branch not covered" >'border-red-500 focus:ring-red-500' </span>
-                : 'border-gray-300 focus:ring-blue-500'
-            }`}
             min="09:00"
             max="18:00"
+            step="1800"
+            className={`w-full px-4 py-3 glass-input focus:outline-none focus:ring-2 transition-all duration-300 ${
+              errors.time 
+                ? <span class="branch-0 cbranch-no" title="branch not covered" >'border-red-400 focus:ring-red-400' </span>
+                : 'focus:ring-purple-400 focus:border-transparent hover:bg-white/15'
+            }`}
             required
           /&gt;
           {errors.time &amp;&amp; (
-<span class="branch-1 cbranch-no" title="branch not covered" >            &lt;p className="text-red-500 text-sm mt-1"&gt;{errors.time}&lt;/p&gt;</span>
+<span class="branch-1 cbranch-no" title="branch not covered" >            &lt;p className="text-red-600 text-sm mt-1 font-medium"&gt;⚠️ {errors.time}&lt;/p&gt;</span>
           )}
         &lt;/div&gt;
 &nbsp;
-        &lt;div className="mb-4"&gt;
-          &lt;label htmlFor="stylist" className="block text-gray-700 text-sm font-bold mb-2"&gt;
-            스타일리스트
+        {/* Stylist */}
+        &lt;div&gt;
+          &lt;label htmlFor="stylist" className="block text-gray-800 text-sm font-semibold mb-2"&gt;
+            ✂️ 스타일리스트
           &lt;/label&gt;
           &lt;select
             id="stylist"
             name="stylist"
             value={formData.stylist}
             onChange={handleChange}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+            className={`w-full px-4 py-3 glass-input focus:outline-none focus:ring-2 transition-all duration-300 ${
               errors.stylist 
-                ? <span class="branch-0 cbranch-no" title="branch not covered" >'border-red-500 focus:ring-red-500' </span>
-                : 'border-gray-300 focus:ring-blue-500'
+                ? <span class="branch-0 cbranch-no" title="branch not covered" >'border-red-400 focus:ring-red-400' </span>
+                : 'focus:ring-purple-400 focus:border-transparent hover:bg-white/15'
             }`}
             required
           &gt;
-            &lt;option value=""&gt;스타일리스트 선택&lt;/option&gt;
-            &lt;option value="John"&gt;John&lt;/option&gt;
-            &lt;option value="Sarah"&gt;Sarah&lt;/option&gt;
-            &lt;option value="Michael"&gt;Michael&lt;/option&gt;
-            &lt;option value="Emma"&gt;Emma&lt;/option&gt;
+            &lt;option value="" className="bg-gray-800 text-white"&gt;스타일리스트 선택&lt;/option&gt;
+            &lt;option value="John" className="bg-gray-800 text-white"&gt;John&lt;/option&gt;
+            &lt;option value="Sarah" className="bg-gray-800 text-white"&gt;Sarah&lt;/option&gt;
+            &lt;option value="Michael" className="bg-gray-800 text-white"&gt;Michael&lt;/option&gt;
+            &lt;option value="Emma" className="bg-gray-800 text-white"&gt;Emma&lt;/option&gt;
           &lt;/select&gt;
           {errors.stylist &amp;&amp; (
-<span class="branch-1 cbranch-no" title="branch not covered" >            &lt;p className="text-red-500 text-sm mt-1"&gt;{errors.stylist}&lt;/p&gt;</span>
+<span class="branch-1 cbranch-no" title="branch not covered" >            &lt;p className="text-red-600 text-sm mt-1 font-medium"&gt;⚠️ {errors.stylist}&lt;/p&gt;</span>
           )}
         &lt;/div&gt;
 &nbsp;
-        &lt;div className="mb-6"&gt;
-          &lt;label htmlFor="serviceType" className="block text-gray-700 text-sm font-bold mb-2"&gt;
-            서비스 유형
+        {/* Service Type */}
+        &lt;div&gt;
+          &lt;label htmlFor="serviceType" className="block text-gray-800 text-sm font-semibold mb-2"&gt;
+            ✨ 서비스 유형
           &lt;/label&gt;
           &lt;select
             id="serviceType"
             name="serviceType"
             value={formData.serviceType}
             onChange={handleChange}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+            className={`w-full px-4 py-3 glass-input focus:outline-none focus:ring-2 transition-all duration-300 ${
               errors.serviceType 
-                ? <span class="branch-0 cbranch-no" title="branch not covered" >'border-red-500 focus:ring-red-500' </span>
-                : 'border-gray-300 focus:ring-blue-500'
+                ? <span class="branch-0 cbranch-no" title="branch not covered" >'border-red-400 focus:ring-red-400' </span>
+                : 'focus:ring-purple-400 focus:border-transparent hover:bg-white/15'
             }`}
             required
           &gt;
-            &lt;option value=""&gt;서비스 선택&lt;/option&gt;
-            &lt;option value="Haircut"&gt;헤어컷&lt;/option&gt;
-            &lt;option value="Coloring"&gt;염색&lt;/option&gt;
-            &lt;option value="Styling"&gt;스타일링&lt;/option&gt;
-            &lt;option value="Treatment"&gt;트리트먼트&lt;/option&gt;
+            &lt;option value="" className="bg-gray-800 text-white"&gt;서비스 선택&lt;/option&gt;
+            &lt;option value="Haircut" className="bg-gray-800 text-white"&gt;💇‍♀️ 헤어컷&lt;/option&gt;
+            &lt;option value="Coloring" className="bg-gray-800 text-white"&gt;🎨 염색&lt;/option&gt;
+            &lt;option value="Styling" className="bg-gray-800 text-white"&gt;💫 스타일링&lt;/option&gt;
+            &lt;option value="Treatment" className="bg-gray-800 text-white"&gt;🧴 트리트먼트&lt;/option&gt;
           &lt;/select&gt;
           {errors.serviceType &amp;&amp; (
-<span class="branch-1 cbranch-no" title="branch not covered" >            &lt;p className="text-red-500 text-sm mt-1"&gt;{errors.serviceType}&lt;/p&gt;</span>
+<span class="branch-1 cbranch-no" title="branch not covered" >            &lt;p className="text-red-600 text-sm mt-1 font-medium"&gt;⚠️ {errors.serviceType}&lt;/p&gt;</span>
           )}
         &lt;/div&gt;
 &nbsp;
+        {/* Buttons */}
         &lt;div className={initialData ? <span class="branch-0 cbranch-no" title="branch not covered" >"flex space-x-4" </span>: ""}&gt;
           &lt;button
             type="submit"
             disabled={isSubmitting}
-            className={`${initialData ? <span class="branch-0 cbranch-no" title="branch not covered" >'flex-1' </span>: 'w-full'} bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
+            className={`${initialData ? <span class="branch-0 cbranch-no" title="branch not covered" >'flex-1' </span>: 'w-full'} bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-purple-300`}
           &gt;
-            {isSubmitting ? <span class="branch-0 cbranch-no" title="branch not covered" >'처리 중...' </span>: (initialData ? <span class="branch-0 cbranch-no" title="branch not covered" >'예약 업데이트' </span>: '예약하기')}
+            {isSubmitting ? <span class="branch-0 cbranch-no" title="branch not covered" >'🔄 처리 중...' </span>: (initialData ? <span class="branch-0 cbranch-no" title="branch not covered" >'✏️ 예약 업데이트' </span>: '✨ 예약하기')}
           &lt;/button&gt;
 &nbsp;
           {initialData &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >onCancelEdit </span>&amp;&amp; (
 <span class="branch-2 cbranch-no" title="branch not covered" >            &lt;button</span>
               type="button"
               onClick={onCancelEdit}
-              className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md transition duration-300"
+              className="flex-1 glass-button text-gray-800 font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105"
             &gt;
-              취소
+              ❌ 취소
             &lt;/button&gt;
           )}
         &lt;/div&gt;
@@ -938,15 +909,14 @@ const AppointmentForm: React.FC&lt;AppointmentFormProps&gt; = ({ onSubmit, initi
   );
 };
 &nbsp;
-export default AppointmentForm;
-&nbsp;</pre></td></tr></table></pre>
+export default AppointmentForm;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-09-03T06:04:45.997Z
+                at 2025-09-05T02:45:00.756Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
