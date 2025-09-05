@@ -419,6 +419,7 @@ npm run build
 7. **문서 이동**: 완성된 기능의 .md 파일을 docs/todo/ → docs/completed/ 이동
 8. **결과 문서화**: 검사 결과와 해결된 이슈들을 문서에 기록
 8. **진행상황 업데이트**: docs/README.md와 docs/FEATURE_SUMMARY.md 업데이트
+9. **git commit**: 변경 내용 commit 후 push
 
 ---
 
