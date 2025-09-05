@@ -5,6 +5,7 @@ import ReservationTable from './components/ReservationTable';
 import CalendarComponent from './components/Calendar';
 import DesignerManagement from './components/DesignerManagement';
 import BusinessHoursManagement from './components/BusinessHours';
+import SearchFilter from './components/SearchFilter';
 import { AppointmentData } from './components/AppointmentForm';
 import './styles/Calendar.css';
 
@@ -17,7 +18,9 @@ interface ToastMessage {
 function AppContent() {
   const [activeTab, setActiveTab] = useState<'reservations' | 'designers' | 'business-hours'>('reservations');
   const [reservations, setReservations] = useState<AppointmentData[]>([]);
+  const [filteredReservations, setFilteredReservations] = useState<AppointmentData[]>([]);
   const [allReservations, setAllReservations] = useState<AppointmentData[]>([]);
+  const [activeDesigners, setActiveDesigners] = useState<string[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingData, setEditingData] = useState<AppointmentData | null>(null);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
@@ -54,6 +57,21 @@ function AppContent() {
     }
   }, []);
 
+  // Function to fetch active designers for filter options
+  const fetchActiveDesigners = useCallback(async () => {
+    try {
+      const response = await axios.get('http://localhost:4000/api/designers');
+      const activeDesignerNames = response.data
+        .filter((designer: any) => designer.is_active)
+        .map((designer: any) => designer.name);
+      setActiveDesigners(activeDesignerNames);
+    } catch (error: any) {
+      console.error('Error fetching designers:', error);
+      // Fallback to default stylists if API fails
+      setActiveDesigners(['John', 'Sarah', 'Michael', 'Emma']);
+    }
+  }, []);
+
   // Function to fetch reservations by date
   const fetchReservations = useCallback(async (date?: string) => {
     setIsLoading(true);
@@ -64,6 +82,7 @@ function AppContent() {
       
       const response = await axios.get(url);
       setReservations(response.data);
+      setFilteredReservations(response.data);
     } catch (error: any) {
       console.error('Error fetching reservations:', error);
       if (error.response?.status === 401) {
@@ -82,7 +101,8 @@ function AppContent() {
   useEffect(() => {
     fetchReservations(selectedDate);
     fetchAllReservations();
-  }, [fetchReservations, fetchAllReservations, selectedDate]);
+    fetchActiveDesigners();
+  }, [fetchReservations, fetchAllReservations, fetchActiveDesigners, selectedDate]);
 
   // Fetch reservations when selected date changes
   useEffect(() => {
@@ -265,19 +285,31 @@ function AppContent() {
             </div>
           </div>
 
+          {/* Search and Filter */}
+          <div className="max-w-7xl mx-auto">
+            <SearchFilter
+              reservations={reservations}
+              onFilteredResults={setFilteredReservations}
+              stylists={activeDesigners}
+            />
+          </div>
+
           {/* Bottom Section: Reservation List */}
           <div className="max-w-7xl mx-auto">
-            <div className="glass-card p-6">
-              <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                📋 예약 목록
-              </h2>
-              <ReservationTable
-                reservations={reservations}
-                onEdit={(reservation, index) => handleEdit(reservation, index)}
-                onDelete={handleDelete}
-                selectedDate={selectedDate}
-              />
-            </div>
+            <ReservationTable
+              reservations={filteredReservations}
+              onEdit={(reservation, index) => {
+                // Find the original index in the reservations array
+                const originalIndex = reservations.findIndex(r => r._id === reservation._id);
+                handleEdit(reservation, originalIndex);
+              }}
+              onDelete={(index) => {
+                // Find the original index in the reservations array
+                const originalIndex = reservations.findIndex(r => r._id === filteredReservations[index]._id);
+                handleDelete(originalIndex);
+              }}
+              selectedDate={selectedDate}
+            />
           </div>
         </>
       )}
