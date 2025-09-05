@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { 
+  fetchBusinessHoursData,
+  generateAvailableTimeSlots,
+  getBusinessHoursForDate,
+  isBusinessDay,
+  BusinessHour,
+  Holiday,
+  SpecialHour
+} from '../utils/businessHours';
 
 export interface AppointmentData {
   _id?: string;
@@ -21,12 +30,13 @@ interface AppointmentFormProps {
   onSubmit: (formData: AppointmentData) => void;
   initialData?: AppointmentData;
   onCancelEdit?: () => void;
+  selectedDate: string;
 }
 
-const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData, onCancelEdit }) => {
+const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData, onCancelEdit, selectedDate }) => {
   const [formData, setFormData] = useState<AppointmentData>({
     customerName: '',
-    date: '',
+    date: selectedDate || new Date().toISOString().split('T')[0],
     time: '',
     stylist: '',
     serviceType: '',
@@ -36,6 +46,13 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [designers, setDesigners] = useState<Designer[]>([]);
   const [loadingDesigners, setLoadingDesigners] = useState(true);
+  
+  // 영업시간 관련 상태
+  const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
+  const [holidays, setHolidays] = useState<Holiday[]>([]);
+  const [specialHours, setSpecialHours] = useState<SpecialHour[]>([]);
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
+  const [businessHoursLoading, setBusinessHoursLoading] = useState(true);
 
   // Fetch designers on component mount
   useEffect(() => {
@@ -56,12 +73,47 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
     fetchDesigners();
   }, []);
 
+  // Fetch business hours data on component mount
+  useEffect(() => {
+    const fetchBusinessHours = async () => {
+      try {
+        const { businessHours, holidays, specialHours } = await fetchBusinessHoursData();
+        setBusinessHours(businessHours);
+        setHolidays(holidays);
+        setSpecialHours(specialHours);
+      } catch (error) {
+        console.error('Error fetching business hours:', error);
+      } finally {
+        setBusinessHoursLoading(false);
+      }
+    };
+
+    fetchBusinessHours();
+  }, []);
+
+  // Update available time slots when date or business hours change
+  useEffect(() => {
+    if (businessHoursLoading || !selectedDate) return;
+
+    const businessHour = getBusinessHoursForDate(selectedDate, businessHours, holidays, specialHours);
+    const slots = generateAvailableTimeSlots(businessHour);
+    setAvailableTimeSlots(slots);
+  }, [selectedDate, businessHours, holidays, specialHours, businessHoursLoading]);
+
   // Update form data when initialData changes (for editing)
   useEffect(() => {
     if (initialData) {
       setFormData(initialData);
     }
   }, [initialData]);
+
+  // Update date when selectedDate changes (from calendar)
+  useEffect(() => {
+    setFormData(prevData => ({
+      ...prevData,
+      date: selectedDate || new Date().toISOString().split('T')[0]
+    }));
+  }, [selectedDate]);
 
   const validateForm = (): boolean => {
     const newErrors: Partial<AppointmentData> = {};
@@ -181,24 +233,24 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
           )}
         </div>
 
-        {/* Date */}
+        {/* Selected Date Display */}
         <div>
-          <label htmlFor="date" className="block text-gray-800 text-sm font-semibold mb-2">
-            📅 날짜
+          <label className="block text-gray-800 text-sm font-semibold mb-2">
+            📅 선택된 날짜
           </label>
-          <input
-            type="date"
-            id="date"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            className={`w-full px-4 py-3 glass-input focus:outline-none focus:ring-2 transition-all duration-300 ${
-              errors.date 
-                ? 'border-red-400 focus:ring-red-400' 
-                : 'focus:ring-purple-400 focus:border-transparent hover:bg-white/15'
-            }`}
-            required
-          />
+          <div className="w-full px-4 py-3 glass-card bg-white/10 border border-white/20 rounded-lg">
+            <p className="text-gray-800 font-medium">
+              {new Date(formData.date + 'T00:00:00').toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long'
+              })}
+            </p>
+            <p className="text-sm text-gray-600 mt-1">
+              왼쪽 캘린더에서 날짜를 선택해주세요
+            </p>
+          </div>
           {errors.date && (
             <p className="text-red-600 text-sm mt-1 font-medium">⚠️ {errors.date}</p>
           )}
@@ -207,24 +259,42 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
         {/* Time */}
         <div>
           <label htmlFor="time" className="block text-gray-800 text-sm font-semibold mb-2">
-            ⏰ 시간
+            ⏰ 예약 시간
           </label>
-          <input
-            type="time"
-            id="time"
-            name="time"
-            value={formData.time}
-            onChange={handleChange}
-            min="09:00"
-            max="18:00"
-            step="1800"
-            className={`w-full px-4 py-3 glass-input focus:outline-none focus:ring-2 transition-all duration-300 ${
-              errors.time 
-                ? 'border-red-400 focus:ring-red-400' 
-                : 'focus:ring-purple-400 focus:border-transparent hover:bg-white/15'
-            }`}
-            required
-          />
+          {businessHoursLoading ? (
+            <div className="w-full px-4 py-3 glass-input bg-gray-100 border border-gray-300 rounded-lg flex items-center">
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-400 border-t-transparent mr-2"></div>
+              <span className="text-gray-500">영업시간 로딩 중...</span>
+            </div>
+          ) : !isBusinessDay(selectedDate, businessHours, holidays, specialHours) ? (
+            <div className="w-full px-4 py-3 glass-input bg-red-50 border border-red-300 rounded-lg">
+              <p className="text-red-700 text-sm">🚫 선택하신 날짜는 휴무일입니다.</p>
+            </div>
+          ) : availableTimeSlots.length === 0 ? (
+            <div className="w-full px-4 py-3 glass-input bg-yellow-50 border border-yellow-300 rounded-lg">
+              <p className="text-yellow-700 text-sm">⚠️ 선택하신 날짜에 예약 가능한 시간이 없습니다.</p>
+            </div>
+          ) : (
+            <select
+              id="time"
+              name="time"
+              value={formData.time}
+              onChange={handleChange}
+              className={`w-full px-4 py-3 glass-input focus:outline-none focus:ring-2 transition-all duration-300 ${
+                errors.time 
+                  ? 'border-red-400 focus:ring-red-400' 
+                  : 'focus:ring-purple-400 focus:border-transparent hover:bg-white/15'
+              }`}
+              required
+            >
+              <option value="" className="bg-gray-800 text-white">시간을 선택하세요</option>
+              {availableTimeSlots.map((timeSlot) => (
+                <option key={timeSlot} value={timeSlot} className="bg-gray-800 text-white">
+                  {timeSlot}
+                </option>
+              ))}
+            </select>
+          )}
           {errors.time && (
             <p className="text-red-600 text-sm mt-1 font-medium">⚠️ {errors.time}</p>
           )}

@@ -24,8 +24,16 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
   // 예약이 있는 날짜들을 추출
   const reservationDates = new Set(
     reservations.map(reservation => {
+      // 예약 날짜가 이미 YYYY-MM-DD 형식이라면 그대로 사용
+      if (typeof reservation.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(reservation.date)) {
+        return reservation.date;
+      }
+      // 그렇지 않으면 Date 객체로 변환 후 로컬 날짜 추출
       const date = new Date(reservation.date);
-      return date.toISOString().split('T')[0];
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
     })
   );
 
@@ -33,7 +41,11 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
   const handleDateChange = (newValue: Value) => {
     setValue(newValue);
     if (newValue instanceof Date) {
-      const formattedDate = newValue.toISOString().split('T')[0];
+      // 시간대 문제를 방지하기 위해 로컬 날짜 사용
+      const year = newValue.getFullYear();
+      const month = String(newValue.getMonth() + 1).padStart(2, '0');
+      const day = String(newValue.getDate()).padStart(2, '0');
+      const formattedDate = `${year}-${month}-${day}`;
       onDateSelect(formattedDate);
     }
   };
