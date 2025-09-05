@@ -162,3 +162,4 @@ Desktop.ini
 build/
 dist/
 .claude/settings.local.json
+.mcp.json

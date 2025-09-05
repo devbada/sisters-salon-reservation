@@ -151,7 +151,7 @@ const ReservationTable: React.FC<ReservationTableProps> = ({
               >
                 <div className="flex justify-between items-start mb-4">
                   <h3 className="text-xl font-bold text-gray-800">
-                    👤 {reservation.customerName}
+                    <span className="mr-2">👤</span>{reservation.customerName}
                   </h3>
                   <div className="flex space-x-2">
                     <button
