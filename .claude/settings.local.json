@@ -20,7 +20,14 @@
       "Bash(git rm:*)",
       "Bash(npm run build:*)",
       "Bash(gh pr create:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(git push:*)",
+      "mcp__github__create_pull_request",
+      "Bash(convert:*)",
+      "Bash(magick:*)",
+      "mcp__playwright__browser_type",
+      "Bash(npx playwright:*)",
+      "Bash(npm rebuild:*)"
     ],
     "deny": [],
     "ask": []
