@@ -36,7 +36,7 @@ const DesignerForm: React.FC<DesignerFormProps> = ({
     is_active: true,
   });
 
-  const [errors, setErrors] = useState<Partial<DesignerData>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Update form data when initialData changes (for editing)
@@ -56,7 +56,7 @@ const DesignerForm: React.FC<DesignerFormProps> = ({
   }, [initialData]);
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<DesignerData> = {};
+    const newErrors: Record<string, string> = {};
 
     // Name validation
     if (!formData.name.trim()) {
@@ -115,11 +115,9 @@ const DesignerForm: React.FC<DesignerFormProps> = ({
     }));
     
     // Clear error for this field when user starts typing
-    if (errors[name as keyof DesignerData]) {
-      setErrors(prevErrors => ({
-        ...prevErrors,
-        [name]: undefined,
-      }));
+    if (errors[name]) {
+      const { [name]: _, ...rest } = errors;
+      setErrors(rest);
     }
   };
 
@@ -134,14 +132,14 @@ const DesignerForm: React.FC<DesignerFormProps> = ({
     
     try {
       // Clean up form data - remove empty strings
-      const cleanedData = {
+      const cleanedData: DesignerData = {
         ...formData,
         name: formData.name.trim(),
-        specialization: formData.specialization?.trim() || null,
-        phone: formData.phone?.trim() || null,
-        email: formData.email?.trim() || null,
-        profile_image: formData.profile_image?.trim() || null,
-        bio: formData.bio?.trim() || null,
+        specialization: formData.specialization?.trim() || undefined,
+        phone: formData.phone?.trim() || undefined,
+        email: formData.email?.trim() || undefined,
+        profile_image: formData.profile_image?.trim() || undefined,
+        bio: formData.bio?.trim() || undefined,
       };
       
       await onSubmit(cleanedData);
@@ -183,8 +181,8 @@ const DesignerForm: React.FC<DesignerFormProps> = ({
         bio: '',
         is_active: true,
       });
+      setErrors({});
     }
-    setErrors({});
   };
 
   return (
@@ -227,7 +225,7 @@ const DesignerForm: React.FC<DesignerFormProps> = ({
             type="text"
             id="specialization"
             name="specialization"
-            value={formData.specialization}
+            value={formData.specialization || ''}
             onChange={handleChange}
             className="w-full px-4 py-3 glass-input focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent hover:bg-white/15 transition-all duration-300"
             placeholder="예: 헤어컷, 염색, 펌 전문"
@@ -244,7 +242,7 @@ const DesignerForm: React.FC<DesignerFormProps> = ({
               type="text"
               id="phone"
               name="phone"
-              value={formData.phone}
+              value={formData.phone || ''}
               onChange={handleChange}
               className={`w-full px-4 py-3 glass-input focus:outline-none focus:ring-2 transition-all duration-300 ${
                 errors.phone 
@@ -293,7 +291,7 @@ const DesignerForm: React.FC<DesignerFormProps> = ({
             type="email"
             id="email"
             name="email"
-            value={formData.email}
+            value={formData.email || ''}
             onChange={handleChange}
             className={`w-full px-4 py-3 glass-input focus:outline-none focus:ring-2 transition-all duration-300 ${
               errors.email 
@@ -315,7 +313,7 @@ const DesignerForm: React.FC<DesignerFormProps> = ({
           <textarea
             id="bio"
             name="bio"
-            value={formData.bio}
+            value={formData.bio || ''}
             onChange={handleChange}
             rows={3}
             className={`w-full px-4 py-3 glass-input focus:outline-none focus:ring-2 transition-all duration-300 resize-none ${

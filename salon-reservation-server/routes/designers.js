@@ -174,7 +174,7 @@ router.post('/', authenticateToken, function(req, res) {
       experience_years, 
       profile_image, 
       bio, 
-      is_active,
+      is_active ? 1 : 0,
       created_at
     );
     
@@ -240,7 +240,7 @@ router.put('/:id', authenticateToken, function(req, res) {
       experience_years, 
       profile_image, 
       bio, 
-      is_active,
+      is_active ? 1 : 0,
       updated_at, 
       id
     );

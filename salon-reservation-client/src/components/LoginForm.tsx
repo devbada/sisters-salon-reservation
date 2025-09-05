@@ -61,7 +61,7 @@ const LoginForm: React.FC = () => {
             </svg>
           </div>
           <h2 className="text-center text-3xl font-bold text-white bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
-            ✨ 관리자 로그인
+            ✨ 로그인
           </h2>
           <p className="mt-3 text-center text-lg text-white/80 font-medium">
             🌸 헤어 살롱 예약 시스템
@@ -143,12 +143,6 @@ const LoginForm: React.FC = () => {
                 </>
               )}
             </button>
-          </div>
-          
-          <div className="text-center mt-6">
-            <p className="text-white/60 text-sm">
-              💎 Powered by Liquid Glass Design
-            </p>
           </div>
         </form>
       </div>
