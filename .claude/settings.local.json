@@ -27,7 +27,8 @@
       "Bash(magick:*)",
       "mcp__playwright__browser_type",
       "Bash(npx playwright:*)",
-      "Bash(npm rebuild:*)"
+      "Bash(npm rebuild:*)",
+      "Bash(mv:*)"
     ],
     "deny": [],
     "ask": []
