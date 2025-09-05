@@ -14,7 +14,8 @@ interface BusinessHour {
 interface Holiday {
   id?: number;
   date: string;
-  name: string;
+  reason?: string; // API에서는 reason 필드
+  name?: string;   // UI에서는 name으로 표시 (호환성)
   is_recurring: boolean;
 }
 
@@ -48,11 +49,19 @@ const BusinessHoursManagement: React.FC = () => {
       const token = localStorage.getItem('token');
       const headers = { Authorization: `Bearer ${token}` };
 
-      const [hoursRes, holidaysRes, specialRes] = await Promise.all([
+      const [hoursRes, holidaysRes] = await Promise.all([
         axios.get('http://localhost:4000/api/business-hours', { headers }),
-        axios.get('http://localhost:4000/api/business-hours/holidays', { headers }),
-        axios.get('http://localhost:4000/api/business-hours/special', { headers })
+        axios.get('http://localhost:4000/api/business-hours/holidays', { headers })
       ]);
+      
+      // Special hours 엔드포인트는 별도 처리 (존재하지 않을 수 있음)
+      let specialRes = { data: [] };
+      try {
+        specialRes = await axios.get('http://localhost:4000/api/business-hours/special', { headers });
+      } catch (error) {
+        // Special hours 엔드포인트가 없으면 빈 배열로 처리
+        console.log('Special hours endpoint not available');
+      }
 
       setBusinessHours(hoursRes.data);
       setHolidays(holidaysRes.data);
@@ -67,40 +76,61 @@ const BusinessHoursManagement: React.FC = () => {
 
   const updateBusinessHour = async (dayOfWeek: number, updates: Partial<BusinessHour>) => {
     try {
+      // 상태 먼저 업데이트 (optimistic update)
+      const updatedHours = businessHours.map(hour => 
+        hour.day_of_week === dayOfWeek 
+          ? { ...hour, ...updates }
+          : hour
+      );
+      
+      setBusinessHours(updatedHours);
+      
+      // 전체 영업시간을 서버에 업데이트
       const token = localStorage.getItem('token');
+      const businessHoursForAPI = updatedHours.map(hour => ({
+        openTime: hour.open_time,
+        closeTime: hour.close_time,
+        isClosed: hour.is_closed,
+        breakStart: hour.break_start,
+        breakEnd: hour.break_end
+      }));
+      
       await axios.put(
-        `http://localhost:4000/api/business-hours/${dayOfWeek}`,
-        updates,
+        'http://localhost:4000/api/business-hours',
+        { businessHours: businessHoursForAPI },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
-      // 상태 업데이트
-      setBusinessHours(prev => 
-        prev.map(hour => 
-          hour.day_of_week === dayOfWeek 
-            ? { ...hour, ...updates }
-            : hour
-        )
-      );
     } catch (err) {
       console.error('Failed to update business hour:', err);
       setError('영업시간 업데이트에 실패했습니다.');
+      // 실패 시 원래 상태로 되돌리기
+      fetchAllData();
     }
   };
 
   const addHoliday = async (holiday: Omit<Holiday, 'id'>) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(
+      await axios.post(
         'http://localhost:4000/api/business-hours/holidays',
-        holiday,
+        {
+          date: holiday.date,
+          reason: holiday.name, // name을 reason으로 매핑
+          isRecurring: holiday.is_recurring
+        },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
-      setHolidays(prev => [...prev, response.data]);
+      // 새로 추가된 휴일을 목록에 추가
+      fetchAllData(); // 전체 데이터 새로고침
     } catch (err) {
       console.error('Failed to add holiday:', err);
-      setError('휴일 추가에 실패했습니다.');
+      if (err.response?.status === 409) {
+        setError('해당 날짜에 이미 휴일이 등록되어 있습니다.');
+      } else {
+        setError('휴일 추가에 실패했습니다.');
+      }
     }
   };
 
@@ -351,7 +381,7 @@ const HolidayManager: React.FC<HolidayManagerProps> = ({ holidays, onAddHoliday,
               className="flex items-center justify-between p-3 glass-input rounded-lg"
             >
               <div>
-                <span className="font-medium text-gray-800">{holiday.name}</span>
+                <span className="font-medium text-gray-800">{holiday.reason || holiday.name || '휴일'}</span>
                 <span className="text-gray-500 ml-2">{holiday.date}</span>
                 {holiday.is_recurring && (
                   <span className="text-blue-600 text-xs ml-2">🔄 매년반복</span>
@@ -393,13 +423,12 @@ const SpecialHoursManager: React.FC<SpecialHoursManagerProps> = ({ specialHours,
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        'http://localhost:4000/api/business-hours/special',
+        'http://localhost:4000/api/business-hours/special-hours',
         {
-          ...newSpecialHour,
-          open_time: newSpecialHour.open_time || null,
-          close_time: newSpecialHour.close_time || null,
-          break_start: newSpecialHour.break_start || null,
-          break_end: newSpecialHour.break_end || null
+          date: newSpecialHour.date,
+          openTime: newSpecialHour.open_time || null,
+          closeTime: newSpecialHour.close_time || null,
+          reason: '특별 영업시간'
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
