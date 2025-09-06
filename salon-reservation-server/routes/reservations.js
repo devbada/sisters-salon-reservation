@@ -2,10 +2,11 @@ var express = require('express');
 var router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 const db = require('../db/database');
-const authenticateToken = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
 
 // Prepared statements for better performance
 const getAllReservations = db.prepare('SELECT * FROM reservations ORDER BY date, time');
+const getReservationsByDate = db.prepare('SELECT * FROM reservations WHERE date = ? ORDER BY time');
 const getReservationById = db.prepare('SELECT * FROM reservations WHERE _id = ?');
 const insertReservation = db.prepare(`
   INSERT INTO reservations (_id, customerName, date, time, stylist, serviceType, createdAt)
@@ -91,10 +92,20 @@ function validateReservationData(data) {
   return errors;
 }
 
-// GET all reservations
+// GET all reservations or filter by date
 router.get('/', authenticateToken, function(req, res) {
   try {
-    const reservations = getAllReservations.all();
+    const { date } = req.query;
+    
+    let reservations;
+    if (date) {
+      // Get reservations for specific date
+      reservations = getReservationsByDate.all(date);
+    } else {
+      // Get all reservations
+      reservations = getAllReservations.all();
+    }
+    
     res.json(reservations);
   } catch (error) {
     console.error('Database error:', error);
@@ -103,7 +114,7 @@ router.get('/', authenticateToken, function(req, res) {
 });
 
 // GET a specific reservation by ID
-router.get('/:id', function(req, res) {
+router.get('/:id', authenticateToken, function(req, res) {
   try {
     const id = req.params.id;
     const reservation = getReservationById.get(id);
