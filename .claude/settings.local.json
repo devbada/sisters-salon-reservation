@@ -28,6 +28,11 @@
       "mcp__playwright__browser_type",
       "Bash(npx playwright:*)",
       "Bash(npm rebuild:*)",
+      "Bash(mv:*)",
+      "mcp__playwright__browser_wait_for",
+      "Bash(sqlite3:*)",
+      "Bash(node:*)",
+      "Bash(rm:*)"
       "Bash(sqlite3:*)",
       "Bash(/bashes)"
     ],
