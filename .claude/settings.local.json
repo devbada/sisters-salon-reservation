@@ -27,7 +27,9 @@
       "Bash(magick:*)",
       "mcp__playwright__browser_type",
       "Bash(npx playwright:*)",
-      "Bash(npm rebuild:*)"
+      "Bash(npm rebuild:*)",
+      "Bash(sqlite3:*)",
+      "Bash(/bashes)"
     ],
     "deny": [],
     "ask": []
