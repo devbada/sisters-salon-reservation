@@ -20,6 +20,7 @@ const addHoliday = db.prepare(`
 const deleteHoliday = db.prepare('DELETE FROM holidays WHERE id = ?');
 
 const getSpecialHours = db.prepare('SELECT * FROM special_hours WHERE date = ?');
+const getAllSpecialHours = db.prepare('SELECT * FROM special_hours ORDER BY date');
 const addSpecialHours = db.prepare(`
   INSERT OR REPLACE INTO special_hours (date, open_time, close_time, reason) 
   VALUES (?, ?, ?, ?)
@@ -27,7 +28,7 @@ const addSpecialHours = db.prepare(`
 const deleteSpecialHours = db.prepare('DELETE FROM special_hours WHERE id = ?');
 
 // GET /api/business-hours - 전체 영업 시간 조회
-router.get('/', authenticateToken, (req, res) => {
+router.get('/', (req, res) => {
   try {
     const businessHours = getBusinessHours.all();
     
@@ -105,7 +106,7 @@ router.put('/', authenticateToken, requireAdmin, (req, res) => {
 });
 
 // GET /api/business-hours/holidays - 휴무일 목록 조회
-router.get('/holidays', authenticateToken, (req, res) => {
+router.get('/holidays', (req, res) => {
   try {
     const holidays = getHolidays.all();
     res.json(holidays);
@@ -174,7 +175,7 @@ router.delete('/holidays/:id', authenticateToken, requireAdmin, (req, res) => {
 });
 
 // GET /api/business-hours/available-slots/:date - 특정 날짜의 예약 가능 시간
-router.get('/available-slots/:date', authenticateToken, (req, res) => {
+router.get('/available-slots/:date', (req, res) => {
   try {
     const { date } = req.params;
     
@@ -296,6 +297,17 @@ function minutesToTime(minutes) {
   const mins = minutes % 60;
   return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
 }
+
+// GET /api/business-hours/special - 특별 영업시간 목록 조회
+router.get('/special', (req, res) => {
+  try {
+    const specialHours = getAllSpecialHours.all();
+    res.json(specialHours);
+  } catch (error) {
+    console.error('Special hours fetch error:', error);
+    res.status(500).json({ error: 'Database error occurred' });
+  }
+});
 
 // POST /api/business-hours/special-hours - 특별 영업일 추가 (관리자만)
 router.post('/special-hours', authenticateToken, requireAdmin, (req, res) => {
