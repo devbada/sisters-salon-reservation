@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
-  LineChart,
-  Line,
   AreaChart,
   Area,
   BarChart,
@@ -14,7 +12,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer
 } from 'recharts';
 import { format, parseISO } from 'date-fns';
@@ -45,12 +42,7 @@ interface DailyStats {
   byHour: Record<string, number>;
 }
 
-interface HeatmapData {
-  dayOfWeek: string;
-  dayIndex: string;
-  hour: string;
-  count: number;
-}
+// Removed unused HeatmapData interface
 
 const StatisticsDashboard: React.FC = () => {
   const [period, setPeriod] = useState<'7days' | '30days' | '90days'>('30days');
@@ -60,7 +52,7 @@ const StatisticsDashboard: React.FC = () => {
   // State for different data types
   const [summaryStats, setSummaryStats] = useState<SummaryStats | null>(null);
   const [dailyStats, setDailyStats] = useState<DailyStats[]>([]);
-  const [heatmapData, setHeatmapData] = useState<HeatmapData[]>([]);
+  // Removed unused heatmapData state
 
   const periodLabels = {
     '7days': '최근 7일',
@@ -84,15 +76,13 @@ const StatisticsDashboard: React.FC = () => {
       };
 
       // Fetch all required data in parallel
-      const [summaryResponse, dailyResponse, heatmapResponse] = await Promise.all([
+      const [summaryResponse, dailyResponse] = await Promise.all([
         axios.get(`http://localhost:4000/api/statistics/summary?period=${period}`, config),
-        axios.get(`http://localhost:4000/api/statistics/daily?period=${period}`, config),
-        axios.get(`http://localhost:4000/api/statistics/heatmap?period=${period}`, config)
+        axios.get(`http://localhost:4000/api/statistics/daily?period=${period}`, config)
       ]);
 
       setSummaryStats(summaryResponse.data);
       setDailyStats(dailyResponse.data.data || []);
-      setHeatmapData(heatmapResponse.data.data || []);
     } catch (err: any) {
       setError('통계 데이터를 가져오는데 실패했습니다.');
       console.error('Error fetching statistics:', err);
@@ -103,6 +93,7 @@ const StatisticsDashboard: React.FC = () => {
 
   useEffect(() => {
     fetchStatistics();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period]);
 
   // Process data for charts
