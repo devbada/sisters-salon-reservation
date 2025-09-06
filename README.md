@@ -359,37 +359,54 @@ npm test
 
 ## 🔧 향후 개선 계획
 
-### 🔐 보안 및 인증 개선
-- [ ] 환경 변수 기반 JWT 시크릿 관리
-- [ ] 토큰 만료 시간 조정 및 리프레시 토큰
-- [ ] 다중 관리자 계정 지원
-- [ ] 역할 기반 접근 제어 (RBAC)
-- [ ] API 요청 제한 (Rate Limiting)
+> 📁 **체계적 TODO 관리 시스템**: `docs/todo/` 디렉토리에서 우선순위별 개발 계획을 관리합니다.
 
-### 📊 기능 확장
-- [ ] 이메일 알림 시스템 (예약 확인/알림)
-- [ ] SMS 알림 연동
-- [ ] 예약 상태 관리 (대기, 확정, 완료, 취소)
-- [ ] 고객 관리 시스템 (고객 히스토리)
-- [ ] 서비스 가격 관리 및 결제 시스템
-- [ ] 리뷰 및 평점 시스템
+### 🚨 Critical Priority (즉시 해결 필요)
+1. **🔐 JWT 보안 강화** [`docs/todo/security-jwt-environment.md`]
+   - JWT 시크릿 하드코딩 제거 및 환경 변수 기반 관리
+   - ⏱️ 예상 시간: 2-4시간
 
-### 🎨 사용자 경험 개선
-- [x] 다크 모드 지원
-- [x] 키보드 접근성 개선 (Tab 네비게이션, 키보드 단축키)
-- [ ] 다국어 지원 (i18n)
-- [ ] PWA 변환 (오프라인 지원)
-- [ ] 모바일 앱 개발 (React Native)
+2. **🛡️ API Rate Limiting** [`docs/todo/security-rate-limiting.md`] 
+   - 무차별 대입 공격 방지 및 로그인 시도 제한
+   - ⏱️ 예상 시간: 1-2시간
 
-### ⚡ 성능 및 기술적 개선
-- [ ] 데이터베이스 최적화 (인덱싱, 쿼리 최적화)
-- [ ] Redis 캐싱 시스템 도입
-- [ ] API 페이지네이션
-- [ ] 이미지 최적화 및 CDN 연동
-- [ ] 자동화된 테스트 수트 (Jest, Cypress)
-- [ ] CI/CD 파이프라인 구축
-- [ ] Docker 컨테이너화
-- [ ] 모니터링 시스템 (로그, 메트릭스)
+### 🔥 High Priority (핵심 비즈니스)
+3. **🧪 자동화된 테스트 수트** [`docs/todo/testing-automation.md`]
+   - 85% 코드 커버리지 달성 목표
+   - ⏱️ 예상 시간: 16-20시간
+
+4. **📋 예약 상태 관리 시스템** [`docs/todo/feature-reservation-status.md`]
+   - 예약 상태 관리 (대기/확정/완료/취소) 및 히스토리 추적
+   - ⏱️ 예상 시간: 8-12시간
+
+5. **👥 고객 관리 시스템** [`docs/todo/customer-management.md`]
+   - 고객 정보 체계 및 히스토리 관리
+   - ⏱️ 예상 시간: 10-14시간
+
+### 📈 Medium Priority (사용성 개선)
+6. **🌐 다국어 지원** [`docs/todo/feature-internationalization.md`]
+   - 한/영/일/중 언어 지원 및 현지화
+   - ⏱️ 예상 시간: 12-16시간
+
+### ✅ 완료된 기능
+- **🌙 다크 모드 지원** [`docs/todo/dark-mode.md`] ✅
+- **📊 통계 대시보드** [`docs/todo/statistics-dashboard.md`] ✅
+- **⌨️ 키보드 접근성 개선** (Tab 네비게이션, 키보드 단축키) ✅
+
+### 📋 체계적 개발 워크플로우
+모든 개발 작업은 다음 단계를 따라 진행합니다:
+
+1. **우선순위 확인** → `docs/todo/README.md`에서 Critical/High 우선순위 작업 선택
+2. **요구사항 파악** → 해당 `.md` 파일의 상세 구현 계획 검토
+3. **Git 브랜치 생성** → `git checkout -b feature/[기능명]` (base: main)
+4. **체계적 구현** → 현재 프로젝트 기술 스택과 코딩 컨벤션 준수
+5. **품질 검증** → MCP Playwright를 통한 UI, 기능, 접근성 검사
+6. **문제 해결** → 발견된 모든 이슈 해결 후 재검증
+7. **문서화** → 완성된 기능의 `.md` 파일을 `docs/completed/`로 이동
+8. **상태 업데이트** → 관련 문서들 최신화
+9. **변경사항 커밋** → Git commit 및 push
+
+> 💡 **개발 가이드**: 상세한 개발 가이드라인은 [`docs/development-guide.md`](docs/development-guide.md)를 참조하세요.
 
 ## 🤝 기여하기
 
@@ -402,6 +419,17 @@ npm test
 ## 📄 라이선스
 
 이 프로젝트는 학습 목적으로 제작되었습니다.
+
+## 📚 문서 구조
+
+- **[`README.md`](README.md)** - 프로젝트 개요 및 시작 가이드
+- **[`docs/README.md`](docs/README.md)** - 개발 가이드라인 및 아키텍처
+- **[`docs/FEATURE_SUMMARY.md`](docs/FEATURE_SUMMARY.md)** - 전체 기능 현황 요약
+- **[`docs/development-guide.md`](docs/development-guide.md)** - 상세 개발 가이드
+- **[`docs/todo/`](docs/todo/)** - 체계적 TODO 관리 시스템
+  - **[`docs/todo/README.md`](docs/todo/README.md)** - TODO 관리 워크플로우 가이드
+  - 개별 기능별 상세 구현 계획 (`.md` 파일들)
+- **[`docs/completed/`](docs/completed/)** - 완성된 기능 문서 보관
 
 ## 📞 연락처
 
@@ -434,4 +462,6 @@ npm test
 - 🧪 테스트: **40%** 진행 중
 - 📚 문서화: **95%** 완성
 
-이 프로젝트는 **프로덕션 준비 상태**에 근접하며, 실제 헤어살롱에서 사용 가능한 수준의 기능을 제공합니다. 추가 보안 검토 후 실제 운영환경에 배포할 수 있습니다.
+이 프로젝트는 **프로덕션 준비 상태**에 근접하며, 실제 헤어살롱에서 사용 가능한 수준의 기능을 제공합니다. 
+
+**다음 단계**: `docs/todo/README.md`의 Critical Priority 작업들을 완료한 후 실제 운영환경에 배포할 수 있습니다. 체계적 TODO 시스템을 통해 효율적이고 안전한 개발 진행이 가능합니다.
