@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import ThemeToggle from './ThemeToggle';
 
 interface AdminRegisterProps {
   onSuccess: () => void;
@@ -82,20 +83,24 @@ const AdminRegister: React.FC<AdminRegisterProps> = ({ onSuccess }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-lg">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 relative">
+      {/* Theme Toggle */}
+      <div className="absolute top-4 right-4 z-20">
+        <ThemeToggle />
+      </div>
+      <div className="max-w-md w-full space-y-8 p-8 glass-card">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-dark-text">
             관리자 등록
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-gray-600 dark:text-dark-text-muted">
             최초 관리자 계정을 생성하세요
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-dark-text">
                 사용자명 *
               </label>
               <input
@@ -103,9 +108,9 @@ const AdminRegister: React.FC<AdminRegisterProps> = ({ onSuccess }) => {
                 name="username"
                 type="text"
                 required
-                className={`mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border ${
-                  errors.username ? 'border-red-300' : 'border-gray-300'
-                } placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:z-10 sm:text-sm`}
+                className={`mt-1 glass-input appearance-none rounded-md relative block w-full px-3 py-2 border ${
+                  errors.username ? 'border-red-300 dark:border-red-400' : 'border-gray-300 dark:border-white/20'
+                } placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-dark-text focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:z-10 sm:text-sm`}
                 placeholder="사용자명을 입력하세요 (3자 이상)"
                 value={formData.username}
                 onChange={handleChange}
@@ -117,7 +122,7 @@ const AdminRegister: React.FC<AdminRegisterProps> = ({ onSuccess }) => {
             </div>
             
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-dark-text">
                 비밀번호 *
               </label>
               <input
@@ -125,9 +130,9 @@ const AdminRegister: React.FC<AdminRegisterProps> = ({ onSuccess }) => {
                 name="password"
                 type="password"
                 required
-                className={`mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border ${
-                  errors.password ? 'border-red-300' : 'border-gray-300'
-                } placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:z-10 sm:text-sm`}
+                className={`mt-1 glass-input appearance-none rounded-md relative block w-full px-3 py-2 border ${
+                  errors.password ? 'border-red-300 dark:border-red-400' : 'border-gray-300 dark:border-white/20'
+                } placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-dark-text focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:z-10 sm:text-sm`}
                 placeholder="비밀번호를 입력하세요 (8자 이상, 대소문자+숫자+특수문자)"
                 value={formData.password}
                 onChange={handleChange}
@@ -139,7 +144,7 @@ const AdminRegister: React.FC<AdminRegisterProps> = ({ onSuccess }) => {
             </div>
             
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-dark-text">
                 비밀번호 확인 *
               </label>
               <input
@@ -147,9 +152,9 @@ const AdminRegister: React.FC<AdminRegisterProps> = ({ onSuccess }) => {
                 name="confirmPassword"
                 type="password"
                 required
-                className={`mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border ${
-                  errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
-                } placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:z-10 sm:text-sm`}
+                className={`mt-1 glass-input appearance-none rounded-md relative block w-full px-3 py-2 border ${
+                  errors.confirmPassword ? 'border-red-300 dark:border-red-400' : 'border-gray-300 dark:border-white/20'
+                } placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-dark-text focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:z-10 sm:text-sm`}
                 placeholder="비밀번호를 다시 입력하세요"
                 value={formData.confirmPassword}
                 onChange={handleChange}
@@ -162,10 +167,10 @@ const AdminRegister: React.FC<AdminRegisterProps> = ({ onSuccess }) => {
           </div>
 
           {errors.general && (
-            <div className="rounded-md bg-red-50 p-4">
+            <div className="glass-error p-4">
               <div className="flex">
                 <div className="ml-3">
-                  <h3 className="text-sm font-medium text-red-800">
+                  <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
                     {errors.general}
                   </h3>
                 </div>
@@ -177,7 +182,7 @@ const AdminRegister: React.FC<AdminRegisterProps> = ({ onSuccess }) => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:bg-emerald-400 disabled:cursor-not-allowed"
+              className="glass-button group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:bg-emerald-400 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>
@@ -194,13 +199,13 @@ const AdminRegister: React.FC<AdminRegisterProps> = ({ onSuccess }) => {
           </div>
         </form>
         
-        <div className="mt-4 p-4 bg-blue-50 rounded-md">
+        <div className="mt-4 p-4 glass-card bg-blue-50/50 dark:bg-blue-900/20 rounded-md">
           <div className="flex">
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-blue-800">
+              <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200">
                 주의사항
               </h3>
-              <div className="mt-2 text-sm text-blue-700">
+              <div className="mt-2 text-sm text-blue-700 dark:text-blue-300">
                 <ul className="list-disc space-y-1 ml-5">
                   <li>이 계정으로 모든 예약을 관리할 수 있습니다.</li>
                   <li>사용자명과 비밀번호를 안전하게 보관하세요.</li>

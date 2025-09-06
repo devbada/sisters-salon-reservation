@@ -207,7 +207,7 @@ function AppContent() {
         <div className="text-center py-20">
           <div className="glass-card p-8 max-w-sm mx-auto">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-white/30 border-t-white mb-4"></div>
-            <p className="text-gray-700 text-lg font-medium">🔄 예약 목록을 불러오는 중...</p>
+            <p className="text-gray-700 dark:text-dark-text text-lg font-medium">🔄 예약 목록을 불러오는 중...</p>
           </div>
         </div>
       </div>
@@ -225,7 +225,7 @@ function AppContent() {
               className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
                 activeTab === 'reservations'
                   ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                  : 'text-gray-700 hover:bg-white/20'
+                  : 'text-gray-700 dark:text-dark-text hover:bg-white/20 dark:hover:bg-white/10'
               }`}
             >
               📅 예약 관리
@@ -235,7 +235,7 @@ function AppContent() {
               className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
                 activeTab === 'designers'
                   ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                  : 'text-gray-700 hover:bg-white/20'
+                  : 'text-gray-700 dark:text-dark-text hover:bg-white/20 dark:hover:bg-white/10'
               }`}
             >
               👨‍🎨 디자이너 관리
@@ -245,7 +245,7 @@ function AppContent() {
               className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
                 activeTab === 'business-hours'
                   ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                  : 'text-gray-700 hover:bg-white/20'
+                  : 'text-gray-700 dark:text-dark-text hover:bg-white/20 dark:hover:bg-white/10'
               }`}
             >
               🕐 영업시간 관리
@@ -255,7 +255,7 @@ function AppContent() {
               className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
                 activeTab === 'statistics'
                   ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                  : 'text-gray-700 hover:bg-white/20'
+                  : 'text-gray-700 dark:text-dark-text hover:bg-white/20 dark:hover:bg-white/10'
               }`}
             >
               📊 통계 대시보드
@@ -271,7 +271,7 @@ function AppContent() {
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 max-w-7xl mx-auto">
             {/* Calendar Selection */}
             <div className="glass-card p-6">
-              <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+              <h2 className="text-xl font-bold text-gray-800 dark:text-dark-text mb-4 flex items-center">
                 📅 캘린더 선택
               </h2>
               <CalendarComponent
@@ -284,7 +284,7 @@ function AppContent() {
 
             {/* Customer Registration */}
             <div className="glass-card p-6">
-              <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+              <h2 className="text-xl font-bold text-gray-800 dark:text-dark-text mb-4 flex items-center">
                 ✏️ 고객 등록
               </h2>
               <AppointmentForm
@@ -346,7 +346,7 @@ function AppContent() {
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 transform transition-all duration-300 ease-in-out ${
+            className={`max-w-sm w-full glass-card shadow-lg rounded-lg pointer-events-auto ring-1 ring-black dark:ring-white ring-opacity-5 dark:ring-opacity-10 transform transition-all duration-300 ease-in-out ${
               toast.type === 'success' ? 'border-l-4 border-green-500' :
               toast.type === 'error' ? 'border-l-4 border-red-500' :
               toast.type === 'warning' ? 'border-l-4 border-yellow-500' :
@@ -366,7 +366,7 @@ function AppContent() {
                   {toast.type === 'warning' && '⚠'}
                   {toast.type === 'info' && 'ℹ'}
                 </div>
-                <p className="ml-3 text-sm font-medium text-gray-800">{toast.message}</p>
+                <p className="ml-3 text-sm font-medium text-gray-800 dark:text-dark-text">{toast.message}</p>
                 <button
                   onClick={() => removeToast(toast.id)}
                   className="ml-auto flex-shrink-0 text-gray-400 hover:text-gray-600"
