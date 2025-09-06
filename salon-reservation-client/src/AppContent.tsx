@@ -7,6 +7,7 @@ import DesignerManagement from './components/DesignerManagement';
 import BusinessHoursManagement from './components/BusinessHours';
 import StatisticsDashboard from './components/StatisticsDashboard';
 import SearchFilter from './components/SearchFilter';
+import CustomerManagement from './components/CustomerManagement';
 import { AppointmentData } from './components/AppointmentForm';
 import './styles/Calendar.css';
 
@@ -17,7 +18,7 @@ interface ToastMessage {
 }
 
 function AppContent() {
-  const [activeTab, setActiveTab] = useState<'reservations' | 'designers' | 'business-hours' | 'statistics'>('reservations');
+  const [activeTab, setActiveTab] = useState<'reservations' | 'customers' | 'designers' | 'business-hours' | 'statistics'>('reservations');
   const [reservations, setReservations] = useState<AppointmentData[]>([]);
   const [filteredReservations, setFilteredReservations] = useState<AppointmentData[]>([]);
   const [allReservations, setAllReservations] = useState<AppointmentData[]>([]);
@@ -231,6 +232,16 @@ function AppContent() {
               📅 예약 관리
             </button>
             <button
+              onClick={() => setActiveTab('customers')}
+              className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
+                activeTab === 'customers'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                  : 'text-gray-700 dark:text-dark-text hover:bg-white/20 dark:hover:bg-white/10'
+              }`}
+            >
+              👥 고객 관리
+            </button>
+            <button
               onClick={() => setActiveTab('designers')}
               className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
                 activeTab === 'designers'
@@ -323,6 +334,12 @@ function AppContent() {
             />
           </div>
         </>
+      )}
+
+      {activeTab === 'customers' && (
+        <div className="max-w-7xl mx-auto">
+          <CustomerManagement />
+        </div>
       )}
 
       {activeTab === 'designers' && (

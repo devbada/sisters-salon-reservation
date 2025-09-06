@@ -92,6 +92,41 @@ const createSpecialHoursTable = `
   )
 `;
 
+// Create customers table
+const createCustomersTable = `
+  CREATE TABLE IF NOT EXISTS customers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    phone TEXT UNIQUE NOT NULL,
+    email TEXT,
+    birthdate DATE,
+    gender TEXT CHECK(gender IN ('male', 'female', 'other')),
+    preferred_stylist TEXT,
+    preferred_service TEXT,
+    allergies TEXT,
+    vip_status BOOLEAN DEFAULT 0,
+    vip_level INTEGER DEFAULT 0,
+    total_visits INTEGER DEFAULT 0,
+    last_visit_date DATE,
+    notes TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )
+`;
+
+// Create customer notes table
+const createCustomerNotesTable = `
+  CREATE TABLE IF NOT EXISTS customer_notes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    customer_id INTEGER NOT NULL,
+    note TEXT NOT NULL,
+    is_important BOOLEAN DEFAULT 0,
+    created_by TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
+  )
+`;
+
 // Create indexes for performance
 const createIndexes = [
   'CREATE INDEX IF NOT EXISTS idx_reservations_date ON reservations(date)',
@@ -102,7 +137,12 @@ const createIndexes = [
   'CREATE INDEX IF NOT EXISTS idx_designers_name ON hair_designers(name)',
   'CREATE INDEX IF NOT EXISTS idx_business_hours_day ON business_hours(day_of_week)',
   'CREATE INDEX IF NOT EXISTS idx_holidays_date ON holidays(date)',
-  'CREATE INDEX IF NOT EXISTS idx_special_hours_date ON special_hours(date)'
+  'CREATE INDEX IF NOT EXISTS idx_special_hours_date ON special_hours(date)',
+  'CREATE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone)',
+  'CREATE INDEX IF NOT EXISTS idx_customers_name ON customers(name)',
+  'CREATE INDEX IF NOT EXISTS idx_customers_vip ON customers(vip_status)',
+  'CREATE INDEX IF NOT EXISTS idx_customers_last_visit ON customers(last_visit_date)',
+  'CREATE INDEX IF NOT EXISTS idx_customer_notes_customer_id ON customer_notes(customer_id)'
 ];
 
 // Initialize database schema
@@ -113,6 +153,8 @@ try {
   db.exec(createBusinessHoursTable);
   db.exec(createHolidaysTable);
   db.exec(createSpecialHoursTable);
+  db.exec(createCustomersTable);
+  db.exec(createCustomerNotesTable);
   createIndexes.forEach(index => db.exec(index));
   
   // Insert default business hours if table is empty
