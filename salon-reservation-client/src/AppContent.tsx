@@ -5,6 +5,7 @@ import ReservationTable from './components/ReservationTable';
 import CalendarComponent from './components/Calendar';
 import DesignerManagement from './components/DesignerManagement';
 import BusinessHoursManagement from './components/BusinessHours';
+import StatisticsDashboard from './components/StatisticsDashboard';
 import SearchFilter from './components/SearchFilter';
 import { AppointmentData } from './components/AppointmentForm';
 import './styles/Calendar.css';
@@ -16,7 +17,7 @@ interface ToastMessage {
 }
 
 function AppContent() {
-  const [activeTab, setActiveTab] = useState<'reservations' | 'designers' | 'business-hours'>('reservations');
+  const [activeTab, setActiveTab] = useState<'reservations' | 'designers' | 'business-hours' | 'statistics'>('reservations');
   const [reservations, setReservations] = useState<AppointmentData[]>([]);
   const [filteredReservations, setFilteredReservations] = useState<AppointmentData[]>([]);
   const [allReservations, setAllReservations] = useState<AppointmentData[]>([]);
@@ -249,6 +250,16 @@ function AppContent() {
             >
               🕐 영업시간 관리
             </button>
+            <button
+              onClick={() => setActiveTab('statistics')}
+              className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
+                activeTab === 'statistics'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                  : 'text-gray-700 hover:bg-white/20'
+              }`}
+            >
+              📊 통계 대시보드
+            </button>
           </div>
         </nav>
       </div>
@@ -324,6 +335,10 @@ function AppContent() {
         <div className="max-w-7xl mx-auto">
           <BusinessHoursManagement />
         </div>
+      )}
+
+      {activeTab === 'statistics' && (
+        <StatisticsDashboard />
       )}
 
       {/* Toast Messages */}

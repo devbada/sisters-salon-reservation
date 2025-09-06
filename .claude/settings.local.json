@@ -33,6 +33,8 @@
       "Bash(sqlite3:*)",
       "Bash(node:*)",
       "Bash(rm:*)"
+      "Bash(sqlite3:*)",
+      "Bash(/bashes)"
     ],
     "deny": [],
     "ask": []
