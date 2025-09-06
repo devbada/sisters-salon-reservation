@@ -5,7 +5,12 @@
 
 @layer components {
   .glass-card {
-    @apply bg-white/15 backdrop-blur-lg border border-white/30 rounded-2xl shadow-xl transition-all duration-200;
+    @apply bg-white/15 backdrop-blur-md border border-white/30 rounded-2xl shadow-xl transition-all duration-200;
+    /* GPU Acceleration for better performance */
+    will-change: transform, backdrop-filter;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
   
   .dark .glass-card {
@@ -15,7 +20,11 @@
   }
   
   .glass-button {
-    @apply bg-white/15 backdrop-blur-lg border border-white/30 rounded-xl shadow-lg transition-all duration-300 hover:scale-105 hover:bg-white/25 text-gray-800;
+    @apply bg-white/15 backdrop-blur-md border border-white/30 rounded-xl shadow-lg transition-all duration-300 hover:scale-105 hover:bg-white/25 text-gray-800;
+    /* GPU Acceleration */
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
   
   .dark .glass-button {
@@ -29,7 +38,11 @@
   }
   
   .glass-input {
-    @apply bg-white/20 backdrop-blur-lg border border-white/30 rounded-lg shadow-lg placeholder-gray-600 text-gray-800 transition-all duration-200;
+    @apply bg-white/20 backdrop-blur-md border border-white/30 rounded-lg shadow-lg placeholder-gray-600 text-gray-800 transition-all duration-200;
+    /* GPU Acceleration */
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
   
   .dark .glass-input {
@@ -43,7 +56,11 @@
   }
   
   .glass-login-card {
-    @apply bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl shadow-2xl transition-all duration-200;
+    @apply bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl transition-all duration-200;
+    /* GPU Acceleration */
+    will-change: transform, backdrop-filter;
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
   
   .dark .glass-login-card {
@@ -104,6 +121,43 @@
   .dark .glass-warning {
     background-color: rgba(234, 179, 8, 0.15);
     border-color: rgba(250, 204, 21, 0.2);
+  }
+}
+
+/* Mobile optimizations - disable heavy effects on mobile */
+@media (max-width: 768px) {
+  .glass-card,
+  .glass-button,
+  .glass-input,
+  .glass-login-card,
+  .glass-login-input,
+  .glass-login-button,
+  .glass-error,
+  .glass-success,
+  .glass-warning {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  
+  .glass-card {
+    @apply bg-white/90 dark:bg-gray-900/90;
+  }
+  
+  .glass-input {
+    @apply bg-white/95 dark:bg-gray-900/95;
+  }
+  
+  .glass-button {
+    @apply bg-white/90 dark:bg-gray-900/90;
+  }
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
