@@ -12,6 +12,7 @@ var authRouter = require('./routes/auth');
 var designersRouter = require('./routes/designers');
 var businessHoursRouter = require('./routes/business-hours');
 var statisticsRouter = require('./routes/statistics');
+var customersRouter = require('./routes/customers');
 
 var app = express();
 
@@ -53,6 +54,7 @@ app.use('/api/reservations', reservationsRouter);
 app.use('/api/designers', designersRouter);
 app.use('/api/business-hours', businessHoursRouter);
 app.use('/api/statistics', statisticsRouter);
+app.use('/api/customers', customersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
