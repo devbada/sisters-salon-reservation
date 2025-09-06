@@ -102,6 +102,7 @@
 - ✅ 한국어 인터페이스 완성
 - ✅ 색상 일관성 확보
 - ✅ 호버/포커스 효과 구현
+- Liquid glass css 효과 적용
 
 ## Playwright Testing
 - [x] UI 렌더링 검사

@@ -18,7 +18,7 @@
     "http-errors": "~1.6.3",
     "jsonwebtoken": "^9.0.2",
     "morgan": "~1.9.1",
-    "pug": "2.0.0-beta11",
+    "pug": "3.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "uuid": "^11.1.0"

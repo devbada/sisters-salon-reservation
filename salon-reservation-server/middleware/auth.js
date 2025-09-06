@@ -37,4 +37,21 @@ const authenticateToken = (req, res, next) => {
   }
 };
 
-module.exports = authenticateToken;
+// Admin-only middleware (runs after authenticateToken)
+const requireAdmin = (req, res, next) => {
+  try {
+    if (!req.admin || !req.admin.id) {
+      return res.status(403).json({ error: '관리자 권한이 필요합니다.' });
+    }
+    
+    next();
+  } catch (error) {
+    console.error('Admin authorization error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+module.exports = { 
+  authenticateToken, 
+  requireAdmin 
+};
