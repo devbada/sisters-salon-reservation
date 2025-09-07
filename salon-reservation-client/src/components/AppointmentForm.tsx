@@ -9,6 +9,7 @@ import {
   Holiday,
   SpecialHour
 } from '../utils/businessHours';
+import holidayService, { Holiday as HolidayData } from '../services/holidayService';
 
 export interface AppointmentData {
   _id?: string;
@@ -55,6 +56,11 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
   const [businessHoursLoading, setBusinessHoursLoading] = useState(true);
   const [enableDirectDateInput, setEnableDirectDateInput] = useState(false);
   
+  // 공휴일 관련 상태
+  const [holidayData, setHolidayData] = useState<HolidayData | null>(null);
+  const [isHoliday, setIsHoliday] = useState(false);
+  const [holidayWarning, setHolidayWarning] = useState('');
+  
   // Refs for keyboard navigation - using HTMLElement for type safety
   const customerNameRef = useRef<HTMLElement>(null);
   const dateInputRef = useRef<HTMLElement>(null);
@@ -100,14 +106,52 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
     fetchBusinessHours();
   }, []);
 
+  // Check holiday status when date changes
+  useEffect(() => {
+    const checkHoliday = async () => {
+      if (!formData.date) return;
+      
+      try {
+        const response = await holidayService.getHolidayByDate(formData.date);
+        if (response.success && response.isHoliday) {
+          setHolidayData(response.holiday);
+          setIsHoliday(true);
+          
+          if (response.holiday?.is_closed) {
+            setHolidayWarning(`⚠️ ${response.holiday.name}은(는) 휴무일입니다. 예약이 불가능합니다.`);
+          } else {
+            setHolidayWarning(`📅 ${response.holiday.name}입니다. 운영시간이 다를 수 있습니다.`);
+          }
+        } else {
+          setHolidayData(null);
+          setIsHoliday(false);
+          setHolidayWarning('');
+        }
+      } catch (error) {
+        console.error('Error checking holiday:', error);
+        setHolidayData(null);
+        setIsHoliday(false);
+        setHolidayWarning('');
+      }
+    };
+    
+    checkHoliday();
+  }, [formData.date]);
+
   // Update available time slots when date or business hours change
   useEffect(() => {
     if (businessHoursLoading || !selectedDate) return;
 
     const businessHour = getBusinessHoursForDate(selectedDate, businessHours, holidays, specialHours);
     const slots = generateAvailableTimeSlots(businessHour);
-    setAvailableTimeSlots(slots);
-  }, [selectedDate, businessHours, holidays, specialHours, businessHoursLoading]);
+    
+    // 공휴일이고 휴무일이면 시간대 비활성화
+    if (isHoliday && holidayData?.is_closed) {
+      setAvailableTimeSlots([]);
+    } else {
+      setAvailableTimeSlots(slots);
+    }
+  }, [selectedDate, businessHours, holidays, specialHours, businessHoursLoading, isHoliday, holidayData]);
 
   // Update form data when initialData changes (for editing)
   useEffect(() => {
@@ -144,6 +188,11 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
       
       if (selectedDate < today) {
         newErrors.date = '과거 날짜는 선택할 수 없습니다';
+      }
+      
+      // 공휴일 휴무일 검사
+      if (isHoliday && holidayData?.is_closed) {
+        newErrors.date = `${holidayData.name}은(는) 휴무일입니다. 다른 날짜를 선택해주세요.`;
       }
     }
 
@@ -280,6 +329,17 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
           • Ctrl+S: 폼 제출<br/>
           • 날짜는 숫자만 입력하면 자동으로 YYYY-MM-DD 형식으로 변환됩니다
         </div>
+        
+        {/* Holiday Warning */}
+        {holidayWarning && (
+          <div className={`text-sm p-3 rounded-lg border ${
+            isHoliday && holidayData?.is_closed 
+              ? 'bg-red-50/50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'
+              : 'bg-orange-50/50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800'
+          }`}>
+            {holidayWarning}
+          </div>
+        )}
         {/* Customer Name */}
         <div>
           <label htmlFor="customerName" className="block text-gray-800 dark:text-dark-text text-sm font-semibold mb-2">
