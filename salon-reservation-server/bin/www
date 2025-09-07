@@ -8,6 +8,9 @@ var app = require('../app');
 var debug = require('debug')('salon-reservation-server:server');
 var http = require('http');
 
+// Initialize Holiday Scheduler
+var holidayScheduler = require('../schedulers/holidayScheduler');
+
 /**
  * Get port from environment and store in Express.
  */
@@ -87,4 +90,8 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
+  
+  // Start Holiday Scheduler after server is listening
+  console.log('🎌 Starting Holiday Scheduler...');
+  holidayScheduler.start();
 }
