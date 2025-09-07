@@ -55,13 +55,13 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
   const [businessHoursLoading, setBusinessHoursLoading] = useState(true);
   const [enableDirectDateInput, setEnableDirectDateInput] = useState(false);
   
-  // Refs for keyboard navigation - using HTMLElement for type safety
-  const customerNameRef = useRef<HTMLElement>(null);
-  const dateInputRef = useRef<HTMLElement>(null);
-  const timeSelectRef = useRef<HTMLElement>(null);
-  const stylistSelectRef = useRef<HTMLElement>(null);
-  const serviceSelectRef = useRef<HTMLElement>(null);
-  const submitButtonRef = useRef<HTMLElement>(null);
+  // Refs for keyboard navigation
+  const customerNameRef = useRef<HTMLInputElement>(null);
+  const dateInputRef = useRef<HTMLInputElement>(null);
+  const timeSelectRef = useRef<HTMLSelectElement>(null);
+  const stylistSelectRef = useRef<HTMLSelectElement>(null);
+  const serviceSelectRef = useRef<HTMLSelectElement>(null);
+  const submitButtonRef = useRef<HTMLButtonElement>(null);
 
   // Fetch designers on component mount
   useEffect(() => {
@@ -218,7 +218,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
     }
   };
 
-  // Keyboard navigation handlers - fixed typing
+  // Keyboard navigation handlers
   const handleKeyDown = (e: React.KeyboardEvent, nextRef?: React.RefObject<HTMLElement | null>) => {
     if (e.key === 'Enter' && nextRef?.current) {
       e.preventDefault();
@@ -286,7 +286,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
             👤 고객 이름
           </label>
           <input
-            ref={customerNameRef as React.RefObject<HTMLInputElement>}
+            ref={customerNameRef}
             type="text"
             id="customerName"
             name="customerName"
@@ -316,7 +316,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
           <div className="space-y-2">
             {enableDirectDateInput ? (
               <input
-                ref={dateInputRef as React.RefObject<HTMLInputElement>}
+                ref={dateInputRef}
                 type="text"
                 id="date"
                 name="date"
@@ -392,7 +392,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
             </div>
           ) : (
             <select
-              ref={timeSelectRef as React.RefObject<HTMLSelectElement>}
+              ref={timeSelectRef}
               id="time"
               name="time"
               value={formData.time}
@@ -425,7 +425,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
             👨‍🎨 헤어 디자이너
           </label>
           <select
-            ref={stylistSelectRef as React.RefObject<HTMLSelectElement>}
+            ref={stylistSelectRef}
             id="stylist"
             name="stylist"
             value={formData.stylist}
@@ -463,7 +463,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
             ✨ 서비스 유형
           </label>
           <select
-            ref={serviceSelectRef as React.RefObject<HTMLSelectElement>}
+            ref={serviceSelectRef}
             id="serviceType"
             name="serviceType"
             value={formData.serviceType}
@@ -491,7 +491,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
         {/* Buttons */}
         <div className={initialData ? "flex space-x-4" : ""}>
           <button
-            ref={submitButtonRef as React.RefObject<HTMLButtonElement>}
+            ref={submitButtonRef}
             type="submit"
             disabled={isSubmitting}
             className={`${initialData ? 'flex-1' : 'w-full'} bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-purple-300`}
