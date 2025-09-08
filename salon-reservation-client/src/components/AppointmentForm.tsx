@@ -17,6 +17,10 @@ export interface AppointmentData {
   time: string;
   stylist: string;
   serviceType: string;
+  status?: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show';
+  notes?: string; // 상태 변경 메모
+  status_updated_at?: string; // 상태 변경 시간
+  status_updated_by?: string; // 상태 변경자
 }
 
 interface Designer {

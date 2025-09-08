@@ -25,7 +25,7 @@ var app = express();
 if (process.env.NODE_ENV === 'production') {
   const corsOptions = {
     origin: process.env.ALLOWED_ORIGINS?.split(',') || [],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     credentials: true,
     optionsSuccessStatus: 200
@@ -35,7 +35,7 @@ if (process.env.NODE_ENV === 'production') {
   // 개발 환경에서는 모든 origin 허용
   app.use(cors({
     origin: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     credentials: true,
     optionsSuccessStatus: 200

@@ -1,19 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AppointmentData } from './AppointmentForm';
+import ReservationStatusBadge, { ReservationStatus } from './ReservationStatusBadge';
+import ReservationStatusModal from './ReservationStatusModal';
 
 interface ReservationTableProps {
   reservations: AppointmentData[];
   onEdit: (reservation: AppointmentData, index: number) => void;
   onDelete: (index: number) => void;
+  onStatusChange: (reservationId: string, newStatus: ReservationStatus, reason?: string, notes?: string) => void;
   selectedDate: string;
+  isStatusUpdateLoading?: boolean;
 }
 
 const ReservationTable: React.FC<ReservationTableProps> = ({ 
   reservations, 
   onEdit, 
   onDelete,
-  selectedDate 
+  onStatusChange,
+  selectedDate,
+  isStatusUpdateLoading = false
 }) => {
+  const [statusModalOpen, setStatusModalOpen] = useState(false);
+  const [selectedReservation, setSelectedReservation] = useState<AppointmentData | null>(null);
   const getServiceIcon = (serviceType: string) => {
     const icons = {
       'Haircut': '💇‍♀️',
@@ -34,8 +42,19 @@ const ReservationTable: React.FC<ReservationTableProps> = ({
     return icons[stylist as keyof typeof icons] || '✂️';
   };
 
+  const handleStatusChange = (reservation: AppointmentData) => {
+    setSelectedReservation(reservation);
+    setStatusModalOpen(true);
+  };
+
+  const handleStatusUpdate = (reservationId: string, newStatus: ReservationStatus, reason?: string, notes?: string) => {
+    onStatusChange(reservationId, newStatus, reason, notes);
+    setStatusModalOpen(false);
+    setSelectedReservation(null);
+  };
+
   return (
-    <div className="max-w-5xl mx-auto glass-card p-8 reservation-table animate-fadeInUp">
+    <div className="w-full mx-auto glass-card p-8 reservation-table animate-fadeInUp">
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-3xl font-bold text-gray-800">
           {selectedDate === new Date().toISOString().split('T')[0] 
@@ -78,6 +97,7 @@ const ReservationTable: React.FC<ReservationTableProps> = ({
                       <th className="py-4 px-6 text-left font-semibold text-gray-800" scope="col">⏰ 시간</th>
                       <th className="py-4 px-6 text-left font-semibold text-gray-800" scope="col">✂️ 담당자</th>
                       <th className="py-4 px-6 text-left font-semibold text-gray-800" scope="col">✨ 서비스</th>
+                      <th className="py-4 px-6 text-left font-semibold text-gray-800" scope="col">📊 상태</th>
                       <th className="py-4 px-6 text-center font-semibold text-gray-800" scope="col">🛠 관리</th>
                     </tr>
                   </thead>
@@ -116,8 +136,23 @@ const ReservationTable: React.FC<ReservationTableProps> = ({
                              reservation.serviceType}
                           </span>
                         </td>
+                        <td className="py-4 px-6">
+                          <ReservationStatusBadge 
+                            status={reservation.status || 'pending'} 
+                            notes={reservation.notes}
+                            statusUpdatedAt={reservation.status_updated_at}
+                            statusUpdatedBy={reservation.status_updated_by}
+                          />
+                        </td>
                         <td className="py-4 px-6 text-center">
                           <div className="flex justify-center space-x-2">
+                            <button
+                              onClick={() => handleStatusChange(reservation)}
+                              className="glass-button px-3 py-2 text-blue-600 font-medium text-sm rounded-lg hover:scale-105 transition-all duration-200"
+                              aria-label={`${reservation.customerName} 예약 상태 변경`}
+                            >
+                              📊 상태
+                            </button>
                             <button
                               onClick={() => onEdit(reservation, index)}
                               className="glass-button px-3 py-2 text-gray-800 font-medium text-sm rounded-lg hover:scale-105 transition-all duration-200"
@@ -155,6 +190,13 @@ const ReservationTable: React.FC<ReservationTableProps> = ({
                   </h3>
                   <div className="flex space-x-2">
                     <button
+                      onClick={() => handleStatusChange(reservation)}
+                      className="glass-button px-3 py-1 text-blue-600 text-sm rounded-lg hover:scale-105"
+                      aria-label={`${reservation.customerName} 예약 상태 변경`}
+                    >
+                      📊
+                    </button>
+                    <button
                       onClick={() => onEdit(reservation, index)}
                       className="glass-button px-3 py-1 text-gray-800 text-sm rounded-lg hover:scale-105"
                       aria-label={`${reservation.customerName} 예약 수정`}
@@ -171,37 +213,61 @@ const ReservationTable: React.FC<ReservationTableProps> = ({
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="flex items-center text-gray-700">
-                    <span className="mr-2">📅</span>
-                    {new Date(reservation.date + 'T00:00:00').toLocaleDateString('ko-KR', {
-                      month: 'short',
-                      day: 'numeric'
-                    })}
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="flex items-center text-gray-700">
+                      <span className="mr-2">📅</span>
+                      {new Date(reservation.date + 'T00:00:00').toLocaleDateString('ko-KR', {
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </div>
+                    <div className="flex items-center text-gray-700 font-mono">
+                      <span className="mr-2">⏰</span>
+                      {reservation.time}
+                    </div>
+                    <div className="flex items-center text-gray-700">
+                      <span className="mr-2">{getStylistIcon(reservation.stylist)}</span>
+                      {reservation.stylist}
+                    </div>
+                    <div className="flex items-center text-gray-700">
+                      <span className="glass-card px-2 py-1 rounded-full text-xs text-gray-800">
+                        <span className="mr-1">{getServiceIcon(reservation.serviceType)}</span>
+                        {reservation.serviceType === 'Haircut' ? '헤어컷' :
+                         reservation.serviceType === 'Coloring' ? '염색' :
+                         reservation.serviceType === 'Styling' ? '스타일링' :
+                         reservation.serviceType === 'Treatment' ? '트리트먼트' :
+                         reservation.serviceType}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center text-gray-700 font-mono">
-                    <span className="mr-2">⏰</span>
-                    {reservation.time}
-                  </div>
-                  <div className="flex items-center text-gray-700">
-                    <span className="mr-2">{getStylistIcon(reservation.stylist)}</span>
-                    {reservation.stylist}
-                  </div>
-                  <div className="flex items-center text-gray-700">
-                    <span className="glass-card px-2 py-1 rounded-full text-xs text-gray-800">
-                      <span className="mr-1">{getServiceIcon(reservation.serviceType)}</span>
-                      {reservation.serviceType === 'Haircut' ? '헤어컷' :
-                       reservation.serviceType === 'Coloring' ? '염색' :
-                       reservation.serviceType === 'Styling' ? '스타일링' :
-                       reservation.serviceType === 'Treatment' ? '트리트먼트' :
-                       reservation.serviceType}
-                    </span>
+                  <div className="flex justify-between items-center">
+                    <ReservationStatusBadge 
+                      status={reservation.status || 'pending'} 
+                      notes={reservation.notes}
+                      statusUpdatedAt={reservation.status_updated_at}
+                      statusUpdatedBy={reservation.status_updated_by}
+                    />
                   </div>
                 </div>
               </div>
             ))}
           </div>
         </>
+      )}
+      
+      {/* Status Change Modal */}
+      {selectedReservation && (
+        <ReservationStatusModal
+          reservation={selectedReservation}
+          isOpen={statusModalOpen}
+          onClose={() => {
+            setStatusModalOpen(false);
+            setSelectedReservation(null);
+          }}
+          onStatusChange={handleStatusUpdate}
+          isLoading={isStatusUpdateLoading}
+        />
       )}
     </div>
   );

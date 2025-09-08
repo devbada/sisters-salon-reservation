@@ -53,6 +53,7 @@ const getReservationsWithStatusFilter = db.prepare(`
   WHERE (? IS NULL OR status = ?) AND (? IS NULL OR date = ?)
   ORDER BY date, time
 `);
+const getActiveDesigners = db.prepare('SELECT name FROM hair_designers WHERE is_active = 1');
 
 // Validation helper functions
 function validateReservationData(data) {
@@ -103,12 +104,16 @@ function validateReservationData(data) {
     }
   }
   
-  // Stylist validation
-  const validStylists = ['John', 'Sarah', 'Michael', 'Emma'];
+  // Stylist validation - 데이터베이스에서 활성화된 디자이너 목록 가져오기
   if (!data.stylist || typeof data.stylist !== 'string') {
     errors.push('스타일리스트를 선택해주세요.');
-  } else if (!validStylists.includes(data.stylist)) {
-    errors.push('유효하지 않은 스타일리스트입니다.');
+  } else {
+    const activeDesigners = getActiveDesigners.all();
+    const validStylists = activeDesigners.map(designer => designer.name);
+    
+    if (!validStylists.includes(data.stylist)) {
+      errors.push('유효하지 않은 스타일리스트입니다.');
+    }
   }
   
   // Service type validation
@@ -272,7 +277,12 @@ router.patch('/:id/status', authenticateToken, function(req, res) {
   try {
     const id = req.params.id;
     const { status, reason, notes } = req.body;
-    const adminId = req.user.adminId || req.user.id;
+    
+    // Debug logging
+    console.log('req.admin:', req.admin);
+    console.log('req.user:', req.user);
+    
+    const adminId = req.admin ? req.admin.id : (req.user ? (req.user.adminId || req.user.id || req.user.username) : 'admin');
     
     // Validate status
     if (!status || !isValidStatus(status)) {

@@ -9,6 +9,7 @@ import StatisticsDashboard from './components/StatisticsDashboard';
 import SearchFilter from './components/SearchFilter';
 import CustomerManagement from './components/CustomerManagement';
 import { AppointmentData } from './components/AppointmentForm';
+import { ReservationStatus } from './components/ReservationStatusBadge';
 import './styles/Calendar.css';
 
 interface ToastMessage {
@@ -27,6 +28,7 @@ function AppContent() {
   const [editingData, setEditingData] = useState<AppointmentData | null>(null);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isStatusUpdateLoading, setIsStatusUpdateLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>(() => {
     // Initialize with today's date in YYYY-MM-DD format
     const today = new Date();
@@ -202,6 +204,46 @@ function AppContent() {
     }
   };
 
+  const handleStatusChange = async (reservationId: string, newStatus: ReservationStatus, reason?: string, notes?: string) => {
+    setIsStatusUpdateLoading(true);
+    try {
+      const requestData: any = { status: newStatus };
+      if (reason) requestData.reason = reason;
+      if (notes) requestData.notes = notes;
+
+      const response = await axios.patch(`http://localhost:4000/api/reservations/${reservationId}/status`, requestData);
+      
+      addToast(response.data.message || '예약 상태가 성공적으로 변경되었습니다.', 'success');
+      
+      // Refresh the reservations
+      await fetchReservations(selectedDate);
+      await fetchAllReservations();
+    } catch (error: any) {
+      console.error('Error updating reservation status:', error);
+      
+      if (error.response) {
+        const statusCode = error.response.status;
+        const errorMessage = error.response.data?.error || error.response.data?.message;
+        
+        if (statusCode === 400) {
+          addToast(`상태 변경 오류: ${errorMessage}`, 'error');
+        } else if (statusCode === 401) {
+          addToast('로그인이 필요합니다. 다시 로그인해주세요.', 'error');
+        } else if (statusCode === 403) {
+          addToast('상태 변경 권한이 없습니다.', 'error');
+        } else if (statusCode === 404) {
+          addToast('예약을 찾을 수 없습니다.', 'error');
+        } else {
+          addToast(`서버 오류: ${errorMessage}`, 'error');
+        }
+      } else {
+        addToast('상태 변경 중 오류가 발생했습니다. 네트워크를 확인해주세요.', 'error');
+      }
+    } finally {
+      setIsStatusUpdateLoading(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="App-content">
@@ -218,7 +260,7 @@ function AppContent() {
   return (
     <div className="App-content space-y-6">
       {/* Navigation Tabs */}
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-[80vw] mx-auto">
         <nav className="glass-card p-2">
           <div className="flex space-x-4">
             <button
@@ -279,7 +321,7 @@ function AppContent() {
       {activeTab === 'reservations' && (
         <>
           {/* Top Section: Calendar Selection | Customer Registration */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 max-w-[80vw] mx-auto">
             {/* Calendar Selection */}
             <div className="glass-card p-6">
               <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
@@ -308,7 +350,7 @@ function AppContent() {
           </div>
 
           {/* Search and Filter */}
-          <div className="max-w-7xl mx-auto">
+          <div className="w-[80%] mx-auto">
             <SearchFilter
               reservations={reservations}
               onFilteredResults={setFilteredReservations}
@@ -317,7 +359,7 @@ function AppContent() {
           </div>
 
           {/* Bottom Section: Reservation List */}
-          <div className="max-w-7xl mx-auto">
+          <div className="w-[80%] mx-auto">
             <ReservationTable
               reservations={filteredReservations}
               onEdit={(reservation, index) => {
@@ -330,26 +372,28 @@ function AppContent() {
                 const originalIndex = reservations.findIndex(r => r._id === filteredReservations[index]._id);
                 handleDelete(originalIndex);
               }}
+              onStatusChange={handleStatusChange}
               selectedDate={selectedDate}
+              isStatusUpdateLoading={isStatusUpdateLoading}
             />
           </div>
         </>
       )}
 
       {activeTab === 'customers' && (
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-[80vw] mx-auto">
           <CustomerManagement />
         </div>
       )}
 
       {activeTab === 'designers' && (
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-[80vw] mx-auto">
           <DesignerManagement />
         </div>
       )}
 
       {activeTab === 'business-hours' && (
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-[80vw] mx-auto">
           <BusinessHoursManagement />
         </div>
       )}

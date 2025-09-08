@@ -47,7 +47,9 @@ const STATUS_TRANSITIONS = {
     RESERVATION_STATUS.NO_SHOW
   ],
   [RESERVATION_STATUS.COMPLETED]: [],  // 완료된 예약은 변경 불가
-  [RESERVATION_STATUS.CANCELLED]: [],  // 취소된 예약은 변경 불가
+  [RESERVATION_STATUS.CANCELLED]: [    // 취소된 예약은 다시 확정 가능
+    RESERVATION_STATUS.CONFIRMED
+  ],  
   [RESERVATION_STATUS.NO_SHOW]: []     // 노쇼된 예약은 변경 불가
 };
 
