@@ -103,14 +103,15 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
   const tileContent = ({ date, view }: { date: Date; view: string }) => {
     if (view === 'month') {
       const dateStr = date.toISOString().split('T')[0];
+      // allReservations에서 해당 날짜의 예약이 있는지 확인
       const hasReservation = reservationDates.has(dateStr);
       const holiday = holidayMap.get(dateStr);
       
       return (
         <div className="flex flex-col items-center justify-center min-h-[20px]">
-          {/* 예약 표시 */}
+          {/* 예약 표시 - 실제 예약이 있을 때만 표시 */}
           {hasReservation && (
-            <div className="w-2 h-2 bg-purple-500 rounded-full mb-0.5"></div>
+            <div className="w-2 h-2 bg-purple-500 rounded-full mb-0.5 reservation-dot"></div>
           )}
           
           {/* 공휴일 이름 표시 */}
@@ -138,14 +139,16 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
         classes.push('today-tile');
       }
       
-      // 예약이 있는 날짜
-      if (reservationDates.has(dateStr)) {
+      // 예약이 있는 날짜 - 전체 예약 데이터에서 확인
+      const hasValidReservation = reservationDates.has(dateStr);
+      if (hasValidReservation) {
         classes.push('has-reservation');
       }
       
-      // 선택된 날짜
-      if (dateStr === selectedDate) {
-        classes.push('selected-date');
+      // 월요일 휴무일 표시 (dayOfWeek: 0=일요일, 1=월요일, ...)
+      const dayOfWeek = date.getDay();
+      if (dayOfWeek === 1) { // 월요일
+        classes.push('closed-day');
       }
       
       // 공휴일 스타일링

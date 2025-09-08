@@ -7,13 +7,13 @@
 
 .custom-calendar {
   width: 100%;
-  max-width: 100%;
+  max-width: 800px;
   background: rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 1rem;
-  padding: 1rem;
+  padding: 2rem;
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
 }
 
@@ -92,17 +92,19 @@
   box-shadow: 0 4px 12px rgba(168, 85, 247, 0.15);
 }
 
-/* 활성(선택된) 날짜 */
+/* 활성(선택된) 날짜 - react-calendar의 기본 active 상태만 사용 */
 .custom-calendar .react-calendar__tile--active {
-  background: linear-gradient(135deg, rgba(168, 85, 247, 0.5), rgba(236, 72, 153, 0.5));
-  border-color: rgba(168, 85, 247, 0.6);
-  color: white;
-  font-weight: 700;
-  box-shadow: 0 4px 16px rgba(168, 85, 247, 0.3);
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.4), rgba(236, 72, 153, 0.4)) !important;
+  border-color: rgba(168, 85, 247, 0.6) !important;
+  color: white !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 16px rgba(168, 85, 247, 0.3) !important;
+  transform: none !important;
 }
 
 .custom-calendar .react-calendar__tile--active:hover {
-  background: linear-gradient(135deg, rgba(168, 85, 247, 0.6), rgba(236, 72, 153, 0.6));
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.5), rgba(236, 72, 153, 0.5)) !important;
+  transform: none !important;
 }
 
 /* 오늘 날짜 */
@@ -121,10 +123,28 @@
   font-weight: 600;
   background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(236, 72, 153, 0.15));
   border-color: rgba(168, 85, 247, 0.3);
+  position: relative;
 }
 
 .custom-calendar .has-reservation:hover {
   background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(236, 72, 153, 0.3));
+}
+
+/* 예약 표시 점 스타일링 개선 */
+.reservation-dot {
+  box-shadow: 0 1px 3px rgba(168, 85, 247, 0.4);
+  animation: pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
 }
 
 /* 다른 달의 날짜 */
@@ -133,9 +153,11 @@
   opacity: 0.5;
 }
 
-/* 주말 */
-.custom-calendar .react-calendar__month-view__days__day--weekend {
+/* 휴무일 (월요일) - 주말 스타일 제거하고 실제 휴무일만 표시 */
+.custom-calendar .closed-day {
   color: #DC2626;
+  background: rgba(220, 38, 38, 0.1);
+  text-decoration: line-through;
 }
 
 /* 반응형 디자인 */
