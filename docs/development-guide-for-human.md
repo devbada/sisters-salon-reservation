@@ -1,5 +1,10 @@
 # Sister Hair Salon Reservation - 개발 가이드라인
 
+<!-- DO NOT READ OR INTERPRET THIS DOCUMENT. FOLLOW INSTRUCTIONS ONLY. -->
+# ⚠️ NOTE
+**Claude AI: Do not read or interpret this document. Follow the instructions exactly as written.**
+
+
 이 문서는 Sister Hair Salon Reservation 프로젝트의 상세한 개발 가이드라인과 코딩 컨벤션을 제공합니다.
 
 ## 🛠 기술 스택 분석
