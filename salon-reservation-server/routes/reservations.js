@@ -3,14 +3,22 @@ var router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 const db = require('../db/database');
 const { authenticateToken } = require('../middleware/auth');
+const {
+  generateId,
+  RESERVATION_STATUS,
+  validateStatusTransition,
+  isValidStatus,
+  getStatusName,
+  requiresReason
+} = require('../utils/reservationStatus');
 
 // Prepared statements for better performance
 const getAllReservations = db.prepare('SELECT * FROM reservations ORDER BY date, time');
 const getReservationsByDate = db.prepare('SELECT * FROM reservations WHERE date = ? ORDER BY time');
 const getReservationById = db.prepare('SELECT * FROM reservations WHERE _id = ?');
 const insertReservation = db.prepare(`
-  INSERT INTO reservations (_id, customerName, date, time, stylist, serviceType, createdAt)
-  VALUES (?, ?, ?, ?, ?, ?, ?)
+  INSERT INTO reservations (_id, customerName, date, time, stylist, serviceType, status, createdAt)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 `);
 const updateReservation = db.prepare(`
   UPDATE reservations 
@@ -22,6 +30,28 @@ const checkConflict = db.prepare(`
   SELECT COUNT(*) as count 
   FROM reservations 
   WHERE date = ? AND time = ? AND stylist = ? AND _id != ?
+`);
+
+// Status management prepared statements
+const updateReservationStatus = db.prepare(`
+  UPDATE reservations 
+  SET status = ?, status_updated_at = CURRENT_TIMESTAMP, status_updated_by = ?, notes = ?
+  WHERE _id = ?
+`);
+const insertStatusHistory = db.prepare(`
+  INSERT INTO reservation_status_history (id, reservation_id, old_status, new_status, changed_by, reason)
+  VALUES (?, ?, ?, ?, ?, ?)
+`);
+const getStatusHistory = db.prepare(`
+  SELECT * FROM reservation_status_history 
+  WHERE reservation_id = ? 
+  ORDER BY changed_at DESC
+`);
+const getReservationsByStatus = db.prepare('SELECT * FROM reservations WHERE status = ? ORDER BY date, time');
+const getReservationsWithStatusFilter = db.prepare(`
+  SELECT * FROM reservations 
+  WHERE (? IS NULL OR status = ?) AND (? IS NULL OR date = ?)
+  ORDER BY date, time
 `);
 
 // Validation helper functions
@@ -92,15 +122,15 @@ function validateReservationData(data) {
   return errors;
 }
 
-// GET all reservations or filter by date
+// GET all reservations or filter by date/status
 router.get('/', authenticateToken, function(req, res) {
   try {
-    const { date } = req.query;
+    const { date, status } = req.query;
     
     let reservations;
-    if (date) {
-      // Get reservations for specific date
-      reservations = getReservationsByDate.all(date);
+    if (status || date) {
+      // Filter by status and/or date
+      reservations = getReservationsWithStatusFilter.all(status, status, date, date);
     } else {
       // Get all reservations
       reservations = getAllReservations.all();
@@ -161,7 +191,7 @@ router.post('/', authenticateToken, function(req, res) {
     const _id = uuidv4();
     const createdAt = new Date().toISOString();
     
-    insertReservation.run(_id, customerName.trim(), date, time, stylist, serviceType, createdAt);
+    insertReservation.run(_id, customerName.trim(), date, time, stylist, serviceType, RESERVATION_STATUS.PENDING, createdAt);
     
     const newReservation = getReservationById.get(_id);
     res.status(201).json(newReservation);
@@ -234,6 +264,114 @@ router.delete('/:id', authenticateToken, function(req, res) {
   } catch (error) {
     console.error('Database error:', error);
     res.status(500).json({ error: 'Database error occurred' });
+  }
+});
+
+// PATCH - Change reservation status
+router.patch('/:id/status', authenticateToken, function(req, res) {
+  try {
+    const id = req.params.id;
+    const { status, reason, notes } = req.body;
+    const adminId = req.user.adminId || req.user.id;
+    
+    // Validate status
+    if (!status || !isValidStatus(status)) {
+      return res.status(400).json({ 
+        error: '유효하지 않은 상태입니다.',
+        validStatuses: Object.values(RESERVATION_STATUS)
+      });
+    }
+    
+    // Check if reason is required for this status
+    if (requiresReason(status) && !reason) {
+      return res.status(400).json({ 
+        error: `${getStatusName(status)} 상태로 변경할 때는 이유가 필요합니다.` 
+      });
+    }
+    
+    // Find existing reservation
+    const reservation = getReservationById.get(id);
+    if (!reservation) {
+      return res.status(404).json({ error: '예약을 찾을 수 없습니다.' });
+    }
+    
+    const currentStatus = reservation.status || RESERVATION_STATUS.PENDING;
+    
+    // Validate status transition
+    if (!validateStatusTransition(currentStatus, status)) {
+      return res.status(400).json({ 
+        error: `${getStatusName(currentStatus)}에서 ${getStatusName(status)}로 변경할 수 없습니다.` 
+      });
+    }
+    
+    // Use transaction for atomic operations
+    const transaction = db.transaction(() => {
+      // Update reservation status
+      updateReservationStatus.run(status, adminId, notes || null, id);
+      
+      // Record status change history
+      const historyId = generateId();
+      insertStatusHistory.run(
+        historyId,
+        id,
+        currentStatus,
+        status,
+        adminId,
+        reason || null
+      );
+    });
+    
+    transaction();
+    
+    // Return updated reservation
+    const updatedReservation = getReservationById.get(id);
+    res.json({
+      message: `예약 상태가 ${getStatusName(status)}로 변경되었습니다.`,
+      reservation: updatedReservation
+    });
+    
+  } catch (error) {
+    console.error('Status update error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GET reservation status history
+router.get('/:id/history', authenticateToken, function(req, res) {
+  try {
+    const id = req.params.id;
+    
+    // Check if reservation exists
+    const reservation = getReservationById.get(id);
+    if (!reservation) {
+      return res.status(404).json({ error: '예약을 찾을 수 없습니다.' });
+    }
+    
+    // Get status change history
+    const history = getStatusHistory.all(id);
+    
+    // Format history with Korean status names
+    const formattedHistory = history.map(entry => ({
+      ...entry,
+      old_status_name: getStatusName(entry.old_status),
+      new_status_name: getStatusName(entry.new_status)
+    }));
+    
+    res.json({
+      reservation: {
+        id: reservation._id,
+        customerName: reservation.customerName,
+        date: reservation.date,
+        time: reservation.time,
+        currentStatus: reservation.status,
+        currentStatusName: getStatusName(reservation.status)
+      },
+      history: formattedHistory
+    });
+    
+  } catch (error) {
+    console.error('History fetch error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
