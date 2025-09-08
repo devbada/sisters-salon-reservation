@@ -219,7 +219,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
   };
 
   // Keyboard navigation handlers
-  const handleKeyDown = (e: React.KeyboardEvent, nextRef?: React.RefObject<HTMLElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent, nextRef?: React.RefObject<HTMLInputElement | HTMLSelectElement | HTMLButtonElement | null>) => {
     if (e.key === 'Enter' && nextRef?.current) {
       e.preventDefault();
       nextRef.current.focus();
@@ -232,12 +232,6 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
     }
   };
 
-  const focusNextField = (currentRef: React.RefObject<HTMLElement>) => {
-    const refs = [customerNameRef, dateInputRef, timeSelectRef, stylistSelectRef, serviceSelectRef, submitButtonRef];
-    const currentIndex = refs.findIndex(ref => ref === currentRef);
-    const nextIndex = (currentIndex + 1) % refs.length;
-    refs[nextIndex].current?.focus();
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
