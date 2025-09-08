@@ -9,12 +9,12 @@ docs/todo/
 ├── README.md                           # 이 파일 - 전체 가이드
 ├── security-jwt-environment.md         # 🚨 Critical: JWT 보안 강화
 ├── security-rate-limiting.md           # 🚨 Critical: API Rate Limiting
-├── feature-reservation-status.md       # 🔥 High: 예약 상태 관리
+├── ~~feature-reservation-status.md~~   # ✅ COMPLETED: 예약 상태 관리
 ├── feature-internationalization.md     # 📈 Medium: 다국어 지원
 ├── testing-automation.md               # 🔥 High: 자동화된 테스트
 ├── customer-management.md              # 📊 High: 고객 관리 시스템
-├── dark-mode.md                        # ✅ Completed: 다크모드
-└── statistics-dashboard.md             # ✅ Completed: 통계 대시보드
+├── ~~dark-mode.md~~                    # ✅ Completed: 다크모드  
+└── ~~statistics-dashboard.md~~         # ✅ Completed: 통계 대시보드
 ```
 
 ## 🎯 우선순위 분류
@@ -36,10 +36,10 @@ docs/todo/
    - 85% 코드 커버리지 달성
    - ⏱️ 16-20시간
 
-4. **[feature-reservation-status.md](./feature-reservation-status.md)**
-   - 예약 상태 관리 (대기/확정/완료/취소)
-   - 상태 변경 히스토리 추적
-   - ⏱️ 8-12시간
+4. **~~[feature-reservation-status.md](./feature-reservation-status.md)~~** ✅ COMPLETED
+   - ~~예약 상태 관리 (대기/확정/완료/취소)~~
+   - ~~상태 변경 히스토리 추적~~
+   - ⏱️ 8-12시간 → **완료됨 (2025-09-08)**
 
 5. **[customer-management.md](./customer-management.md)**
    - 고객 정보 체계 구축
