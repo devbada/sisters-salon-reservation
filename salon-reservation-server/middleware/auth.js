@@ -1,6 +1,19 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key';
+// JWT Secret with security validation
+const JWT_SECRET = process.env.JWT_SECRET;
+
+// Environment variable validation
+if (!JWT_SECRET) {
+  console.error('🚨 FATAL: JWT_SECRET environment variable is required in middleware');
+  process.exit(1);
+}
+
+if (JWT_SECRET.length < 32) {
+  console.error('🚨 FATAL: JWT_SECRET must be at least 32 characters long in middleware');
+  console.error('📋 Current length:', JWT_SECRET.length);
+  process.exit(1);
+}
 
 // Authentication middleware
 const authenticateToken = (req, res, next) => {

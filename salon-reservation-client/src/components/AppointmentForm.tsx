@@ -17,6 +17,10 @@ export interface AppointmentData {
   time: string;
   stylist: string;
   serviceType: string;
+  status?: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show';
+  notes?: string; // 상태 변경 메모
+  status_updated_at?: string; // 상태 변경 시간
+  status_updated_by?: string; // 상태 변경자
 }
 
 interface Designer {
@@ -219,7 +223,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
   };
 
   // Keyboard navigation handlers
-  const handleKeyDown = (e: React.KeyboardEvent, nextRef?: React.RefObject<HTMLInputElement | HTMLSelectElement | HTMLButtonElement | null>) => {
+  const handleKeyDown = (e: React.KeyboardEvent, nextRef?: any) => {
     if (e.key === 'Enter' && nextRef?.current) {
       e.preventDefault();
       nextRef.current.focus();
