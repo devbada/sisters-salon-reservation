@@ -2,7 +2,7 @@
 
 이 문서는 Sister Hair Salon Reservation 프로젝트의 문서 구조와 아키텍처 개요를 제공합니다.
 
-> 📚 **상세 개발 가이드**: 코딩 컨벤션, 테스트 가이드라인, 배포 프로세스 등은 [`development-guide.md`](development-guide.md)를 참조하세요.
+> 📚 **상세 개발 가이드**: 코딩 컨벤션, 테스트 가이드라인, 배포 프로세스 등은 [`development-guide.md`](development-guide-for-human.md)를 참조하세요.
 
 ## 📁 문서 구조
 
@@ -34,7 +34,7 @@ sister-hair-salon-reservation/
 - **인증**: JWT 토큰 기반 관리자 인증
 - **테스트**: Jest, Testing Library, Playwright
 
-> 📋 상세한 기술 스택 정보는 [`development-guide.md`](development-guide.md#기술-스택-분석)를 참조하세요.
+> 📋 상세한 기술 스택 정보는 [`development-guide.md`](development-guide-for-human.md#기술-스택-분석)를 참조하세요.
 
 ## 🏗 아키텍처 구조
 
@@ -73,7 +73,7 @@ salon-reservation-server/
 
 ## 💻 개발 표준
 
-> 📋 **코딩 컨벤션**: TypeScript, React, Express.js 패턴 및 스타일 가이드는 [`development-guide.md`](development-guide.md#코딩-컨벤션)를 참조하세요.
+> 📋 **코딩 컨벤션**: TypeScript, React, Express.js 패턴 및 스타일 가이드는 [`development-guide.md`](development-guide-for-human.md#코딩-컨벤션)를 참조하세요.
 
 ### 주요 규칙
 - **변수명**: camelCase 사용
@@ -92,7 +92,7 @@ salon-reservation-server/
 - `feat`: 새 기능, `fix`: 버그 수정, `docs`: 문서 변경
 - 커밋 메시지: `type(scope): 간단한 설명`
 
-> 📋 **상세 프로세스**: 브랜치 전략, 커밋 메시지 규칙, 코드 리뷰 체크리스트는 [`development-guide.md`](development-guide.md#개발-프로세스)를 참조하세요.
+> 📋 **상세 프로세스**: 브랜치 전략, 커밋 메시지 규칙, 코드 리뷰 체크리스트는 [`development-guide.md`](development-guide-for-human.md#개발-프로세스)를 참조하세요.
 
 ## 🧪 테스트 표준
 
@@ -106,7 +106,7 @@ salon-reservation-server/
 - 모든 API 엔드포인트 테스트
 - UI 컴포넌트 기본 기능 검증
 
-> 📋 **상세 테스트 가이드**: 테스트 코드 예시 및 작성 방법은 [`development-guide.md`](development-guide.md#테스트-가이드라인)를 참조하세요.
+> 📋 **상세 테스트 가이드**: 테스트 코드 예시 및 작성 방법은 [`development-guide.md`](development-guide-for-human.md#테스트-가이드라인)를 참조하세요.
 
 ## 🐛 디버깅 도구
 
@@ -115,7 +115,7 @@ salon-reservation-server/
 - **Backend**: Morgan 로거, Debug 모듈
 - **API**: Postman, Thunder Client
 
-> 📋 **디버깅 가이드**: 구체적인 디버깅 방법과 로깅 패턴은 [`development-guide.md`](development-guide.md#디버깅-가이드)를 참조하세요.
+> 📋 **디버깅 가이드**: 구체적인 디버깅 방법과 로깅 패턴은 [`development-guide.md`](development-guide-for-human.md#디버깅-가이드)를 참조하세요.
 
 ## 🚀 배포 준비
 
@@ -125,7 +125,7 @@ salon-reservation-server/
 - [ ] 테스트 통과 확인
 - [ ] 빌드 성공 확인
 
-> 📋 **배포 가이드**: 상세한 빌드 프로세스와 배포 체크리스트는 [`development-guide.md`](development-guide.md#배포-가이드라인)를 참조하세요.
+> 📋 **배포 가이드**: 상세한 빌드 프로세스와 배포 체크리스트는 [`development-guide.md`](development-guide-for-human.md#배포-가이드라인)를 참조하세요.
 
 ## 🔧 성능 최적화
 
@@ -134,12 +134,12 @@ salon-reservation-server/
 - **Backend**: 압축 미들웨어, 캐싱, 쿼리 최적화
 - **Database**: 인덱싱, 쿼리 튜닝
 
-> 📋 **성능 가이드**: 구체적인 최적화 방법은 [`development-guide.md`](development-guide.md#성능-최적화)를 참조하세요.
+> 📋 **성능 가이드**: 구체적인 최적화 방법은 [`development-guide.md`](development-guide-for-human.md#성능-최적화)를 참조하세요.
 
 ## 📚 문서 참조
 
 ### 개발 가이드
-- **[`development-guide.md`](development-guide.md)** - 코딩 컨벤션, 테스트, 배포 가이드
+- **[`development-guide.md`](development-guide-for-human.md)** - 코딩 컨벤션, 테스트, 배포 가이드
 - **[`todo/README.md`](todo/README.md)** - 체계적 개발 워크플로우
 - **[`FEATURE_SUMMARY.md`](FEATURE_SUMMARY.md)** - 전체 기능 현황
 
@@ -148,7 +148,7 @@ salon-reservation-server/
 - [TypeScript 핸드북](https://www.typescriptlang.org/docs/)
 - [Tailwind CSS 문서](https://tailwindcss.com/docs)
 
-> 📝 **기능 문서화 템플릿**: 새 기능 문서 작성 시 [`development-guide.md`](development-guide.md#기능-문서화-템플릿)의 템플릿을 사용하세요.
+> 📝 **기능 문서화 템플릿**: 새 기능 문서 작성 시 [`development-guide.md`](development-guide-for-human.md#기능-문서화-템플릿)의 템플릿을 사용하세요.
 
 ## 🔄 개발 워크플로우
 

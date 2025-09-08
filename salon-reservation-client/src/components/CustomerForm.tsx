@@ -160,19 +160,19 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
   ];
 
   return (
-    <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+    <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-sm p-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+        <h2 className="text-2xl font-bold text-gray-900">
           {customer ? '고객 정보 수정' : '새 고객 등록'}
         </h2>
-        <p className="text-gray-600 dark:text-gray-300 mt-1">
+        <p className="text-gray-600 mt-1">
           {customer ? '고객 정보를 수정하세요.' : '새로운 고객 정보를 입력하세요.'}
         </p>
       </div>
 
       {error && (
-        <div className="mb-4 bg-red-50 dark:bg-red-900/50 border border-red-200 dark:border-red-700 rounded-lg p-4">
-          <p className="text-red-800 dark:text-red-200">{error}</p>
+        <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-800">{error}</p>
         </div>
       )}
 
@@ -180,7 +180,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
         {/* 기본 정보 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
               이름 *
             </label>
             <input
@@ -190,13 +190,13 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
               value={formData.name}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="고객 이름"
             />
           </div>
 
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
               전화번호 *
             </label>
             <input
@@ -206,13 +206,13 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
               value={formData.phone}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="010-0000-0000"
             />
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
               이메일
             </label>
             <input
@@ -221,13 +221,13 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="example@email.com"
             />
           </div>
 
           <div>
-            <label htmlFor="gender" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-2">
               성별
             </label>
             <select
@@ -235,7 +235,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
               name="gender"
               value={formData.gender || ''}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">선택 안함</option>
               <option value="male">남성</option>
@@ -245,7 +245,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
           </div>
 
           <div>
-            <label htmlFor="birthdate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="birthdate" className="block text-sm font-medium text-gray-700 mb-2">
               생년월일
             </label>
             <input
@@ -254,12 +254,12 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
               name="birthdate"
               value={formData.birthdate}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
 
           <div>
-            <label htmlFor="preferredStylist" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="preferredStylist" className="block text-sm font-medium text-gray-700 mb-2">
               선호 디자이너
             </label>
             <select
@@ -267,7 +267,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
               name="preferredStylist"
               value={formData.preferredStylist}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">선택 안함</option>
               {designers.map(designer => (
@@ -279,7 +279,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
 
         {/* 선호 서비스 */}
         <div>
-          <label htmlFor="preferredService" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label htmlFor="preferredService" className="block text-sm font-medium text-gray-700 mb-2">
             선호 서비스
           </label>
           <select
@@ -287,7 +287,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
             name="preferredService"
             value={formData.preferredService}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">선택 안함</option>
             {serviceTypes.map(service => (
@@ -307,14 +307,14 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
               onChange={handleChange}
               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
-            <label htmlFor="vipStatus" className="ml-2 block text-sm text-gray-900 dark:text-white">
+            <label htmlFor="vipStatus" className="ml-2 block text-sm text-gray-900">
               VIP 고객
             </label>
           </div>
 
           {formData.vipStatus && (
             <div>
-              <label htmlFor="vipLevel" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label htmlFor="vipLevel" className="block text-sm font-medium text-gray-700 mb-2">
                 VIP 등급
               </label>
               <select
@@ -322,7 +322,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
                 name="vipLevel"
                 value={formData.vipLevel}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value={0}>기본</option>
                 <option value={1}>실버</option>
@@ -335,7 +335,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
 
         {/* 알레르기 정보 */}
         <div>
-          <label htmlFor="allergies" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label htmlFor="allergies" className="block text-sm font-medium text-gray-700 mb-2">
             알레르기 / 주의사항
           </label>
           <textarea
@@ -344,7 +344,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
             value={formData.allergies}
             onChange={handleChange}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="알레르기나 특별히 주의해야 할 사항을 입력하세요..."
           />
         </div>
@@ -352,7 +352,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
         {/* 메모 (등록시에만) */}
         {!customer && (
           <div>
-            <label htmlFor="notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-2">
               메모
             </label>
             <textarea
@@ -361,7 +361,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
               value={formData.notes}
               onChange={handleChange}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="고객에 대한 메모를 입력하세요..."
             />
           </div>
@@ -372,7 +372,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
             disabled={loading}
           >
             취소

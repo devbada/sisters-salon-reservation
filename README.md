@@ -406,7 +406,7 @@ npm test
 8. **상태 업데이트** → 관련 문서들 최신화
 9. **변경사항 커밋** → Git commit 및 push
 
-> 💡 **개발 가이드**: 상세한 개발 가이드라인은 [`docs/development-guide.md`](docs/development-guide.md)를 참조하세요.
+> 💡 **개발 가이드**: 상세한 개발 가이드라인은 [`docs/development-guide.md`](docs/development-guide-for-human.md)를 참조하세요.
 
 ## 🤝 기여하기
 
@@ -425,7 +425,7 @@ npm test
 - **[`README.md`](README.md)** - 프로젝트 개요 및 시작 가이드
 - **[`docs/README.md`](docs/README.md)** - 개발 가이드라인 및 아키텍처
 - **[`docs/FEATURE_SUMMARY.md`](docs/FEATURE_SUMMARY.md)** - 전체 기능 현황 요약
-- **[`docs/development-guide.md`](docs/development-guide.md)** - 상세 개발 가이드
+- **[`docs/development-guide.md`](docs/development-guide-for-human.md)** - 상세 개발 가이드
 - **[`docs/todo/`](docs/todo/)** - 체계적 TODO 관리 시스템
   - **[`docs/todo/README.md`](docs/todo/README.md)** - TODO 관리 워크플로우 가이드
   - 개별 기능별 상세 구현 계획 (`.md` 파일들)

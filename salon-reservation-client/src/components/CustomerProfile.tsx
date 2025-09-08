@@ -123,7 +123,7 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
       <div className="flex items-center justify-between">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
         >
           <span>←</span>
           고객 목록으로 돌아가기
@@ -146,13 +146,13 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
       </div>
 
       {/* 고객 정보 카드 */}
-      <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 ${
-        customer.vip_status ? 'ring-2 ring-yellow-200 dark:ring-yellow-800' : ''
+      <div className={`bg-white rounded-lg shadow-sm p-6 ${
+        customer.vip_status ? 'ring-2 ring-yellow-200' : ''
       }`}>
         <div className="flex items-start justify-between mb-4">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-3xl font-bold text-gray-900">
                 {customer.name}
               </h1>
               
@@ -176,40 +176,40 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
               )}
             </div>
             
-            <p className="text-gray-600 dark:text-gray-300">
+            <p className="text-gray-600">
               {format(new Date(customer.created_at), 'yyyy년 MM월 dd일', { locale: ko })} 등록
             </p>
           </div>
           
           <div className="text-right">
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+            <div className="text-2xl font-bold text-blue-600">
               {customer.total_visits}회
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-300">총 방문</p>
+            <p className="text-sm text-gray-600">총 방문</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* 연락처 정보 */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">연락처 정보</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">연락처 정보</h3>
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2">
-                <span className="text-gray-500 dark:text-gray-400">📞</span>
-                <span className="text-gray-900 dark:text-white">{customer.phone}</span>
+                <span className="text-gray-500">📞</span>
+                <span className="text-gray-900">{customer.phone}</span>
               </div>
               
               {customer.email && (
                 <div className="flex items-center gap-2">
-                  <span className="text-gray-500 dark:text-gray-400">✉️</span>
-                  <span className="text-gray-900 dark:text-white">{customer.email}</span>
+                  <span className="text-gray-500">✉️</span>
+                  <span className="text-gray-900">{customer.email}</span>
                 </div>
               )}
               
               {customer.birthdate && (
                 <div className="flex items-center gap-2">
-                  <span className="text-gray-500 dark:text-gray-400">🎂</span>
-                  <span className="text-gray-900 dark:text-white">
+                  <span className="text-gray-500">🎂</span>
+                  <span className="text-gray-900">
                     {format(new Date(customer.birthdate), 'yyyy년 MM월 dd일', { locale: ko })}
                   </span>
                 </div>
@@ -217,10 +217,10 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
               
               {customer.gender && (
                 <div className="flex items-center gap-2">
-                  <span className="text-gray-500 dark:text-gray-400">
+                  <span className="text-gray-500">
                     {customer.gender === 'male' ? '👨' : customer.gender === 'female' ? '👩' : '👤'}
                   </span>
-                  <span className="text-gray-900 dark:text-white">
+                  <span className="text-gray-900">
                     {customer.gender === 'male' ? '남성' : customer.gender === 'female' ? '여성' : '기타'}
                   </span>
                 </div>
@@ -230,12 +230,12 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
 
           {/* 선호도 정보 */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">선호도</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">선호도</h3>
             <div className="space-y-2 text-sm">
               {customer.preferred_stylist && (
                 <div className="flex items-center gap-2">
-                  <span className="text-gray-500 dark:text-gray-400">💇</span>
-                  <span className="text-gray-900 dark:text-white">
+                  <span className="text-gray-500">💇</span>
+                  <span className="text-gray-900">
                     선호 디자이너: {customer.preferred_stylist}
                   </span>
                 </div>
@@ -243,8 +243,8 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
               
               {customer.preferred_service && (
                 <div className="flex items-center gap-2">
-                  <span className="text-gray-500 dark:text-gray-400">✂️</span>
-                  <span className="text-gray-900 dark:text-white">
+                  <span className="text-gray-500">✂️</span>
+                  <span className="text-gray-900">
                     선호 서비스: {customer.preferred_service}
                   </span>
                 </div>
@@ -252,8 +252,8 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
               
               {customer.last_visit_date && (
                 <div className="flex items-center gap-2">
-                  <span className="text-gray-500 dark:text-gray-400">📅</span>
-                  <span className="text-gray-900 dark:text-white">
+                  <span className="text-gray-500">📅</span>
+                  <span className="text-gray-900">
                     마지막 방문: {formatDistanceToNow(new Date(customer.last_visit_date), { 
                       addSuffix: true, 
                       locale: ko 
@@ -267,11 +267,11 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
 
         {/* 알레르기 정보 */}
         {customer.allergies && (
-          <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-            <h4 className="font-semibold text-red-800 dark:text-red-200 mb-2 flex items-center gap-2">
+          <div className="mt-6 p-4 bg-red-50 rounded-lg">
+            <h4 className="font-semibold text-red-800 mb-2 flex items-center gap-2">
               ⚠️ 알레르기 / 주의사항
             </h4>
-            <p className="text-red-700 dark:text-red-300 text-sm">
+            <p className="text-red-700 text-sm">
               {customer.allergies}
             </p>
           </div>
@@ -279,42 +279,42 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
       </div>
 
       {/* 방문 이력 */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">
           📅 방문 이력 ({visitHistory?.pagination.total || 0}회)
         </h2>
         
         {historyLoading ? (
           <div className="flex items-center justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-            <span className="ml-3 text-gray-600 dark:text-gray-300">방문 이력을 불러오는 중...</span>
+            <span className="ml-3 text-gray-600">방문 이력을 불러오는 중...</span>
           </div>
         ) : visitHistory && visitHistory.history.length > 0 ? (
           <div className="space-y-3">
             {visitHistory.history.map((visit, index) => (
               <div
                 key={visit._id}
-                className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
               >
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
-                    <span className="text-blue-600 dark:text-blue-400 font-medium">
+                    <span className="text-blue-600 font-medium">
                       #{visitHistory.pagination.total - index}
                     </span>
-                    <span className="text-gray-900 dark:text-white">
+                    <span className="text-gray-900">
                       {format(new Date(visit.date), 'yyyy.MM.dd', { locale: ko })}
                     </span>
-                    <span className="text-gray-600 dark:text-gray-300">
+                    <span className="text-gray-600">
                       {visit.time}
                     </span>
                   </div>
                 </div>
                 
                 <div className="flex items-center gap-4 text-sm">
-                  <span className="text-gray-600 dark:text-gray-300">
+                  <span className="text-gray-600">
                     {visit.stylist}
                   </span>
-                  <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                  <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
                     {visit.serviceType}
                   </span>
                 </div>
@@ -325,7 +325,7 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
               <div className="text-center pt-4">
                 <button
                   onClick={fetchVisitHistory}
-                  className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+                  className="text-blue-600 hover:text-blue-800"
                 >
                   더 보기...
                 </button>
@@ -333,25 +333,25 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
             )}
           </div>
         ) : (
-          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+          <div className="text-center py-8 text-gray-500">
             아직 방문 기록이 없습니다.
           </div>
         )}
       </div>
 
       {/* 메모 섹션 */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">
           📝 메모 ({notes.length}개)
         </h2>
         
         {/* 새 메모 추가 */}
-        <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+        <div className="mb-6 p-4 bg-gray-50 rounded-lg">
           <textarea
             value={newNote}
             onChange={(e) => setNewNote(e.target.value)}
             placeholder="새 메모를 작성하세요..."
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-white mb-3"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-3"
             rows={3}
           />
           
@@ -364,7 +364,7 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
                 onChange={(e) => setNewNoteImportant(e.target.checked)}
                 className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
               />
-              <label htmlFor="important" className="ml-2 text-sm text-gray-900 dark:text-white">
+              <label htmlFor="important" className="ml-2 text-sm text-gray-900">
                 중요 메모
               </label>
             </div>
@@ -390,16 +390,16 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
                 key={note.id}
                 className={`p-4 rounded-lg ${
                   note.is_important
-                    ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
-                    : 'bg-gray-50 dark:bg-gray-700'
+                    ? 'bg-red-50 border border-red-200'
+                    : 'bg-gray-50'
                 }`}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <p className={`${
                       note.is_important 
-                        ? 'text-red-900 dark:text-red-100' 
-                        : 'text-gray-900 dark:text-white'
+                        ? 'text-red-900' 
+                        : 'text-gray-900'
                     }`}>
                       {note.is_important && (
                         <span className="inline-block mr-2 text-red-500">⚠️</span>
@@ -409,8 +409,8 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
                     
                     <div className={`text-xs mt-2 ${
                       note.is_important 
-                        ? 'text-red-700 dark:text-red-300' 
-                        : 'text-gray-500 dark:text-gray-400'
+                        ? 'text-red-700' 
+                        : 'text-gray-500'
                     }`}>
                       {note.created_by} • {formatDistanceToNow(new Date(note.created_at), { 
                         addSuffix: true, 
@@ -421,7 +421,7 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
                   
                   <button
                     onClick={() => deleteNote(note.id)}
-                    className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 ml-4"
+                    className="text-red-600 hover:text-red-800 ml-4"
                     title="메모 삭제"
                   >
                     🗑️
@@ -431,7 +431,7 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
             ))}
           </div>
         ) : (
-          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+          <div className="text-center py-8 text-gray-500">
             아직 작성된 메모가 없습니다.
           </div>
         )}
