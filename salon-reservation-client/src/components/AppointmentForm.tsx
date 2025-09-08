@@ -219,7 +219,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
   };
 
   // Keyboard navigation handlers
-  const handleKeyDown = (e: React.KeyboardEvent, nextRef?: React.RefObject<HTMLInputElement | HTMLSelectElement | HTMLButtonElement | null>) => {
+  const handleKeyDown = (e: React.KeyboardEvent, nextRef?: any) => {
     if (e.key === 'Enter' && nextRef?.current) {
       e.preventDefault();
       nextRef.current.focus();
