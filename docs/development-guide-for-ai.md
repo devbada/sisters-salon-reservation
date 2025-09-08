@@ -390,7 +390,7 @@ npm run build
 
 1. **우선순위 확인**: docs/todo/ 에서 우선순위가 높은 기능 선택
 2. **요구사항 파악**: 해당 .md 파일의 Requirements, Dependencies, TODO 섹션 검토
-3. **git branch생성**: 요구사항 파악 후 적합한 git branch 를 생성(base branch is "main") -> 전환 후 작업
+3. **git branch생성**: 요구사항 파악 후 적합한 git branch 를 생성(base branch is "develop") -> 전환 후 작업
 4. **규칙 준수 구현**: 현재 프로젝트 기술 스택과 코딩 컨벤션 준수
 5. **MCP Playwright 검사**: UI, 기능, 반응형, 접근성, 콘솔 에러 검사
 6. **문제 수정**: Playwright에서 발견된 모든 이슈 해결

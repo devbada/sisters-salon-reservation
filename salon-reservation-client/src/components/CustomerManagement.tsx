@@ -160,10 +160,10 @@ const CustomerManagement: React.FC = () => {
       {/* 헤더 */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-2xl font-bold text-gray-900">
             👥 고객 관리
           </h1>
-          <p className="text-gray-600 dark:text-gray-300 mt-1">
+          <p className="text-gray-600 mt-1">
             총 {pagination.total}명의 고객이 등록되어 있습니다
           </p>
         </div>
@@ -181,7 +181,7 @@ const CustomerManagement: React.FC = () => {
       </div>
 
       {/* 검색 및 필터 */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
+      <div className="bg-white rounded-lg shadow-sm p-4">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
             <input
@@ -190,14 +190,14 @@ const CustomerManagement: React.FC = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
           
           <select
             value={vipFilter}
             onChange={(e) => setVipFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
           >
             <option value="all">전체 고객</option>
             <option value="true">VIP 고객</option>
@@ -215,8 +215,8 @@ const CustomerManagement: React.FC = () => {
 
       {/* 오류 메시지 */}
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/50 border border-red-200 dark:border-red-700 rounded-lg p-4">
-          <p className="text-red-800 dark:text-red-200">{error}</p>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-800">{error}</p>
         </div>
       )}
 
