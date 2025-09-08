@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../db/database');
+const { loginLimiter, registerLimiter, adminCheckLimiter } = require('../middleware/rateLimiter');
 
 const router = express.Router();
 
@@ -33,7 +34,7 @@ const insertAdmin = db.prepare('INSERT INTO administrators (username, password_h
 const countAdmins = db.prepare('SELECT COUNT(*) as count FROM administrators');
 
 // Check if any administrator exists
-router.get('/check-admin', (req, res) => {
+router.get('/check-admin', adminCheckLimiter, (req, res) => {
   try {
     const result = countAdmins.get();
     const hasAdmin = result.count > 0;
@@ -45,7 +46,7 @@ router.get('/check-admin', (req, res) => {
 });
 
 // Register first administrator (only when no admin exists)
-router.post('/register', async (req, res) => {
+router.post('/register', registerLimiter, async (req, res) => {
   try {
     const { username, password } = req.body;
     
@@ -104,7 +105,7 @@ router.post('/register', async (req, res) => {
 });
 
 // Administrator login
-router.post('/login', async (req, res) => {
+router.post('/login', loginLimiter, async (req, res) => {
   try {
     const { username, password } = req.body;
     
