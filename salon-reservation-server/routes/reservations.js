@@ -54,6 +54,57 @@ const getReservationsWithStatusFilter = db.prepare(`
   ORDER BY date, time
 `);
 const getActiveDesigners = db.prepare('SELECT name FROM hair_designers WHERE is_active = 1');
+const getBusinessHours = db.prepare('SELECT * FROM business_hours WHERE day_of_week = ?');
+const getHolidays = db.prepare('SELECT * FROM holidays WHERE date = ?');
+const getSpecialHours = db.prepare('SELECT * FROM special_hours WHERE date = ?');
+
+// Business hours helper function
+function getBusinessHoursForDate(date) {
+  try {
+    const dateObj = new Date(date + 'T00:00:00');
+    const dayOfWeek = dateObj.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    
+    // Check for holidays first
+    const holiday = getHolidays.get(date);
+    if (holiday) {
+      return { isClosed: true, reason: 'holiday' };
+    }
+    
+    // Check for special hours
+    const specialHours = getSpecialHours.get(date);
+    if (specialHours) {
+      // If both open_time and close_time are null, it means closed
+      if (!specialHours.open_time || !specialHours.close_time) {
+        return { isClosed: true, reason: 'special' };
+      }
+      return {
+        isClosed: false,
+        openTime: specialHours.open_time,
+        closeTime: specialHours.close_time
+      };
+    }
+    
+    // Get regular business hours
+    const businessHours = getBusinessHours.get(dayOfWeek);
+    if (!businessHours || businessHours.is_closed) {
+      return { isClosed: true, reason: 'regular' };
+    }
+    
+    return {
+      isClosed: false,
+      openTime: businessHours.open_time,
+      closeTime: businessHours.close_time
+    };
+  } catch (error) {
+    console.error('Error getting business hours for date:', date, error);
+    // Fallback to default hours
+    return {
+      isClosed: false,
+      openTime: '09:00',
+      closeTime: '18:00'
+    };
+  }
+}
 
 // Validation helper functions
 function validateReservationData(data) {
@@ -96,10 +147,33 @@ function validateReservationData(data) {
     const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
     if (!timeRegex.test(data.time)) {
       errors.push('올바른 시간 형식이 아닙니다 (HH:MM).');
-    } else {
-      const [hours, minutes] = data.time.split(':').map(Number);
-      if (hours < 9 || hours > 18 || (hours === 18 && minutes > 0)) {
-        errors.push('영업시간은 09:00-18:00입니다.');
+    } else if (data.date) {
+      // Check business hours for the specific date
+      const businessHours = getBusinessHoursForDate(data.date);
+      
+      if (businessHours.isClosed) {
+        switch (businessHours.reason) {
+          case 'holiday':
+            errors.push('선택하신 날짜는 공휴일입니다.');
+            break;
+          case 'special':
+            errors.push('선택하신 날짜는 특별 휴무일입니다.');
+            break;
+          default:
+            errors.push('선택하신 날짜는 휴무일입니다.');
+        }
+      } else {
+        const [hours, minutes] = data.time.split(':').map(Number);
+        const requestTime = hours * 60 + minutes; // Convert to minutes
+        
+        const [openHours, openMinutes] = businessHours.openTime.split(':').map(Number);
+        const [closeHours, closeMinutes] = businessHours.closeTime.split(':').map(Number);
+        const openTime = openHours * 60 + openMinutes;
+        const closeTime = closeHours * 60 + closeMinutes;
+        
+        if (requestTime < openTime || requestTime >= closeTime) {
+          errors.push(`영업시간은 ${businessHours.openTime}-${businessHours.closeTime}입니다.`);
+        }
       }
     }
   }
@@ -169,8 +243,19 @@ router.get('/:id', authenticateToken, function(req, res) {
 router.post('/', authenticateToken, function(req, res) {
   const { customerName, date, time, stylist, serviceType } = req.body;
   
+  // Debug logging
+  console.log('POST /api/reservations - Request body:', req.body);
+  console.log('Extracted values:', { customerName, date, time, stylist, serviceType });
+  
   // Validate required fields first
   if (!customerName || !date || !time || !stylist || !serviceType) {
+    console.log('Missing required fields:', {
+      customerName: !!customerName,
+      date: !!date,
+      time: !!time,
+      stylist: !!stylist,
+      serviceType: !!serviceType
+    });
     return res.status(400).json({ error: 'All fields are required: customerName, date, time, stylist, serviceType' });
   }
   
