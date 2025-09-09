@@ -17,12 +17,12 @@ const getAllReservations = db.prepare('SELECT * FROM reservations ORDER BY date,
 const getReservationsByDate = db.prepare('SELECT * FROM reservations WHERE date = ? ORDER BY time');
 const getReservationById = db.prepare('SELECT * FROM reservations WHERE _id = ?');
 const insertReservation = db.prepare(`
-  INSERT INTO reservations (_id, customerName, date, time, stylist, serviceType, status, createdAt)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  INSERT INTO reservations (_id, customerName, date, time, stylist, serviceType, status, customer_id, createdAt)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 `);
 const updateReservation = db.prepare(`
   UPDATE reservations 
-  SET customerName = ?, date = ?, time = ?, stylist = ?, serviceType = ?, updatedAt = ?
+  SET customerName = ?, date = ?, time = ?, stylist = ?, serviceType = ?, customer_id = ?, updatedAt = ?
   WHERE _id = ?
 `);
 const deleteReservation = db.prepare('DELETE FROM reservations WHERE _id = ?');
@@ -57,6 +57,58 @@ const getActiveDesigners = db.prepare('SELECT name FROM hair_designers WHERE is_
 const getBusinessHours = db.prepare('SELECT * FROM business_hours WHERE day_of_week = ?');
 const getHolidays = db.prepare('SELECT * FROM holidays WHERE date = ?');
 const getSpecialHours = db.prepare('SELECT * FROM special_hours WHERE date = ?');
+
+// Customer management prepared statements
+const findCustomerByName = db.prepare('SELECT id, name FROM customers WHERE name = ? LIMIT 1');
+const findCustomerByPhone = db.prepare('SELECT id, name FROM customers WHERE phone = ? LIMIT 1');
+const insertNewCustomer = db.prepare(`
+  INSERT INTO customers (name, phone, total_visits, created_at, updated_at)
+  VALUES (?, ?, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+`);
+const updateCustomerVisits = db.prepare(`
+  UPDATE customers 
+  SET total_visits = total_visits + 1, last_visit_date = ?, updated_at = CURRENT_TIMESTAMP
+  WHERE id = ?
+`);
+
+// Customer helper function
+function findOrCreateCustomer(customerName, customerPhone = null) {
+  try {
+    // 먼저 이름으로 고객을 찾아보기
+    let customer = findCustomerByName.get(customerName);
+    
+    // 고객을 찾지 못했고 전화번호가 있다면 전화번호로 찾아보기
+    if (!customer && customerPhone) {
+      customer = findCustomerByPhone.get(customerPhone);
+      
+      // 전화번호로 찾았지만 이름이 다른 경우 이름 업데이트
+      if (customer && customer.name !== customerName) {
+        const updateCustomerName = db.prepare('UPDATE customers SET name = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
+        updateCustomerName.run(customerName, customer.id);
+        customer.name = customerName;
+        console.log(`Updated customer name: ${customer.name} (ID: ${customer.id})`);
+      }
+    }
+    
+    // 고객을 찾지 못했다면 새로 생성
+    if (!customer) {
+      const phone = customerPhone || `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const result = insertNewCustomer.run(customerName, phone);
+      customer = {
+        id: result.lastInsertRowid,
+        name: customerName
+      };
+      console.log(`Created new customer: ${customerName} (ID: ${customer.id}) with phone: ${phone}`);
+    } else {
+      console.log(`Found existing customer: ${customerName} (ID: ${customer.id})`);
+    }
+    
+    return customer;
+  } catch (error) {
+    console.error('Error in findOrCreateCustomer:', error);
+    throw error;
+  }
+}
 
 // Business hours helper function
 function getBusinessHoursForDate(date) {
@@ -241,11 +293,11 @@ router.get('/:id', authenticateToken, function(req, res) {
 
 // POST a new reservation
 router.post('/', authenticateToken, function(req, res) {
-  const { customerName, date, time, stylist, serviceType } = req.body;
+  const { customerName, customerPhone, date, time, stylist, serviceType } = req.body;
   
   // Debug logging
   console.log('POST /api/reservations - Request body:', req.body);
-  console.log('Extracted values:', { customerName, date, time, stylist, serviceType });
+  console.log('Extracted values:', { customerName, customerPhone, date, time, stylist, serviceType });
   
   // Validate required fields first
   if (!customerName || !date || !time || !stylist || !serviceType) {
@@ -278,10 +330,14 @@ router.post('/', authenticateToken, function(req, res) {
       });
     }
     
+    // Find or create customer
+    const customer = findOrCreateCustomer(customerName.trim(), customerPhone);
+    
     const _id = uuidv4();
     const createdAt = new Date().toISOString();
     
-    insertReservation.run(_id, customerName.trim(), date, time, stylist, serviceType, RESERVATION_STATUS.PENDING, createdAt);
+    // Insert reservation with customer_id
+    insertReservation.run(_id, customerName.trim(), date, time, stylist, serviceType, RESERVATION_STATUS.PENDING, customer.id, createdAt);
     
     const newReservation = getReservationById.get(_id);
     res.status(201).json(newReservation);
@@ -302,7 +358,7 @@ router.put('/:id', authenticateToken, function(req, res) {
       return res.status(404).json({ error: 'Reservation not found' });
     }
     
-    const { customerName, date, time, stylist, serviceType } = req.body;
+    const { customerName, customerPhone, date, time, stylist, serviceType } = req.body;
     
     // Validate required fields first
     if (!customerName || !date || !time || !stylist || !serviceType) {
@@ -327,8 +383,15 @@ router.put('/:id', authenticateToken, function(req, res) {
       });
     }
     
+    // Find or create customer if name changed
+    let customerId = existingReservation.customer_id;
+    if (customerName.trim() !== existingReservation.customerName) {
+      const customer = findOrCreateCustomer(customerName.trim(), customerPhone);
+      customerId = customer.id;
+    }
+    
     const updatedAt = new Date().toISOString();
-    updateReservation.run(customerName.trim(), date, time, stylist, serviceType, updatedAt, id);
+    updateReservation.run(customerName.trim(), date, time, stylist, serviceType, customerId, updatedAt, id);
     
     const updatedReservation = getReservationById.get(id);
     res.json(updatedReservation);
@@ -414,6 +477,12 @@ router.patch('/:id/status', authenticateToken, function(req, res) {
         adminId,
         reason || null
       );
+      
+      // If status changed to completed, update customer visit count
+      if (status === RESERVATION_STATUS.COMPLETED && reservation.customer_id) {
+        console.log(`Updating visit count for customer ID: ${reservation.customer_id}`);
+        updateCustomerVisits.run(reservation.date, reservation.customer_id);
+      }
     });
     
     transaction();
