@@ -166,3 +166,5 @@ dist/
 /salon-reservation-server/database.db
 /salon-reservation-server/db/salon.db
 /.playwright-mcp/reservation-status-updated.png
+/salon-reservation-server/db/database.db-shm
+/salon-reservation-server/db/database.db-wal
