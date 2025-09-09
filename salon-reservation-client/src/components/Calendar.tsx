@@ -1,8 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import axios from 'axios';
 import { AppointmentData } from './AppointmentForm';
 import holidayService, { Holiday } from '../services/holidayService';
+
+interface BusinessHour {
+  id?: number;
+  day_of_week: number;
+  open_time: string | null;
+  close_time: string | null;
+  is_closed: boolean;
+  break_start: string | null;
+  break_end: string | null;
+}
 
 interface CalendarComponentProps {
   selectedDate: string;
@@ -26,6 +37,8 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [holidayMap, setHolidayMap] = useState<Map<string, Holiday>>(new Map());
   const [holidaysLoading, setHolidaysLoading] = useState(false);
+  const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
+  const [businessHoursLoading, setBusinessHoursLoading] = useState(false);
   
   // 예약이 있는 날짜들을 추출
   const reservationDates = new Set(
@@ -95,6 +108,24 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
     fetchHolidays();
   }, []);
 
+  // 영업시간 데이터 가져오기
+  useEffect(() => {
+    const fetchBusinessHours = async () => {
+      setBusinessHoursLoading(true);
+      try {
+        const response = await axios.get('http://localhost:4000/api/business-hours');
+        setBusinessHours(response.data);
+        console.log('Fetched business hours:', response.data);
+      } catch (error) {
+        console.error('Failed to fetch business hours:', error);
+      } finally {
+        setBusinessHoursLoading(false);
+      }
+    };
+
+    fetchBusinessHours();
+  }, []);
+
   // selectedDate가 외부에서 변경될 때 달력도 업데이트
   useEffect(() => {
     setValue(new Date(selectedDate + 'T00:00:00'));
@@ -157,9 +188,10 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
         classes.push('has-reservation');
       }
       
-      // 월요일 휴무일 표시 (dayOfWeek: 0=일요일, 1=월요일, ...)
+      // 실제 영업시간 데이터를 기반으로 휴무일 표시 (dayOfWeek: 0=일요일, 1=월요일, ...)
       const dayOfWeek = date.getDay();
-      if (dayOfWeek === 1) { // 월요일만
+      const businessHour = businessHours.find(hour => hour.day_of_week === dayOfWeek);
+      if (businessHour && businessHour.is_closed) {
         classes.push('closed-day');
       }
       
@@ -179,13 +211,13 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
     return '';
   };
 
-  if (isLoading || holidaysLoading) {
+  if (isLoading || holidaysLoading || businessHoursLoading) {
     return (
       <div className="glass-card p-6">
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-white/30 border-t-white"></div>
           <div className="ml-4 text-white">
-            {holidaysLoading ? '공휴일 정보 로딩 중...' : '달력 로딩 중...'}
+            {businessHoursLoading ? '영업시간 정보 로딩 중...' : holidaysLoading ? '공휴일 정보 로딩 중...' : '달력 로딩 중...'}
           </div>
         </div>
       </div>
