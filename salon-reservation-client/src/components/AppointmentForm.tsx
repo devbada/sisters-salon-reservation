@@ -9,10 +9,12 @@ import {
   Holiday,
   SpecialHour
 } from '../utils/businessHours';
+import CustomerSearchInput from './CustomerSearchInput';
 
 export interface AppointmentData {
   _id?: string;
   customerName: string;
+  customerPhone?: string;
   date: string;
   time: string;
   stylist: string;
@@ -40,6 +42,7 @@ interface AppointmentFormProps {
 const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData, onCancelEdit, selectedDate }) => {
   const [formData, setFormData] = useState<AppointmentData>({
     customerName: '',
+    customerPhone: '',
     date: selectedDate || new Date().toISOString().split('T')[0],
     time: '',
     stylist: '',
@@ -60,7 +63,6 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
   const [enableDirectDateInput, setEnableDirectDateInput] = useState(false);
   
   // Refs for keyboard navigation
-  const customerNameRef = useRef<HTMLInputElement>(null);
   const dateInputRef = useRef<HTMLInputElement>(null);
   const timeSelectRef = useRef<HTMLSelectElement>(null);
   const stylistSelectRef = useRef<HTMLSelectElement>(null);
@@ -250,6 +252,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
       if (!initialData) {
         setFormData({
           customerName: '',
+          customerPhone: '',
           date: selectedDate || new Date().toISOString().split('T')[0],
           time: '',
           stylist: '',
@@ -282,27 +285,47 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
           <label htmlFor="customerName" className="block text-gray-800 text-sm font-semibold mb-2">
             👤 고객 이름
           </label>
-          <input
-            ref={customerNameRef}
-            type="text"
-            id="customerName"
-            name="customerName"
+          <CustomerSearchInput
             value={formData.customerName}
-            onChange={handleChange}
-            onKeyDown={(e) => handleKeyDown(e, enableDirectDateInput ? dateInputRef : timeSelectRef)}
-            className={`w-full px-4 py-3 glass-input focus:outline-none focus:ring-2 transition-all duration-300 ${
-              errors.customerName 
-                ? 'border-red-400 focus:ring-red-400' 
-                : 'focus:ring-purple-400 focus:border-transparent hover:bg-white/15'
-            }`}
+            onChange={(value) => setFormData(prev => ({ ...prev, customerName: value }))}
+            onCustomerSelect={(customer) => {
+              if (customer) {
+                setFormData(prev => ({ 
+                  ...prev, 
+                  customerName: customer.name,
+                  customerPhone: customer.phone
+                }));
+              } else {
+                setFormData(prev => ({ ...prev, customerPhone: '' }));
+              }
+              
+              // Clear error for customerName field
+              if (errors.customerName) {
+                setErrors(prevErrors => ({
+                  ...prevErrors,
+                  customerName: undefined,
+                }));
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === 'Tab') {
+                const nextRef = enableDirectDateInput ? dateInputRef : timeSelectRef;
+                if (nextRef?.current) {
+                  e.preventDefault();
+                  nextRef.current.focus();
+                }
+              }
+              // Ctrl+S to submit form
+              if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                handleSubmit(e as any);
+              }
+            }}
             placeholder="고객님의 성함을 입력해주세요"
-            tabIndex={1}
             autoFocus
-            required
+            tabIndex={1}
+            error={errors.customerName}
           />
-          {errors.customerName && (
-            <p className="text-red-600 text-sm mt-1 font-medium">⚠️ {errors.customerName}</p>
-          )}
         </div>
 
         {/* Date Input */}
