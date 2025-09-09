@@ -309,8 +309,8 @@ router.get('/special', (req, res) => {
   }
 });
 
-// POST /api/business-hours/special-hours - 특별 영업일 추가 (관리자만)
-router.post('/special-hours', authenticateToken, requireAdmin, (req, res) => {
+// POST /api/business-hours/special - 특별 영업일 추가 (관리자만)
+router.post('/special', authenticateToken, requireAdmin, (req, res) => {
   try {
     const { date, openTime, closeTime, reason } = req.body;
     

@@ -250,7 +250,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
       if (!initialData) {
         setFormData({
           customerName: '',
-          date: '',
+          date: selectedDate || new Date().toISOString().split('T')[0],
           time: '',
           stylist: '',
           serviceType: '',
