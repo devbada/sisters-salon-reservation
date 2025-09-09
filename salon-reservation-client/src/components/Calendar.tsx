@@ -82,6 +82,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
           ...(nextYearHolidays.holidays || [])
         ];
         
+        console.log('Fetched holidays:', allHolidays);
         setHolidays(allHolidays);
         setHolidayMap(holidayService.createHolidayMap(allHolidays));
       } catch (error) {
@@ -102,7 +103,12 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
   // 타일 컨텐츠 커스터마이징 (예약이 있는 날짜에 점 표시, 공휴일 이름 표시)
   const tileContent = ({ date, view }: { date: Date; view: string }) => {
     if (view === 'month') {
-      const dateStr = date.toISOString().split('T')[0];
+      // 시간대 문제를 방지하기 위해 로컬 날짜 사용
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const dateStr = `${year}-${month}-${day}`;
+      
       // allReservations에서 해당 날짜의 예약이 있는지 확인
       const hasReservation = reservationDates.has(dateStr);
       const holiday = holidayMap.get(dateStr);
@@ -129,13 +135,19 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
   // 타일 클래스 커스터마이징
   const tileClassName = ({ date, view }: { date: Date; view: string }) => {
     if (view === 'month') {
-      const dateStr = date.toISOString().split('T')[0];
+      // 시간대 문제를 방지하기 위해 로컬 날짜 사용
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const dateStr = `${year}-${month}-${day}`;
+      
       const classes = [];
       const holiday = holidayMap.get(dateStr);
       
       // 오늘 날짜
-      const today = new Date().toISOString().split('T')[0];
-      if (dateStr === today) {
+      const today = new Date();
+      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+      if (dateStr === todayStr) {
         classes.push('today-tile');
       }
       
@@ -147,7 +159,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
       
       // 월요일 휴무일 표시 (dayOfWeek: 0=일요일, 1=월요일, ...)
       const dayOfWeek = date.getDay();
-      if (dayOfWeek === 1) { // 월요일
+      if (dayOfWeek === 1) { // 월요일만
         classes.push('closed-day');
       }
       
@@ -190,13 +202,17 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
           onChange={handleDateChange}
           value={value}
           locale="ko-KR"
+          calendarType="gregory"
           formatDay={(locale, date) => date.getDate().toString()}
           tileContent={tileContent}
           tileClassName={tileClassName}
           className="custom-calendar"
           prev2Label={null}
           next2Label={null}
-          showNeighboringMonth={false}
+          showNeighboringMonth={true}
+          showFixedNumberOfWeeks={true}
+          minDetail="month"
+          maxDetail="month"
         />
       </div>
       <div className="mt-4 text-center">
