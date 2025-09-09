@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
 import { 
   fetchBusinessHoursData,
   generateAvailableTimeSlots,
@@ -74,7 +76,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
     const fetchDesigners = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:4000/api/designers', {
+        const response = await axios.get(`${API_BASE_URL}/api/designers`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setDesigners(response.data.filter((designer: Designer) => designer.is_active));

@@ -3,6 +3,8 @@ import axios from 'axios';
 import DesignerForm, { DesignerData } from './DesignerForm';
 import DesignerTable from './DesignerTable';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
+
 interface ToastMessage {
   id: string;
   message: string;
@@ -37,7 +39,7 @@ const DesignerManagement: React.FC = () => {
     setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:4000/api/designers', {
+      const response = await axios.get(`${API_BASE_URL}/api/designers`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setDesigners(response.data);
@@ -62,7 +64,7 @@ const DesignerManagement: React.FC = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.post(
-        'http://localhost:4000/api/designers',
+        `${API_BASE_URL}/api/designers`,
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -88,7 +90,7 @@ const DesignerManagement: React.FC = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.put(
-        `http://localhost:4000/api/designers/${editingDesigner._id}`,
+        `${API_BASE_URL}/api/designers/${editingDesigner._id}`,
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -118,7 +120,7 @@ const DesignerManagement: React.FC = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:4000/api/designers/${designer._id}`, {
+      await axios.delete(`${API_BASE_URL}/api/designers/${designer._id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

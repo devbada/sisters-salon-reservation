@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
 import {
   AreaChart,
   Area,
@@ -77,8 +79,8 @@ const StatisticsDashboard: React.FC = () => {
 
       // Fetch all required data in parallel
       const [summaryResponse, dailyResponse] = await Promise.all([
-        axios.get(`http://localhost:4000/api/statistics/summary?period=${period}`, config),
-        axios.get(`http://localhost:4000/api/statistics/daily?period=${period}`, config)
+        axios.get(`${API_BASE_URL}/api/statistics/summary?period=${period}`, config),
+        axios.get(`${API_BASE_URL}/api/statistics/daily?period=${period}`, config)
       ]);
 
       setSummaryStats(summaryResponse.data);

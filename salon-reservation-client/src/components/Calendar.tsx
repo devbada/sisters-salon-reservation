@@ -5,6 +5,8 @@ import axios from 'axios';
 import { AppointmentData } from './AppointmentForm';
 import holidayService, { Holiday } from '../services/holidayService';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
+
 interface BusinessHour {
   id?: number;
   day_of_week: number;
@@ -124,7 +126,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
     const fetchBusinessHours = async () => {
       setBusinessHoursLoading(true);
       try {
-        const response = await axios.get('http://localhost:4000/api/business-hours');
+        const response = await axios.get(`${API_BASE_URL}/api/business-hours`);
         setBusinessHours(response.data);
         console.log('Fetched business hours:', response.data);
       } catch (error) {
@@ -142,7 +144,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
     const fetchSpecialHours = async () => {
       setSpecialHoursLoading(true);
       try {
-        const response = await axios.get('http://localhost:4000/api/business-hours/special');
+        const response = await axios.get(`${API_BASE_URL}/api/business-hours/special`);
         setSpecialHours(response.data);
         
         // 특별 영업시간 맵 생성

@@ -12,6 +12,8 @@ import { AppointmentData } from './components/AppointmentForm';
 import { ReservationStatus } from './components/ReservationStatusBadge';
 import './styles/Calendar.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
+
 interface ToastMessage {
   id: string;
   message: string;
@@ -54,7 +56,7 @@ function AppContent() {
   // Function to fetch all reservations for calendar markers
   const fetchAllReservations = useCallback(async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/reservations');
+      const response = await axios.get(`${API_BASE_URL}/api/reservations`);
       setAllReservations(response.data);
     } catch (error: any) {
       console.error('Error fetching all reservations:', error);
@@ -64,7 +66,7 @@ function AppContent() {
   // Function to fetch active designers for filter options
   const fetchActiveDesigners = useCallback(async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/designers');
+      const response = await axios.get(`${API_BASE_URL}/api/designers`);
       const activeDesignerNames = response.data
         .filter((designer: any) => designer.is_active)
         .map((designer: any) => designer.name);
@@ -81,8 +83,8 @@ function AppContent() {
     setIsLoading(true);
     try {
       const url = date 
-        ? `http://localhost:4000/api/reservations?date=${date}`
-        : 'http://localhost:4000/api/reservations';
+        ? `${API_BASE_URL}/api/reservations?date=${date}`
+        : `${API_BASE_URL}/api/reservations`;
       
       const response = await axios.get(url);
       setReservations(response.data);
@@ -119,7 +121,7 @@ function AppContent() {
     try {
       if (editingIndex !== null && editingData) {
         // Update existing reservation via API
-        await axios.put(`http://localhost:4000/api/reservations/${editingData._id}`, formData);
+        await axios.put(`${API_BASE_URL}/api/reservations/${editingData._id}`, formData);
         setEditingIndex(null);
         setEditingData(null);
         addToast('예약이 성공적으로 수정되었습니다!', 'success');
@@ -128,7 +130,7 @@ function AppContent() {
         await fetchAllReservations();
       } else {
         // Add new reservation
-        await axios.post('http://localhost:4000/api/reservations', formData);
+        await axios.post(`${API_BASE_URL}/api/reservations`, formData);
         addToast('예약이 성공적으로 완료되었습니다!', 'success');
         // Refresh the reservations for the current date
         await fetchReservations(selectedDate);
@@ -181,7 +183,7 @@ function AppContent() {
     const reservation = reservations[index];
     if (window.confirm(`${reservation.customerName}님의 예약을 삭제하시겠습니까?`)) {
       try {
-        await axios.delete(`http://localhost:4000/api/reservations/${reservation._id}`);
+        await axios.delete(`${API_BASE_URL}/api/reservations/${reservation._id}`);
         addToast('예약이 성공적으로 삭제되었습니다.', 'success');
         // Refresh the reservations for the current date
         await fetchReservations(selectedDate);
@@ -211,7 +213,7 @@ function AppContent() {
       if (reason) requestData.reason = reason;
       if (notes) requestData.notes = notes;
 
-      const response = await axios.patch(`http://localhost:4000/api/reservations/${reservationId}/status`, requestData);
+      const response = await axios.patch(`${API_BASE_URL}/api/reservations/${reservationId}/status`, requestData);
       
       addToast(response.data.message || '예약 상태가 성공적으로 변경되었습니다.', 'success');
       

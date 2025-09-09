@@ -16,7 +16,9 @@ var holidayScheduler = require('../schedulers/holidayScheduler');
  */
 
 var port = normalizePort(process.env.PORT || '4000');
+var host = process.env.HOST || '0.0.0.0';
 app.set('port', port);
+app.set('host', host);
 
 /**
  * Create HTTP server.
@@ -28,7 +30,7 @@ var server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port);
+server.listen(port, host);
 server.on('error', onError);
 server.on('listening', onListening);
 
@@ -90,6 +92,10 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
+  
+  // Log server startup information
+  console.log(`🚀 Server running on http://${host}:${port}`);
+  console.log(`📱 Access from external devices: http://192.168.1.72:${port}`);
   
   // Start Holiday Scheduler after server is listening
   console.log('🎌 Starting Holiday Scheduler...');

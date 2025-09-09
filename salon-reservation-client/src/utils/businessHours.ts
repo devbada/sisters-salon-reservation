@@ -1,4 +1,5 @@
 // 영업시간 관리 유틸리티 함수들
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
 export interface BusinessHour {
   id?: number;
   day_of_week: number;
@@ -160,9 +161,9 @@ export async function fetchBusinessHoursData() {
     const headers = { Authorization: `Bearer ${token}` };
 
     const [hoursRes, holidaysRes, specialRes] = await Promise.all([
-      fetch('http://localhost:4000/api/business-hours', { headers }),
-      fetch('http://localhost:4000/api/business-hours/holidays', { headers }),
-      fetch('http://localhost:4000/api/business-hours/special', { headers })
+      fetch(`${API_BASE_URL}/api/business-hours`, { headers }),
+      fetch(`${API_BASE_URL}/api/business-hours/holidays`, { headers }),
+      fetch(`${API_BASE_URL}/api/business-hours/special`, { headers })
     ]);
 
     const [businessHours, holidays, specialHours] = await Promise.all([
