@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
 import { 
   fetchBusinessHoursData,
   generateAvailableTimeSlots,
@@ -12,6 +10,8 @@ import {
   SpecialHour
 } from '../utils/businessHours';
 import CustomerSearchInput from './CustomerSearchInput';
+
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
 
 export interface AppointmentData {
   _id?: string;
