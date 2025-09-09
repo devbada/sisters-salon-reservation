@@ -167,5 +167,5 @@ salon-reservation-server/
 
 ---
 
-**Last Updated**: 2025-08-27  
-**Version**: 1.1.0
+**Last Updated**: 2025-09-09  
+**Version**: 1.2.0
