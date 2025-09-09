@@ -312,9 +312,9 @@ router.get('/special', (req, res) => {
 // POST /api/business-hours/special - 특별 영업일 추가 (관리자만)
 router.post('/special', authenticateToken, requireAdmin, (req, res) => {
   try {
-    const { date, openTime, closeTime, reason } = req.body;
+    const { date, open_time, close_time, reason } = req.body;
     
-    if (!date || !openTime || !closeTime) {
+    if (!date || !open_time || !close_time) {
       return res.status(400).json({ error: 'Date, open time, and close time are required' });
     }
     
@@ -322,11 +322,11 @@ router.post('/special', authenticateToken, requireAdmin, (req, res) => {
       return res.status(400).json({ error: 'Date must be in YYYY-MM-DD format' });
     }
     
-    if (openTime >= closeTime) {
+    if (open_time >= close_time) {
       return res.status(400).json({ error: 'Close time must be after open time' });
     }
     
-    const result = addSpecialHours.run(date, openTime, closeTime, reason || null);
+    const result = addSpecialHours.run(date, open_time, close_time, reason || null);
     
     res.status(201).json({
       message: 'Special hours added successfully',
@@ -335,6 +335,29 @@ router.post('/special', authenticateToken, requireAdmin, (req, res) => {
     
   } catch (error) {
     console.error('Special hours creation error:', error);
+    res.status(500).json({ error: 'Database error occurred' });
+  }
+});
+
+// DELETE /api/business-hours/special/:id - 특별 영업시간 삭제 (관리자만)
+router.delete('/special/:id', authenticateToken, requireAdmin, (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    if (!id || isNaN(id)) {
+      return res.status(400).json({ error: 'Valid special hour ID is required' });
+    }
+    
+    const result = deleteSpecialHours.run(id);
+    
+    if (result.changes === 0) {
+      return res.status(404).json({ error: 'Special hour not found' });
+    }
+    
+    res.json({ message: 'Special hour deleted successfully' });
+    
+  } catch (error) {
+    console.error('Special hour deletion error:', error);
     res.status(500).json({ error: 'Database error occurred' });
   }
 });

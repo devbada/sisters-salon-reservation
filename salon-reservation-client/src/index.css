@@ -218,3 +218,10 @@ code {
   font-weight: 700 !important;
   box-shadow: 0 4px 16px rgba(168, 85, 247, 0.3) !important;
 }
+
+.custom-calendar .special-hours {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(147, 197, 253, 0.1)) !important;
+  color: #2563eb !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+  font-weight: 600 !important;
+}
