@@ -15,6 +15,14 @@ interface BusinessHour {
   break_end: string | null;
 }
 
+interface SpecialHour {
+  id?: number;
+  date: string;
+  open_time: string | null;
+  close_time: string | null;
+  reason?: string;
+}
+
 interface CalendarComponentProps {
   selectedDate: string;
   onDateSelect: (date: string) => void;
@@ -39,6 +47,9 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
   const [holidaysLoading, setHolidaysLoading] = useState(false);
   const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
   const [businessHoursLoading, setBusinessHoursLoading] = useState(false);
+  const [specialHours, setSpecialHours] = useState<SpecialHour[]>([]);
+  const [specialHoursMap, setSpecialHoursMap] = useState<Map<string, SpecialHour>>(new Map());
+  const [specialHoursLoading, setSpecialHoursLoading] = useState(false);
   
   // 예약이 있는 날짜들을 추출
   const reservationDates = new Set(
@@ -126,6 +137,32 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
     fetchBusinessHours();
   }, []);
 
+  // 특별 영업시간 데이터 가져오기
+  useEffect(() => {
+    const fetchSpecialHours = async () => {
+      setSpecialHoursLoading(true);
+      try {
+        const response = await axios.get('http://localhost:4000/api/business-hours/special');
+        setSpecialHours(response.data);
+        
+        // 특별 영업시간 맵 생성
+        const specialHoursMap = new Map<string, SpecialHour>();
+        response.data.forEach((specialHour: SpecialHour) => {
+          specialHoursMap.set(specialHour.date, specialHour);
+        });
+        setSpecialHoursMap(specialHoursMap);
+        
+        console.log('Fetched special hours:', response.data);
+      } catch (error) {
+        console.error('Failed to fetch special hours:', error);
+      } finally {
+        setSpecialHoursLoading(false);
+      }
+    };
+
+    fetchSpecialHours();
+  }, []);
+
   // selectedDate가 외부에서 변경될 때 달력도 업데이트
   useEffect(() => {
     setValue(new Date(selectedDate + 'T00:00:00'));
@@ -143,6 +180,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
       // allReservations에서 해당 날짜의 예약이 있는지 확인
       const hasReservation = reservationDates.has(dateStr);
       const holiday = holidayMap.get(dateStr);
+      const specialHour = specialHoursMap.get(dateStr);
       
       return (
         <div className="flex flex-col items-center justify-center min-h-[20px]">
@@ -151,10 +189,17 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
             <div className="w-2 h-2 bg-purple-500 rounded-full mb-0.5 reservation-dot"></div>
           )}
           
-          {/* 공휴일 이름 표시 */}
+          {/* 공휴일 이름 표시 - 공휴일이 우선 */}
           {holiday && (
             <div className="text-xs text-red-600 font-medium leading-tight px-1 text-center max-w-full truncate">
               {holiday.name.length > 6 ? holiday.name.slice(0, 6) + '...' : holiday.name}
+            </div>
+          )}
+          
+          {/* 특별 영업시간 표시 - 공휴일이 아닐 때만 표시 */}
+          {!holiday && specialHour && (
+            <div className="text-xs text-blue-600 font-medium leading-tight px-1 text-center max-w-full truncate">
+              특별 근무
             </div>
           )}
         </div>
@@ -174,6 +219,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
       
       const classes = [];
       const holiday = holidayMap.get(dateStr);
+      const specialHour = specialHoursMap.get(dateStr);
       
       // 오늘 날짜
       const today = new Date();
@@ -188,11 +234,19 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
         classes.push('has-reservation');
       }
       
+      // 특별 영업시간 스타일링 - 공휴일이 아닐 때만 적용
+      if (!holiday && specialHour) {
+        classes.push('special-hours');
+      }
+      
       // 실제 영업시간 데이터를 기반으로 휴무일 표시 (dayOfWeek: 0=일요일, 1=월요일, ...)
-      const dayOfWeek = date.getDay();
-      const businessHour = businessHours.find(hour => hour.day_of_week === dayOfWeek);
-      if (businessHour && businessHour.is_closed) {
-        classes.push('closed-day');
+      // 특별 영업시간이 있는 경우는 휴무일 표시하지 않음
+      if (!specialHour) {
+        const dayOfWeek = date.getDay();
+        const businessHour = businessHours.find(hour => hour.day_of_week === dayOfWeek);
+        if (businessHour && businessHour.is_closed) {
+          classes.push('closed-day');
+        }
       }
       
       // 공휴일 스타일링
