@@ -210,7 +210,21 @@ interface BusinessHourRowProps {
 
 const BusinessHourRow: React.FC<BusinessHourRowProps> = ({ hour, dayName, onUpdate }) => {
   const handleToggleClosed = () => {
-    onUpdate({ is_closed: !hour.is_closed });
+    if (hour.is_closed) {
+      // 휴무를 해제할 때는 기본 영업시간을 설정
+      onUpdate({ 
+        is_closed: false,
+        open_time: '10:00',
+        close_time: '20:00'
+      });
+    } else {
+      // 휴무로 설정할 때는 영업시간을 null로 설정
+      onUpdate({ 
+        is_closed: true,
+        open_time: null,
+        close_time: null
+      });
+    }
   };
 
   const handleTimeChange = (field: keyof BusinessHour, value: string) => {
