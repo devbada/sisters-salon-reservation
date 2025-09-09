@@ -7,14 +7,20 @@
 
 .custom-calendar {
   width: 100%;
-  max-width: 100%;
+  max-width: 800px;
   background: rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 1rem;
-  padding: 1rem;
+  padding: 2rem;
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  overflow: hidden;
+}
+
+/* 달력 월 뷰 컨테이너 */
+.custom-calendar .react-calendar__month-view {
+  width: 100%;
 }
 
 /* 달력 네비게이션 */
@@ -55,14 +61,27 @@
   font-size: 0.75rem;
   color: #6B7280;
   padding: 0.5rem 0;
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr) !important;
+  gap: 2px;
 }
 
 .custom-calendar .react-calendar__month-view__weekdays__weekday {
   padding: 0.5em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .custom-calendar .react-calendar__month-view__weekdays__weekday abbr {
   text-decoration: none;
+}
+
+/* 월 뷰 그리드 레이아웃 */
+.custom-calendar .react-calendar__month-view__days {
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr) !important;
+  gap: 2px;
 }
 
 /* 날짜 타일 */
@@ -73,16 +92,18 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 0.5rem;
   padding: 0.75em 0.5em;
-  margin: 2px;
+  margin: 0;
   position: relative;
   transition: all 0.3s ease;
   color: #374151;
   font-weight: 500;
   min-height: 3rem;
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  box-sizing: border-box;
 }
 
 .custom-calendar .react-calendar__tile:hover {
@@ -92,17 +113,19 @@
   box-shadow: 0 4px 12px rgba(168, 85, 247, 0.15);
 }
 
-/* 활성(선택된) 날짜 */
+/* 활성(선택된) 날짜 - react-calendar의 기본 active 상태만 사용 */
 .custom-calendar .react-calendar__tile--active {
-  background: linear-gradient(135deg, rgba(168, 85, 247, 0.5), rgba(236, 72, 153, 0.5));
-  border-color: rgba(168, 85, 247, 0.6);
-  color: white;
-  font-weight: 700;
-  box-shadow: 0 4px 16px rgba(168, 85, 247, 0.3);
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.4), rgba(236, 72, 153, 0.4)) !important;
+  border-color: rgba(168, 85, 247, 0.6) !important;
+  color: white !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 16px rgba(168, 85, 247, 0.3) !important;
+  transform: none !important;
 }
 
 .custom-calendar .react-calendar__tile--active:hover {
-  background: linear-gradient(135deg, rgba(168, 85, 247, 0.6), rgba(236, 72, 153, 0.6));
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.5), rgba(236, 72, 153, 0.5)) !important;
+  transform: none !important;
 }
 
 /* 오늘 날짜 */
@@ -121,10 +144,28 @@
   font-weight: 600;
   background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(236, 72, 153, 0.15));
   border-color: rgba(168, 85, 247, 0.3);
+  position: relative;
 }
 
 .custom-calendar .has-reservation:hover {
   background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(236, 72, 153, 0.3));
+}
+
+/* 예약 표시 점 스타일링 개선 */
+.reservation-dot {
+  box-shadow: 0 1px 3px rgba(168, 85, 247, 0.4);
+  animation: pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
 }
 
 /* 다른 달의 날짜 */
@@ -133,9 +174,11 @@
   opacity: 0.5;
 }
 
-/* 주말 */
-.custom-calendar .react-calendar__month-view__days__day--weekend {
+/* 휴무일 (월요일) - 주말 스타일 제거하고 실제 휴무일만 표시 */
+.custom-calendar .closed-day {
   color: #DC2626;
+  background: rgba(220, 38, 38, 0.1);
+  text-decoration: line-through;
 }
 
 /* 반응형 디자인 */
@@ -144,10 +187,26 @@
     padding: 0.5rem;
   }
   
+  /* 모바일에서도 7개 컬럼 유지 */
+  .custom-calendar .react-calendar__month-view__days {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    gap: 1px;
+  }
+  
+  .custom-calendar .react-calendar__month-view__weekdays {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    gap: 1px;
+  }
+  
   .custom-calendar .react-calendar__tile {
     padding: 0.5em 0.25em;
     font-size: 0.875rem;
     min-height: 2.5rem;
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
   }
   
   .custom-calendar .react-calendar__navigation button {
