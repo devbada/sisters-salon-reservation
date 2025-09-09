@@ -127,7 +127,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
   const hasActiveFilters = Object.values(filters).some(value => value !== '');
 
   return (
-    <div className="max-w-5xl mx-auto glass-card p-6 mb-6 animate-fadeInUp">
+    <div className="w-full mx-auto glass-card p-6 mb-6 animate-fadeInUp">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xl font-bold text-gray-800 flex items-center">
           <span className="mr-2">🔍</span>

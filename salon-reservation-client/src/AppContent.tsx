@@ -7,7 +7,9 @@ import DesignerManagement from './components/DesignerManagement';
 import BusinessHoursManagement from './components/BusinessHours';
 import StatisticsDashboard from './components/StatisticsDashboard';
 import SearchFilter from './components/SearchFilter';
+import CustomerManagement from './components/CustomerManagement';
 import { AppointmentData } from './components/AppointmentForm';
+import { ReservationStatus } from './components/ReservationStatusBadge';
 import './styles/Calendar.css';
 
 interface ToastMessage {
@@ -17,7 +19,7 @@ interface ToastMessage {
 }
 
 function AppContent() {
-  const [activeTab, setActiveTab] = useState<'reservations' | 'designers' | 'business-hours' | 'statistics'>('reservations');
+  const [activeTab, setActiveTab] = useState<'reservations' | 'customers' | 'designers' | 'business-hours' | 'statistics'>('reservations');
   const [reservations, setReservations] = useState<AppointmentData[]>([]);
   const [filteredReservations, setFilteredReservations] = useState<AppointmentData[]>([]);
   const [allReservations, setAllReservations] = useState<AppointmentData[]>([]);
@@ -26,6 +28,7 @@ function AppContent() {
   const [editingData, setEditingData] = useState<AppointmentData | null>(null);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isStatusUpdateLoading, setIsStatusUpdateLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>(() => {
     // Initialize with today's date in YYYY-MM-DD format
     const today = new Date();
@@ -201,13 +204,53 @@ function AppContent() {
     }
   };
 
+  const handleStatusChange = async (reservationId: string, newStatus: ReservationStatus, reason?: string, notes?: string) => {
+    setIsStatusUpdateLoading(true);
+    try {
+      const requestData: any = { status: newStatus };
+      if (reason) requestData.reason = reason;
+      if (notes) requestData.notes = notes;
+
+      const response = await axios.patch(`http://localhost:4000/api/reservations/${reservationId}/status`, requestData);
+      
+      addToast(response.data.message || '예약 상태가 성공적으로 변경되었습니다.', 'success');
+      
+      // Refresh the reservations
+      await fetchReservations(selectedDate);
+      await fetchAllReservations();
+    } catch (error: any) {
+      console.error('Error updating reservation status:', error);
+      
+      if (error.response) {
+        const statusCode = error.response.status;
+        const errorMessage = error.response.data?.error || error.response.data?.message;
+        
+        if (statusCode === 400) {
+          addToast(`상태 변경 오류: ${errorMessage}`, 'error');
+        } else if (statusCode === 401) {
+          addToast('로그인이 필요합니다. 다시 로그인해주세요.', 'error');
+        } else if (statusCode === 403) {
+          addToast('상태 변경 권한이 없습니다.', 'error');
+        } else if (statusCode === 404) {
+          addToast('예약을 찾을 수 없습니다.', 'error');
+        } else {
+          addToast(`서버 오류: ${errorMessage}`, 'error');
+        }
+      } else {
+        addToast('상태 변경 중 오류가 발생했습니다. 네트워크를 확인해주세요.', 'error');
+      }
+    } finally {
+      setIsStatusUpdateLoading(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="App-content">
         <div className="text-center py-20">
           <div className="glass-card p-8 max-w-sm mx-auto">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-white/30 border-t-white mb-4"></div>
-            <p className="text-gray-700 dark:text-dark-text text-lg font-medium">🔄 예약 목록을 불러오는 중...</p>
+            <p className="text-gray-700 text-lg font-medium">🔄 예약 목록을 불러오는 중...</p>
           </div>
         </div>
       </div>
@@ -217,7 +260,7 @@ function AppContent() {
   return (
     <div className="App-content space-y-6">
       {/* Navigation Tabs */}
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-[80vw] mx-auto">
         <nav className="glass-card p-2">
           <div className="flex space-x-4">
             <button
@@ -225,17 +268,27 @@ function AppContent() {
               className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
                 activeTab === 'reservations'
                   ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                  : 'text-gray-700 dark:text-dark-text hover:bg-white/20 dark:hover:bg-white/10'
+                  : 'text-gray-700 hover:bg-white/20'
               }`}
             >
               📅 예약 관리
+            </button>
+            <button
+              onClick={() => setActiveTab('customers')}
+              className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
+                activeTab === 'customers'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                  : 'text-gray-700 hover:bg-white/20'
+              }`}
+            >
+              👥 고객 관리
             </button>
             <button
               onClick={() => setActiveTab('designers')}
               className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
                 activeTab === 'designers'
                   ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                  : 'text-gray-700 dark:text-dark-text hover:bg-white/20 dark:hover:bg-white/10'
+                  : 'text-gray-700 hover:bg-white/20'
               }`}
             >
               👨‍🎨 디자이너 관리
@@ -245,7 +298,7 @@ function AppContent() {
               className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
                 activeTab === 'business-hours'
                   ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                  : 'text-gray-700 dark:text-dark-text hover:bg-white/20 dark:hover:bg-white/10'
+                  : 'text-gray-700 hover:bg-white/20'
               }`}
             >
               🕐 영업시간 관리
@@ -255,7 +308,7 @@ function AppContent() {
               className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
                 activeTab === 'statistics'
                   ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                  : 'text-gray-700 dark:text-dark-text hover:bg-white/20 dark:hover:bg-white/10'
+                  : 'text-gray-700 hover:bg-white/20'
               }`}
             >
               📊 통계 대시보드
@@ -268,10 +321,10 @@ function AppContent() {
       {activeTab === 'reservations' && (
         <>
           {/* Top Section: Calendar Selection | Customer Registration */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 max-w-[80vw] mx-auto">
             {/* Calendar Selection */}
             <div className="glass-card p-6">
-              <h2 className="text-xl font-bold text-gray-800 dark:text-dark-text mb-4 flex items-center">
+              <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
                 📅 캘린더 선택
               </h2>
               <CalendarComponent
@@ -284,7 +337,7 @@ function AppContent() {
 
             {/* Customer Registration */}
             <div className="glass-card p-6">
-              <h2 className="text-xl font-bold text-gray-800 dark:text-dark-text mb-4 flex items-center">
+              <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
                 ✏️ 고객 등록
               </h2>
               <AppointmentForm
@@ -297,7 +350,7 @@ function AppContent() {
           </div>
 
           {/* Search and Filter */}
-          <div className="max-w-7xl mx-auto">
+          <div className="w-[80%] mx-auto">
             <SearchFilter
               reservations={reservations}
               onFilteredResults={setFilteredReservations}
@@ -306,7 +359,7 @@ function AppContent() {
           </div>
 
           {/* Bottom Section: Reservation List */}
-          <div className="max-w-7xl mx-auto">
+          <div className="w-[80%] mx-auto">
             <ReservationTable
               reservations={filteredReservations}
               onEdit={(reservation, index) => {
@@ -319,20 +372,28 @@ function AppContent() {
                 const originalIndex = reservations.findIndex(r => r._id === filteredReservations[index]._id);
                 handleDelete(originalIndex);
               }}
+              onStatusChange={handleStatusChange}
               selectedDate={selectedDate}
+              isStatusUpdateLoading={isStatusUpdateLoading}
             />
           </div>
         </>
       )}
 
+      {activeTab === 'customers' && (
+        <div className="max-w-[80vw] mx-auto">
+          <CustomerManagement />
+        </div>
+      )}
+
       {activeTab === 'designers' && (
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-[80vw] mx-auto">
           <DesignerManagement />
         </div>
       )}
 
       {activeTab === 'business-hours' && (
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-[80vw] mx-auto">
           <BusinessHoursManagement />
         </div>
       )}
@@ -346,7 +407,7 @@ function AppContent() {
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`max-w-sm w-full glass-card shadow-lg rounded-lg pointer-events-auto ring-1 ring-black dark:ring-white ring-opacity-5 dark:ring-opacity-10 transform transition-all duration-300 ease-in-out ${
+            className={`max-w-sm w-full glass-card shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 transform transition-all duration-300 ease-in-out ${
               toast.type === 'success' ? 'border-l-4 border-green-500' :
               toast.type === 'error' ? 'border-l-4 border-red-500' :
               toast.type === 'warning' ? 'border-l-4 border-yellow-500' :
@@ -366,7 +427,7 @@ function AppContent() {
                   {toast.type === 'warning' && '⚠'}
                   {toast.type === 'info' && 'ℹ'}
                 </div>
-                <p className="ml-3 text-sm font-medium text-gray-800 dark:text-dark-text">{toast.message}</p>
+                <p className="ml-3 text-sm font-medium text-gray-800">{toast.message}</p>
                 <button
                   onClick={() => removeToast(toast.id)}
                   className="ml-auto flex-shrink-0 text-gray-400 hover:text-gray-600"

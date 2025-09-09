@@ -68,20 +68,32 @@ const BusinessHoursManagement: React.FC = () => {
   const updateBusinessHour = async (dayOfWeek: number, updates: Partial<BusinessHour>) => {
     try {
       const token = localStorage.getItem('token');
+      
+      // 현재 모든 영업시간 데이터를 가져와서 특정 요일만 업데이트
+      const updatedBusinessHours = businessHours.map(hour => {
+        if (hour.day_of_week === dayOfWeek) {
+          return { ...hour, ...updates };
+        }
+        return hour;
+      });
+      
+      // 서버 API에 맞는 형식으로 변환
+      const formattedBusinessHours = updatedBusinessHours.map(hour => ({
+        openTime: hour.is_closed ? null : hour.open_time,
+        closeTime: hour.is_closed ? null : hour.close_time,
+        isClosed: hour.is_closed,
+        breakStart: hour.break_start,
+        breakEnd: hour.break_end
+      }));
+      
       await axios.put(
-        `http://localhost:4000/api/business-hours/${dayOfWeek}`,
-        updates,
+        'http://localhost:4000/api/business-hours',
+        { businessHours: formattedBusinessHours },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
       // 상태 업데이트
-      setBusinessHours(prev => 
-        prev.map(hour => 
-          hour.day_of_week === dayOfWeek 
-            ? { ...hour, ...updates }
-            : hour
-        )
-      );
+      setBusinessHours(updatedBusinessHours);
     } catch (err) {
       console.error('Failed to update business hour:', err);
       setError('영업시간 업데이트에 실패했습니다.');
@@ -198,7 +210,21 @@ interface BusinessHourRowProps {
 
 const BusinessHourRow: React.FC<BusinessHourRowProps> = ({ hour, dayName, onUpdate }) => {
   const handleToggleClosed = () => {
-    onUpdate({ is_closed: !hour.is_closed });
+    if (hour.is_closed) {
+      // 휴무를 해제할 때는 기본 영업시간을 설정
+      onUpdate({ 
+        is_closed: false,
+        open_time: '10:00',
+        close_time: '20:00'
+      });
+    } else {
+      // 휴무로 설정할 때는 영업시간을 null로 설정
+      onUpdate({ 
+        is_closed: true,
+        open_time: null,
+        close_time: null
+      });
+    }
   };
 
   const handleTimeChange = (field: keyof BusinessHour, value: string) => {

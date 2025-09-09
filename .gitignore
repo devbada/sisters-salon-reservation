@@ -163,3 +163,6 @@ build/
 dist/
 .claude/settings.local.json
 .mcp.json
+/salon-reservation-server/database.db
+/salon-reservation-server/db/salon.db
+/.playwright-mcp/reservation-status-updated.png

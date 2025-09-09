@@ -2,12 +2,31 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../db/database');
+const { loginLimiter, registerLimiter, adminCheckLimiter } = require('../middleware/rateLimiter');
 
 const router = express.Router();
 
-// JWT Secret (should be in environment variables)
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key';
+// JWT Secret with security validation
+const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
+
+// Environment variable validation
+if (!JWT_SECRET) {
+  console.error('🚨 FATAL: JWT_SECRET environment variable is required');
+  console.error('📋 Please add JWT_SECRET to your .env file');
+  process.exit(1);
+}
+
+if (JWT_SECRET.length < 32) {
+  console.error('🚨 FATAL: JWT_SECRET must be at least 32 characters long');
+  console.error('📋 Current length:', JWT_SECRET.length);
+  process.exit(1);
+}
+
+// Development environment warning
+if (process.env.NODE_ENV !== 'production' && JWT_SECRET.includes('your-super-secret-jwt-key')) {
+  console.warn('⚠️ WARNING: Using default JWT secret in development');
+}
 
 // Prepared statements for better performance
 const getAdminByUsername = db.prepare('SELECT * FROM administrators WHERE username = ?');
@@ -15,7 +34,7 @@ const insertAdmin = db.prepare('INSERT INTO administrators (username, password_h
 const countAdmins = db.prepare('SELECT COUNT(*) as count FROM administrators');
 
 // Check if any administrator exists
-router.get('/check-admin', (req, res) => {
+router.get('/check-admin', adminCheckLimiter, (req, res) => {
   try {
     const result = countAdmins.get();
     const hasAdmin = result.count > 0;
@@ -27,7 +46,7 @@ router.get('/check-admin', (req, res) => {
 });
 
 // Register first administrator (only when no admin exists)
-router.post('/register', async (req, res) => {
+router.post('/register', registerLimiter, async (req, res) => {
   try {
     const { username, password } = req.body;
     
@@ -86,7 +105,7 @@ router.post('/register', async (req, res) => {
 });
 
 // Administrator login
-router.post('/login', async (req, res) => {
+router.post('/login', loginLimiter, async (req, res) => {
   try {
     const { username, password } = req.body;
     

@@ -1,9 +1,13 @@
+// Load environment variables first
+require('dotenv').config();
+
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors');
+const { apiLimiter } = require('./middleware/rateLimiter');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -12,6 +16,8 @@ var authRouter = require('./routes/auth');
 var designersRouter = require('./routes/designers');
 var businessHoursRouter = require('./routes/business-hours');
 var statisticsRouter = require('./routes/statistics');
+var holidaysRouter = require('./routes/holidays');
+var customersRouter = require('./routes/customers');
 
 var app = express();
 
@@ -19,7 +25,7 @@ var app = express();
 if (process.env.NODE_ENV === 'production') {
   const corsOptions = {
     origin: process.env.ALLOWED_ORIGINS?.split(',') || [],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     credentials: true,
     optionsSuccessStatus: 200
@@ -29,7 +35,7 @@ if (process.env.NODE_ENV === 'production') {
   // 개발 환경에서는 모든 origin 허용
   app.use(cors({
     origin: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     credentials: true,
     optionsSuccessStatus: 200
@@ -46,6 +52,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Apply rate limiting to all API routes
+app.use('/api/', apiLimiter);
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/api/auth', authRouter);
@@ -53,6 +62,8 @@ app.use('/api/reservations', reservationsRouter);
 app.use('/api/designers', designersRouter);
 app.use('/api/business-hours', businessHoursRouter);
 app.use('/api/statistics', statisticsRouter);
+app.use('/api/holidays', holidaysRouter);
+app.use('/api/customers', customersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

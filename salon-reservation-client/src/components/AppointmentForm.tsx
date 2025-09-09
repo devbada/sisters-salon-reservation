@@ -17,6 +17,10 @@ export interface AppointmentData {
   time: string;
   stylist: string;
   serviceType: string;
+  status?: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show';
+  notes?: string; // 상태 변경 메모
+  status_updated_at?: string; // 상태 변경 시간
+  status_updated_by?: string; // 상태 변경자
 }
 
 interface Designer {
@@ -219,7 +223,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
   };
 
   // Keyboard navigation handlers
-  const handleKeyDown = (e: React.KeyboardEvent, nextRef?: React.RefObject<HTMLElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent, nextRef?: any) => {
     if (e.key === 'Enter' && nextRef?.current) {
       e.preventDefault();
       nextRef.current.focus();
@@ -230,13 +234,6 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
       e.preventDefault();
       handleSubmit(e as any);
     }
-  };
-
-  const focusNextField = (currentRef: React.RefObject<HTMLElement>) => {
-    const refs = [customerNameRef, dateInputRef, timeSelectRef, stylistSelectRef, serviceSelectRef, submitButtonRef];
-    const currentIndex = refs.findIndex(ref => ref === currentRef);
-    const nextIndex = (currentIndex + 1) % refs.length;
-    refs[nextIndex].current?.focus();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -269,11 +266,11 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
 
   return (
     <div className="max-w-md mx-auto glass-card p-8 reservation-form animate-fadeInUp">
-      <h2 className="text-2xl font-bold text-gray-800 dark:text-dark-text mb-6 text-center">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
         {initialData ? '✏️ 예약 수정' : '✨ 예약하기'}
       </h2>
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="text-sm text-gray-600 dark:text-dark-text-muted mb-4 p-3 glass-card bg-blue-50/50 dark:bg-blue-900/20 rounded-lg">
+        <div className="text-sm text-gray-600 mb-4 p-3 glass-card bg-blue-50/50 rounded-lg">
           💡 <strong>키보드 단축키:</strong><br/>
           • Tab: 다음 필드로 이동<br/>
           • Enter: 다음 필드로 이동 (입력 필드에서)<br/>
@@ -282,7 +279,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
         </div>
         {/* Customer Name */}
         <div>
-          <label htmlFor="customerName" className="block text-gray-800 dark:text-dark-text text-sm font-semibold mb-2">
+          <label htmlFor="customerName" className="block text-gray-800 text-sm font-semibold mb-2">
             👤 고객 이름
           </label>
           <input
@@ -310,7 +307,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
 
         {/* Date Input */}
         <div>
-          <label htmlFor="date" className="block text-gray-800 dark:text-dark-text text-sm font-semibold mb-2">
+          <label htmlFor="date" className="block text-gray-800 text-sm font-semibold mb-2">
             📅 예약 날짜
           </label>
           <div className="space-y-2">
@@ -343,7 +340,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
                        setTimeout(() => dateInputRef.current?.focus(), 100);
                      }
                    }}>
-                <p className="text-gray-800 dark:text-dark-text font-medium">
+                <p className="text-gray-800 font-medium">
                   {formData.date ? 
                     new Date(formData.date + 'T00:00:00').toLocaleDateString('ko-KR', {
                       year: 'numeric',
@@ -353,7 +350,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
                     }) : '날짜를 선택하세요'
                   }
                 </p>
-                <p className="text-sm text-gray-600 dark:text-dark-text-muted mt-1">
+                <p className="text-sm text-gray-600 mt-1">
                   📝 직접 입력하려면 클릭하거나 Enter 키를 누르세요
                 </p>
               </div>
@@ -361,7 +358,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
             <button
               type="button"
               onClick={() => setEnableDirectDateInput(!enableDirectDateInput)}
-              className="text-sm text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-medium transition-colors"
+              className="text-sm text-purple-600 hover:text-purple-800 font-medium transition-colors"
               tabIndex={-1}
             >
               {enableDirectDateInput ? '📅 캘린더 모드로' : '⌨️ 키보드 입력 모드로'}
@@ -374,7 +371,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
 
         {/* Time */}
         <div>
-          <label htmlFor="time" className="block text-gray-800 dark:text-dark-text text-sm font-semibold mb-2">
+          <label htmlFor="time" className="block text-gray-800 text-sm font-semibold mb-2">
             ⏰ 예약 시간
           </label>
           {businessHoursLoading ? (
@@ -421,7 +418,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
 
         {/* Designer */}
         <div>
-          <label htmlFor="stylist" className="block text-gray-800 dark:text-dark-text text-sm font-semibold mb-2">
+          <label htmlFor="stylist" className="block text-gray-800 text-sm font-semibold mb-2">
             👨‍🎨 헤어 디자이너
           </label>
           <select
@@ -459,7 +456,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
 
         {/* Service Type */}
         <div>
-          <label htmlFor="serviceType" className="block text-gray-800 dark:text-dark-text text-sm font-semibold mb-2">
+          <label htmlFor="serviceType" className="block text-gray-800 text-sm font-semibold mb-2">
             ✨ 서비스 유형
           </label>
           <select
