@@ -23,6 +23,20 @@ export interface AppointmentData {
   notes?: string; // 상태 변경 메모
   status_updated_at?: string; // 상태 변경 시간
   status_updated_by?: string; // 상태 변경자
+  // 중복 예약 관련 필드
+  hasConflict?: boolean; // 중복 예약 여부
+  conflictCount?: number; // 동시간대 예약 수
+  conflictingReservations?: string[]; // 중복된 예약 ID 목록
+}
+
+// 중복 예약 정보 인터페이스
+export interface ConflictInfo {
+  date: string;
+  time: string;
+  stylist: string;
+  conflictCount: number;
+  reservationIds: string[];
+  customerNames: string[];
 }
 
 interface Designer {
@@ -61,6 +75,16 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
   const [businessHoursLoading, setBusinessHoursLoading] = useState(true);
   const [enableDirectDateInput, setEnableDirectDateInput] = useState(false);
+  
+  // 중복 예약 체크 관련 상태
+  const [conflictInfo, setConflictInfo] = useState<{
+    hasConflict: boolean;
+    conflictCount: number;
+    message: string;
+    conflictingReservations: any[];
+  } | null>(null);
+  const [isCheckingConflict, setIsCheckingConflict] = useState(false);
+  const [showConflictWarning, setShowConflictWarning] = useState(false);
   
   // Refs for keyboard navigation
   const dateInputRef = useRef<HTMLInputElement>(null);
@@ -129,6 +153,56 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
       date: selectedDate || new Date().toISOString().split('T')[0]
     }));
   }, [selectedDate]);
+
+  // 중복 예약 체크 함수
+  const checkForConflicts = async (date: string, time: string, stylist: string) => {
+    if (!date || !time || !stylist) {
+      setConflictInfo(null);
+      setShowConflictWarning(false);
+      return;
+    }
+
+    setIsCheckingConflict(true);
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        console.warn('No auth token found');
+        return;
+      }
+
+      const response = await axios.post('http://localhost:4000/api/reservations/check-conflict', {
+        date,
+        time,
+        stylist,
+        excludeId: initialData?._id || '' // 수정 시 현재 예약은 제외
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const result = response.data;
+      setConflictInfo(result);
+      setShowConflictWarning(result.hasConflict);
+      
+    } catch (error) {
+      console.error('Conflict check error:', error);
+      setConflictInfo(null);
+      setShowConflictWarning(false);
+    } finally {
+      setIsCheckingConflict(false);
+    }
+  };
+
+  // 시간, 날짜, 디자이너 변경 시 중복 체크
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      checkForConflicts(formData.date, formData.time, formData.stylist);
+    }, 500); // 500ms 디바운싱
+
+    return () => clearTimeout(timeoutId);
+  }, [formData.date, formData.time, formData.stylist, initialData?._id]);
 
   const validateForm = (): boolean => {
     const newErrors: Partial<AppointmentData> = {};
@@ -245,6 +319,8 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
       return;
     }
 
+    // 중복 예약이 있어도 예약 허용 (경고 제거)
+
     setIsSubmitting(true);
     try {
       await onSubmit(formData);
@@ -259,6 +335,8 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
           serviceType: '',
         });
         setErrors({});
+        setConflictInfo(null);
+        setShowConflictWarning(false);
       }
     } catch (error) {
       console.error('Form submission error:', error);
@@ -507,6 +585,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
             <p className="text-red-600 text-sm mt-1 font-medium">⚠️ {errors.serviceType}</p>
           )}
         </div>
+
 
         {/* Buttons */}
         <div className={initialData ? "flex space-x-4" : ""}>

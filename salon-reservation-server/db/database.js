@@ -22,8 +22,14 @@ const createReservationsTable = `
     time TEXT NOT NULL,
     stylist TEXT NOT NULL,
     serviceType TEXT NOT NULL,
+    status TEXT DEFAULT 'pending',
+    customer_id INTEGER,
+    notes TEXT,
+    status_updated_at DATETIME,
+    status_updated_by TEXT,
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customers(id)
   )
 `;
 
@@ -74,9 +80,16 @@ const createHolidaysTable = `
   CREATE TABLE IF NOT EXISTS holidays (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     date DATE NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    type TEXT,
     reason TEXT,
     is_recurring INTEGER DEFAULT 0,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    is_closed BOOLEAN DEFAULT 1,
+    is_substitute BOOLEAN DEFAULT 0,
+    description TEXT,
+    api_response TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )
 `;
 
@@ -127,6 +140,20 @@ const createCustomerNotesTable = `
   )
 `;
 
+// Create reservation status history table
+const createReservationStatusHistoryTable = `
+  CREATE TABLE IF NOT EXISTS reservation_status_history (
+    id TEXT PRIMARY KEY,
+    reservation_id TEXT NOT NULL,
+    old_status TEXT,
+    new_status TEXT NOT NULL,
+    changed_by TEXT,
+    reason TEXT,
+    changed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (reservation_id) REFERENCES reservations(_id) ON DELETE CASCADE
+  )
+`;
+
 // Create indexes for performance
 const createIndexes = [
   'CREATE INDEX IF NOT EXISTS idx_reservations_date ON reservations(date)',
@@ -155,6 +182,7 @@ try {
   db.exec(createSpecialHoursTable);
   db.exec(createCustomersTable);
   db.exec(createCustomerNotesTable);
+  db.exec(createReservationStatusHistoryTable);
   createIndexes.forEach(index => db.exec(index));
   
   // Insert default business hours if table is empty

@@ -32,6 +32,55 @@ const checkConflict = db.prepare(`
   WHERE date = ? AND time = ? AND stylist = ? AND _id != ?
 `);
 
+// New prepared statements for conflict detection
+const getAllConflicts = db.prepare(`
+  SELECT date, time, stylist, COUNT(*) as conflictCount,
+         GROUP_CONCAT(_id) as reservationIds,
+         GROUP_CONCAT(customerName) as customerNames
+  FROM reservations 
+  WHERE status IN ('pending', 'confirmed')
+  GROUP BY date, time, stylist 
+  HAVING COUNT(*) > 1
+  ORDER BY date, time
+`);
+
+const getConflictsByDate = db.prepare(`
+  SELECT date, time, stylist, COUNT(*) as conflictCount,
+         GROUP_CONCAT(_id) as reservationIds,
+         GROUP_CONCAT(customerName) as customerNames
+  FROM reservations 
+  WHERE date = ? AND status IN ('pending', 'confirmed')
+  GROUP BY date, time, stylist 
+  HAVING COUNT(*) > 1
+  ORDER BY time
+`);
+
+const getDesignerConflicts = db.prepare(`
+  SELECT date, time, stylist, COUNT(*) as conflictCount,
+         GROUP_CONCAT(_id) as reservationIds,
+         GROUP_CONCAT(customerName) as customerNames
+  FROM reservations 
+  WHERE stylist = ? AND status IN ('pending', 'confirmed')
+  GROUP BY date, time, stylist 
+  HAVING COUNT(*) > 1
+  ORDER BY date, time
+`);
+
+const getReservationsWithConflicts = db.prepare(`
+  SELECT r.*,
+         CASE WHEN c.conflictCount > 1 THEN 1 ELSE 0 END as hasConflict,
+         COALESCE(c.conflictCount, 1) as conflictCount
+  FROM reservations r
+  LEFT JOIN (
+    SELECT date, time, stylist, COUNT(*) as conflictCount
+    FROM reservations 
+    WHERE status IN ('pending', 'confirmed')
+    GROUP BY date, time, stylist
+  ) c ON r.date = c.date AND r.time = c.time AND r.stylist = c.stylist
+  WHERE r.status IN ('pending', 'confirmed')
+  ORDER BY r.date, r.time
+`);
+
 // Status management prepared statements
 const updateReservationStatus = db.prepare(`
   UPDATE reservations 
@@ -321,13 +370,10 @@ router.post('/', authenticateToken, function(req, res) {
   }
   
   try {
-    // Check for conflicting reservations (same stylist, date, and time)
+    // 중복 예약 허용 - 차단하지 않고 로그만 기록
     const conflict = checkConflict.get(date, time, stylist, '');
-    
     if (conflict && conflict.count > 0) {
-      return res.status(409).json({ 
-        error: `${stylist}는 ${date} ${time}에 이미 예약이 있습니다.` 
-      });
+      console.log(`Warning: Duplicate reservation detected for ${stylist} on ${date} at ${time}, but allowing it as per requirements`);
     }
     
     // Find or create customer
@@ -374,13 +420,10 @@ router.put('/:id', authenticateToken, function(req, res) {
       });
     }
     
-    // Check for conflicting reservations (excluding current reservation)
+    // 중복 예약 허용 - 차단하지 않고 로그만 기록 (수정 시에도 허용)
     const conflict = checkConflict.get(date, time, stylist, id);
-    
     if (conflict && conflict.count > 0) {
-      return res.status(409).json({ 
-        error: `${stylist}는 ${date} ${time}에 이미 다른 예약이 있습니다.` 
-      });
+      console.log(`Warning: Duplicate reservation detected during update for ${stylist} on ${date} at ${time}, but allowing it as per requirements`);
     }
     
     // Find or create customer if name changed
@@ -536,6 +579,157 @@ router.get('/:id/history', authenticateToken, function(req, res) {
   } catch (error) {
     console.error('History fetch error:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GET all conflicts
+router.get('/conflicts', authenticateToken, function(req, res) {
+  try {
+    const { date, designer } = req.query;
+    
+    let conflicts;
+    if (date) {
+      // Get conflicts for specific date
+      conflicts = getConflictsByDate.all(date);
+    } else if (designer) {
+      // Get conflicts for specific designer
+      conflicts = getDesignerConflicts.all(designer);
+    } else {
+      // Get all conflicts
+      conflicts = getAllConflicts.all();
+    }
+    
+    // Format conflicts data
+    const formattedConflicts = conflicts.map(conflict => ({
+      date: conflict.date,
+      time: conflict.time,
+      stylist: conflict.stylist,
+      conflictCount: conflict.conflictCount,
+      reservationIds: conflict.reservationIds ? conflict.reservationIds.split(',') : [],
+      customerNames: conflict.customerNames ? conflict.customerNames.split(',') : []
+    }));
+    
+    res.json(formattedConflicts);
+  } catch (error) {
+    console.error('Conflicts fetch error:', error);
+    res.status(500).json({ error: '중복 예약 조회 중 오류가 발생했습니다.' });
+  }
+});
+
+// GET reservations with conflict information
+router.get('/with-conflicts', authenticateToken, function(req, res) {
+  try {
+    const reservations = getReservationsWithConflicts.all();
+    res.json(reservations);
+  } catch (error) {
+    console.error('Reservations with conflicts fetch error:', error);
+    res.status(500).json({ error: '예약 목록 조회 중 오류가 발생했습니다.' });
+  }
+});
+
+// POST check for potential conflicts (for real-time validation)
+router.post('/check-conflict', authenticateToken, function(req, res) {
+  try {
+    const { date, time, stylist, excludeId } = req.body;
+    
+    if (!date || !time || !stylist) {
+      return res.status(400).json({ 
+        error: '날짜, 시간, 스타일리스트 정보가 필요합니다.' 
+      });
+    }
+    
+    const conflict = checkConflict.get(date, time, stylist, excludeId || '');
+    const hasConflict = conflict && conflict.count > 0;
+    
+    if (hasConflict) {
+      // Get conflicting reservations details
+      const conflictingReservations = db.prepare(`
+        SELECT _id, customerName, date, time, stylist
+        FROM reservations 
+        WHERE date = ? AND time = ? AND stylist = ? AND _id != ?
+      `).all(date, time, stylist, excludeId || '');
+      
+      return res.json({
+        hasConflict: true,
+        conflictCount: conflict.count,
+        message: `${stylist}는 ${date} ${time}에 이미 ${conflict.count}개의 예약이 있습니다.`,
+        conflictingReservations
+      });
+    }
+    
+    res.json({
+      hasConflict: false,
+      conflictCount: 0,
+      message: '중복되는 예약이 없습니다.'
+    });
+    
+  } catch (error) {
+    console.error('Conflict check error:', error);
+    res.status(500).json({ error: '중복 확인 중 오류가 발생했습니다.' });
+  }
+});
+
+// GET conflicts statistics (optional feature)
+router.get('/conflicts/stats', authenticateToken, function(req, res) {
+  try {
+    // Designer-wise conflict frequency
+    const designerConflicts = db.prepare(`
+      SELECT stylist, COUNT(*) as conflictCount,
+             MIN(date) as firstConflict,
+             MAX(date) as lastConflict
+      FROM (
+        SELECT date, time, stylist
+        FROM reservations 
+        WHERE status IN ('pending', 'confirmed')
+        GROUP BY date, time, stylist 
+        HAVING COUNT(*) > 1
+      )
+      GROUP BY stylist
+      ORDER BY conflictCount DESC
+    `).all();
+    
+    // Time slot conflict patterns
+    const timeSlotConflicts = db.prepare(`
+      SELECT time, COUNT(*) as conflictCount
+      FROM (
+        SELECT date, time, stylist
+        FROM reservations 
+        WHERE status IN ('pending', 'confirmed')
+        GROUP BY date, time, stylist 
+        HAVING COUNT(*) > 1
+      )
+      GROUP BY time
+      ORDER BY conflictCount DESC
+    `).all();
+    
+    // Monthly conflict trends
+    const monthlyConflicts = db.prepare(`
+      SELECT strftime('%Y-%m', date) as month, COUNT(*) as conflictCount
+      FROM (
+        SELECT date, time, stylist
+        FROM reservations 
+        WHERE status IN ('pending', 'confirmed')
+        GROUP BY date, time, stylist 
+        HAVING COUNT(*) > 1
+      )
+      GROUP BY month
+      ORDER BY month DESC
+    `).all();
+    
+    res.json({
+      designerConflicts,
+      timeSlotConflicts,
+      monthlyConflicts,
+      summary: {
+        totalConflicts: getAllConflicts.all().length,
+        mostConflictedDesigner: designerConflicts[0]?.stylist || null,
+        mostConflictedTime: timeSlotConflicts[0]?.time || null
+      }
+    });
+    
+  } catch (error) {
+    console.error('Conflict stats error:', error);
+    res.status(500).json({ error: '중복 예약 통계 조회 중 오류가 발생했습니다.' });
   }
 });
 
