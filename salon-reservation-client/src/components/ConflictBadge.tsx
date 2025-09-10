@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { ConflictInfo } from './AppointmentForm';
 
 interface ConflictBadgeProps {
@@ -27,9 +28,9 @@ const ConflictModal: React.FC<ConflictModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="glass-card max-w-md w-full mx-4 p-6 animate-fadeInScale">
+  return createPortal(
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white/95 backdrop-blur-md border border-white/30 rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-fadeInScale">
         <div className="flex justify-between items-start mb-4">
           <h3 className="text-xl font-bold text-gray-800 flex items-center">
             ⚠️ 중복 예약 상세 정보
@@ -45,7 +46,7 @@ const ConflictModal: React.FC<ConflictModalProps> = ({
 
         {conflictInfo && (
           <div className="space-y-4">
-            <div className="glass-card p-4 bg-orange-50/20">
+            <div className="bg-orange-50/80 border border-orange-200/50 rounded-xl p-4">
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
                   <span className="font-medium text-gray-600">날짜:</span>
@@ -71,7 +72,7 @@ const ConflictModal: React.FC<ConflictModalProps> = ({
               <div className="space-y-2">
                 {customerNames.length > 0 ? (
                   customerNames.map((name, index) => (
-                    <div key={index} className="glass-card p-3 bg-red-50/20">
+                    <div key={index} className="bg-red-50/80 border border-red-200/50 rounded-lg p-3">
                       <span className="font-medium text-gray-800">👤 {name}</span>
                     </div>
                   ))
@@ -81,7 +82,7 @@ const ConflictModal: React.FC<ConflictModalProps> = ({
               </div>
             </div>
 
-            <div className="glass-card p-4 bg-blue-50/20">
+            <div className="bg-blue-50/80 border border-blue-200/50 rounded-xl p-4">
               <div className="flex items-start space-x-2">
                 <span className="text-blue-600 text-lg">💡</span>
                 <div className="text-sm text-gray-700">
@@ -96,13 +97,14 @@ const ConflictModal: React.FC<ConflictModalProps> = ({
         <div className="mt-6 flex justify-end">
           <button
             onClick={onClose}
-            className="px-6 py-2 glass-card hover:bg-white/30 transition-all duration-200 text-gray-700 font-medium rounded-lg"
+            className="px-6 py-2 bg-gray-100/90 hover:bg-gray-200/90 border border-gray-300/50 transition-all duration-200 text-gray-700 font-medium rounded-lg shadow-sm"
           >
             확인
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
