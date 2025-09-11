@@ -1,1 +1,1 @@
-export {};
+export { businessHoursApi } from './businessHoursApi';

@@ -1,1 +1,1 @@
-export {};
+export { reservationApi } from './reservationApi';

@@ -1,1 +1,1 @@
-export {};
+export { useBusinessHours } from './useBusinessHours';

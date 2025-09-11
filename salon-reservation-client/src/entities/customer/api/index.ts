@@ -1,1 +1,1 @@
-export {};
+export { customerApi } from './customerApi';

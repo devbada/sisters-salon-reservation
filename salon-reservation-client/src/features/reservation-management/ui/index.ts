@@ -1,1 +1,1 @@
-export {};
+export { AppointmentForm } from './AppointmentForm';

@@ -1,4 +1,9 @@
-// Authentication features will be exported here
-export * from './ui';
-export * from './model';
-export * from './api';
+// UI Components
+export { LoginForm } from './ui/LoginForm';
+export { AdminRegister } from './ui/AdminRegister';
+
+// Hooks
+export { useAuthStore } from './model/authStore';
+
+// Types
+export type { User, AuthState, LoginCredentials, RegisterData } from './model/types';
