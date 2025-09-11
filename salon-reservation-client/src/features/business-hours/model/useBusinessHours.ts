@@ -23,13 +23,11 @@ export const useBusinessHours = () => {
     fetchBusinessHours();
   }, []);
 
-  const updateBusinessHour = async (id: string, businessHourData: any) => {
+  const updateBusinessHour = async (updatedData: any) => {
     try {
       setIsLoading(true);
-      const updated = await businessHoursApi.updateBusinessHours(id, businessHourData);
-      setBusinessHours(prev => prev.map(bh => 
-        bh.id === id ? updated : bh
-      ));
+      const updated = await businessHoursApi.updateBusinessHours(updatedData);
+      setBusinessHours(updated);
       return updated;
     } catch (error) {
       setError('영업시간 수정에 실패했습니다.');

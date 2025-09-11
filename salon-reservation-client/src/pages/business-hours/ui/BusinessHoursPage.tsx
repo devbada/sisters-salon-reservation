@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useBusinessHoursStore } from '~/features/business-hours-management';
-import type { BusinessHours, BusinessHoliday, SpecialHours } from '~/shared/lib/types';
+import { useBusinessHours } from '~/features/business-hours';
+import type { BusinessHour, BusinessHoliday, SpecialHour } from '~/shared/lib/types';
 
 export const BusinessHoursPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'regular' | 'special' | 'holidays'>('regular');
@@ -18,7 +18,7 @@ export const BusinessHoursPage: React.FC = () => {
     createSpecialHours,
     updateSpecialHours,
     deleteSpecialHours
-  } = useBusinessHoursStore();
+  } = useBusinessHours();
 
   useEffect(() => {
     const loadData = async () => {
