@@ -1,2 +1,1 @@
-// Base API configuration placeholder
-export {};
+export * from '../base';

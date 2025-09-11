@@ -5,3 +5,6 @@ export { Modal } from './modal';
 export { Badge } from './badge';
 export { Table } from './table';
 export { Card } from './card';
+
+// Components
+export * from './stat-card';
