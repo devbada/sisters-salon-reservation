@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { CalendarWidget } from '~/widgets/calendar';
 import { ReservationTableWidget } from '~/widgets/reservation-table';
 import { useReservationStore } from '~/features/reservation-management';
-import { useDesignerStore } from '~/features/designer-management';
+import { useDesigners } from '~/features/designer-management';
 import type { Reservation } from '~/entities/reservation';
 import type { BusinessHoliday } from '~/shared/lib/types';
 
@@ -26,7 +26,7 @@ export const ReservationsPage: React.FC = () => {
     updateReservationStatus
   } = useReservationStore();
   
-  const { activeDesigners, fetchActiveDesigners } = useDesignerStore();
+  const { activeDesigners, fetchActiveDesigners } = useDesigners();
 
   // 초기 데이터 로드
   useEffect(() => {

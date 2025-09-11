@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useDesignerStore } from '~/features/designer-management';
+import { useDesigners } from '~/features/designer-management';
 import { useReservationStore } from '~/features/reservation-management';
 import { DesignerTableRow } from './DesignerTableRow';
 import { DesignerSchedulePreview } from './DesignerSchedulePreview';
@@ -16,7 +16,7 @@ export const DesignerTableWidget: React.FC<DesignerTableWidgetProps> = ({
   onDelete,
   onAdd,
 }) => {
-  const { designers, loading, fetchDesigners, deleteDesigner } = useDesignerStore();
+  const { designers, loading, fetchDesigners, deleteDesigner } = useDesigners();
   const { reservations, fetchTodayReservations } = useReservationStore();
   
   const [searchTerm, setSearchTerm] = useState('');

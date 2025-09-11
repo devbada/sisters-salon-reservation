@@ -7,18 +7,21 @@ export const BusinessHoursPage: React.FC = () => {
   
   const {
     businessHours,
-    specialHours,
-    holidays,
-    loading,
+    isLoading: loading,
     error,
-    fetchBusinessHours,
-    fetchSpecialHours,
-    fetchHolidays,
-    updateBusinessHours,
-    createSpecialHours,
-    updateSpecialHours,
-    deleteSpecialHours
+    updateBusinessHour
   } = useBusinessHours();
+  
+  // TODO: Implement full business hours management
+  const specialHours: SpecialHour[] = [];
+  const holidays: BusinessHoliday[] = [];
+  const fetchBusinessHours = () => {};
+  const fetchSpecialHours = () => {};
+  const fetchHolidays = () => {};
+  const updateBusinessHours = updateBusinessHour;
+  const createSpecialHours = () => {};
+  const updateSpecialHours = () => {};
+  const deleteSpecialHours = () => {};
 
   useEffect(() => {
     const loadData = async () => {
