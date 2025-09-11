@@ -1,3 +1,3 @@
-// Calendar widget will be exported here
-export * from './ui';
-export * from './model';
+export { CalendarWidget } from './ui/CalendarWidget';
+export { CalendarHeader } from './ui/CalendarHeader';
+export { CalendarLegend } from './ui/CalendarLegend';

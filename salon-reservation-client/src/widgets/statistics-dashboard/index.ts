@@ -1,3 +1,3 @@
-// Statistics dashboard widget will be exported here
-export * from './ui';
-export * from './model';
+export { StatisticsDashboardWidget } from './ui/StatisticsDashboardWidget';
+export { StatCard } from './ui/StatCard';
+export { StatisticsCharts } from './ui/StatisticsCharts';
