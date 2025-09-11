@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { useReservationStore } from '~/features/reservation-management';
-import { useBusinessHoursStore } from '~/features/business-hours-management';
+import { useBusinessHours } from '~/features/business-hours';
 import { CalendarHeader } from './CalendarHeader';
 import { CalendarLegend } from './CalendarLegend';
 import type { Reservation } from '~/entities/reservation';
