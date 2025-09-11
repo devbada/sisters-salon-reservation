@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { format, parseISO } from 'date-fns';
 import { ko } from 'date-fns/locale';
-import { useStatisticsStore } from '~/features/statistics-reporting';
+// import { useStatisticsStore } from '~/features/statistics-reporting'; // TODO: Create statistics-reporting feature
 import { StatCard } from './StatCard';
 import { StatisticsCharts } from './StatisticsCharts';
 
@@ -14,13 +14,17 @@ export const StatisticsDashboardWidget: React.FC<StatisticsDashboardWidgetProps>
 }) => {
   const [period, setPeriod] = useState<'7days' | '30days' | '90days'>('30days');
   
-  const { 
-    summaryStats, 
-    dailyStats, 
-    loading, 
-    error, 
-    fetchStatistics 
-  } = useStatisticsStore();
+  // TODO: Replace with real statistics store
+  const summaryStats = {
+    totalReservations: 0,
+    totalRevenue: 0,
+    totalCustomers: 0,
+    averageServiceTime: 0
+  };
+  const dailyStats: any[] = [];
+  const loading = false;
+  const error = null;
+  const fetchStatistics = () => {};
 
   const periodLabels = {
     '7days': '최근 7일',

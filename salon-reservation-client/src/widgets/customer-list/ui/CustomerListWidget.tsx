@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useCustomerStore } from '~/features/customer-management';
+import { useCustomers } from '~/features/customer-management';
 import { CustomerCard } from './CustomerCard';
 import { CustomerSearch } from './CustomerSearch';
 import type { Customer } from '~/entities/customer';
@@ -24,7 +24,7 @@ export const CustomerListWidget: React.FC<CustomerListWidgetProps> = ({
     pagination,
     fetchCustomers, 
     deleteCustomer 
-  } = useCustomerStore();
+  } = useCustomers();
   
   const [searchTerm, setSearchTerm] = useState('');
   const [vipFilter, setVipFilter] = useState<string>('all');

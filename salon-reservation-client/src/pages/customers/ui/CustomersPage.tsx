@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { CustomerListWidget } from '~/widgets/customer-list';
-import { useCustomerStore } from '~/features/customer-management';
+import { useCustomers } from '~/features/customer-management';
 import type { Customer } from '~/entities/customer';
 
 export const CustomersPage: React.FC = () => {
@@ -8,7 +8,7 @@ export const CustomersPage: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   
-  const { deleteCustomer } = useCustomerStore();
+  const { deleteCustomer } = useCustomers();
 
   const handleCustomerSelect = (customer: Customer) => {
     setSelectedCustomer(customer);

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { DesignerTableWidget } from '~/widgets/designer-table';
-import { useDesignerStore } from '~/features/designer-management';
+import { useDesigners } from '~/features/designer-management';
 import type { Designer } from '~/entities/designer';
 
 export const DesignersPage: React.FC = () => {
   const [editingDesigner, setEditingDesigner] = useState<Designer | null>(null);
   const [showForm, setShowForm] = useState(false);
   
-  const { deleteDesigner } = useDesignerStore();
+  const { deleteDesigner } = useDesigners();
 
   const handleDesignerEdit = (designer: Designer) => {
     setEditingDesigner(designer);
