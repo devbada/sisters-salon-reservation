@@ -1,2 +1,1 @@
-// Reservation model placeholder
-export {};
+export * from './types';
