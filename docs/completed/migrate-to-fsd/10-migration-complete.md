@@ -6,14 +6,18 @@ Sisters Salon Reservation System의 FSD (Feature-Sliced Design) 아키텍처 마
 
 ## 완료된 작업 단계
 
+### ✅ 0. 개요 및 프로젝트 설정 (00-overview.md, 02-setup.md)
+- FSD 아키텍처 개요 및 마이그레이션 계획 수립
+- 프로젝트 초기 설정 및 환경 구성
+
 ### ✅ 1. 분석 및 계획 (01-analysis.md)
 - 기존 코드베이스 구조 분석 완료
 - FSD 계층별 마이그레이션 계획 수립
 
-### ✅ 2-5. 하위 계층 구축 (완료됨)
-- **Shared 계층**: 공통 UI 컴포넌트, 유틸리티, API 클라이언트
-- **Entities 계층**: 비즈니스 엔티티 (예약, 고객, 디자이너, 영업시간)
-- **Features 계층**: 비즈니스 기능 (인증, 각종 관리 기능)
+### ✅ 2-5. 하위 계층 구축 (03-05.md)
+- **Shared 계층 (03-shared-layer.md)**: 공통 UI 컴포넌트, 유틸리티, API 클라이언트
+- **Entities 계층 (04-entities-layer.md)**: 비즈니스 엔티티 (예약, 고객, 디자이너, 영업시간)
+- **Features 계층 (05-features-layer.md)**: 비즈니스 기능 (인증, 각종 관리 기능)
 
 ### ✅ 6. Widgets 계층 (06-widgets-layer.md)
 - 재사용 가능한 복합 UI 블록 구현
