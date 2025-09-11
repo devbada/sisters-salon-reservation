@@ -1,1 +1,1 @@
-export {};
+export { CustomerSearchInput } from './CustomerSearchInput';

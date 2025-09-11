@@ -1,4 +1,5 @@
-// Customer management features will be exported here
-export * from './ui';
-export * from './model';
-export * from './api';
+// UI Components
+export { CustomerSearchInput } from './ui/CustomerSearchInput';
+
+// Hooks
+export { useCustomers } from './model/useCustomers';

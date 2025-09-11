@@ -34,5 +34,5 @@ export const reservationApi = {
   async checkConflicts(data: ReservationFormData): Promise<ReservationConflict[]> {
     const response = await apiClient.post('/appointments/check-conflicts', data);
     return response.data;
-  },
+  }
 };
