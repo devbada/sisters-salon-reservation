@@ -1,2 +1,1 @@
-// Shared utils placeholder
-export {};
+export * from './businessHours';

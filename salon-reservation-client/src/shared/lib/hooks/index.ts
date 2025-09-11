@@ -1,2 +1,1 @@
-// Shared hooks placeholder
-export {};
+export { useDebounce } from './useDebounce';

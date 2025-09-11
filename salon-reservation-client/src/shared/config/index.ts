@@ -1,2 +1,1 @@
-// Config placeholder
-export {};
+export * from './constants';
