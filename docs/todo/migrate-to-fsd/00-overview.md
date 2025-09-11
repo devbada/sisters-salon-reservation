@@ -70,7 +70,7 @@ shared/       # 재사용 가능한 코드 (UI kit, utils, API 등)
 ## 개발가이드 준수
 - development-guide-for-ai.md 준수
 - task (md 파일마다) 진행 시 새로운 branch 로 진행
-- base branch: develop
+- base branch: feature/migrate-to-fsd
 
 ## 마이그레이션 일정
 각 단계별로 별도의 브랜치에서 작업하고, 완료 후 메인 브랜치로 머지하는 방식으로 진행합니다.
