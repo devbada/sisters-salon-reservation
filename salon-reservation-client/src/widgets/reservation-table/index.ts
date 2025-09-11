@@ -1,3 +1,3 @@
-// Reservation table widget will be exported here
-export * from './ui';
-export * from './model';
+export { ReservationTableWidget } from './ui/ReservationTableWidget';
+export { ReservationTableRow } from './ui/ReservationTableRow';
+export { ReservationTableActions } from './ui/ReservationTableActions';

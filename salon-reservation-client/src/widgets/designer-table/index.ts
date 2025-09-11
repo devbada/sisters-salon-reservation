@@ -1,3 +1,3 @@
-// Designer table widget will be exported here
-export * from './ui';
-export * from './model';
+export { DesignerTableWidget } from './ui/DesignerTableWidget';
+export { DesignerTableRow } from './ui/DesignerTableRow';
+export { DesignerSchedulePreview } from './ui/DesignerSchedulePreview';

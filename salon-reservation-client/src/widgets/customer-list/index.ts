@@ -1,3 +1,3 @@
-// Customer list widget will be exported here
-export * from './ui';
-export * from './model';
+export { CustomerListWidget } from './ui/CustomerListWidget';
+export { CustomerCard } from './ui/CustomerCard';
+export { CustomerSearch } from './ui/CustomerSearch';
