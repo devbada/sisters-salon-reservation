@@ -3,10 +3,12 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { useReservationStore } from '~/features/reservation-management';
 import { useBusinessHours } from '~/features/business-hours';
+import { reservationApi } from '~/entities/reservation/api/reservationApi';
+import { holidayService } from '~/shared/api';
 import { CalendarHeader } from './CalendarHeader';
 import { CalendarLegend } from './CalendarLegend';
-import type { Reservation } from '~/entities/reservation';
-import type { BusinessHoliday } from '~/shared/lib/types';
+import type { Reservation, ConflictInfo } from '~/entities/reservation';
+import type { BusinessHoliday, LegacyBusinessHoliday } from '~/shared/lib/types';
 
 interface CalendarWidgetProps {
   selectedDate: string;
@@ -27,15 +29,63 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
   onHolidaySelect,
 }) => {
   const [value, setValue] = useState<Value>(new Date(selectedDate + 'T00:00:00'));
-  // TODO: conflicts 기능 구현 필요
-  const conflicts: any[] = [];
-  // TODO: useBusinessHours 구현 필요
-  const holidays: any[] = [];
-  const businessHours: any[] = [];
-  const specialHours: any[] = [];
+  
+  // Real data hooks and state
+  const { businessHours, specialHours, holidays: businessHolidays, isLoading: businessHoursLoading } = useBusinessHours();
+  const [conflicts, setConflicts] = useState<ConflictInfo[]>([]);
+  const [legacyHolidays, setLegacyHolidays] = useState<LegacyBusinessHoliday[]>([]);
+  const [conflictsLoading, setConflictsLoading] = useState(false);
+  const [holidaysLoading, setHolidaysLoading] = useState(false);
+
+  // Load conflicts data
+  useEffect(() => {
+    const fetchConflicts = async () => {
+      setConflictsLoading(true);
+      try {
+        const conflictData = await reservationApi.getConflicts();
+        setConflicts(conflictData);
+      } catch (error) {
+        console.error('Failed to fetch conflicts:', error);
+      } finally {
+        setConflictsLoading(false);
+      }
+    };
+
+    fetchConflicts();
+  }, []);
+
+  // Load holidays data
+  useEffect(() => {
+    const fetchHolidays = async () => {
+      setHolidaysLoading(true);
+      try {
+        const currentYear = new Date().getFullYear();
+        const nextYear = currentYear + 1;
+        
+        // 올해와 내년 공휴일을 동시에 가져오기
+        const [currentYearHolidays, nextYearHolidays] = await Promise.all([
+          holidayService.getHolidaysByYear(currentYear),
+          holidayService.getHolidaysByYear(nextYear)
+        ]);
+        
+        const allHolidays = [
+          ...(currentYearHolidays.holidays || []),
+          ...(nextYearHolidays.holidays || [])
+        ];
+        
+        setLegacyHolidays(allHolidays);
+      } catch (error) {
+        console.error('Failed to fetch holidays:', error);
+      } finally {
+        setHolidaysLoading(false);
+      }
+    };
+
+    fetchHolidays();
+  }, []);
 
   // Create maps for quick lookup
-  const holidayMap = new Map(holidays.map(h => [h.date, h]));
+  const holidayMap = holidayService.createHolidayMap(legacyHolidays);
   const specialHoursMap = new Map(specialHours.map(sh => [sh.date, sh]));
   const conflictDates = new Set(conflicts.map(c => c.date));
 
@@ -53,10 +103,18 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
     })
   );
 
-  // TODO: 데이터 로딩 로직 구현 필요
+  // Log when data is loaded (for debugging)
   useEffect(() => {
-    console.log('Calendar data loading...');
-  }, []);
+    if (!businessHoursLoading && !conflictsLoading && !holidaysLoading) {
+      console.log('Calendar data loaded:', {
+        businessHours: businessHours.length,
+        specialHours: specialHours.length,
+        holidays: legacyHolidays.length,
+        conflicts: conflicts.length,
+        reservations: reservations.length
+      });
+    }
+  }, [businessHoursLoading, conflictsLoading, holidaysLoading, businessHours, specialHours, legacyHolidays, conflicts, reservations]);
 
   // Update calendar when selectedDate changes
   useEffect(() => {
@@ -155,17 +213,17 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
       if (!specialHour) {
         const dayOfWeek = date.getDay();
         const businessHour = businessHours.find(hour => hour.dayOfWeek === dayOfWeek);
-        if (businessHour && businessHour.isClosed) {
+        if (businessHour && !businessHour.isOpen) {
           classes.push('closed-day');
         }
       }
       
       if (holiday) {
         classes.push('holiday-tile');
-        if (holiday.isClosed) {
+        if (holiday.is_closed) {
           classes.push('holiday-closed');
         }
-        if (holiday.isSubstitute) {
+        if (holiday.is_substitute) {
           classes.push('holiday-substitute');
         }
       }
@@ -175,7 +233,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
     return '';
   };
 
-  if (isLoading) {
+  if (isLoading || businessHoursLoading || conflictsLoading || holidaysLoading) {
     return (
       <div className="glass-card p-6">
         <div className="flex justify-center items-center h-64">
@@ -207,7 +265,7 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
           maxDetail="month"
         />
       </div>
-      <CalendarLegend hasSubstituteHolidays={holidays.some(h => h.isSubstitute)} />
+      <CalendarLegend hasSubstituteHolidays={legacyHolidays.some(h => h.is_substitute)} />
     </div>
   );
 };

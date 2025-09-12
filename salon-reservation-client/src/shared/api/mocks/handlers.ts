@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 import type { Designer } from '~/entities/designer';
 import type { Customer } from '~/entities/customer';
-import type { Reservation } from '~/entities/reservation';
+import type { Reservation, ConflictInfo, ReservationConflict } from '~/entities/reservation';
 import type { BusinessHour, SpecialHour, BusinessHoliday } from '~/shared/lib/types';
 
 // Mock 데이터
@@ -384,66 +384,117 @@ const mockHolidays: BusinessHoliday[] = [
     date: '2025-01-01',
     name: '신정',
     type: 'public',
-    isRecurring: true
+    isRecurring: true,
+    isClosed: true,
+    isSubstitute: false
   },
   {
     id: 'h-2',
     date: '2025-01-28',
     name: '설날',
     type: 'public',
-    isRecurring: false
+    isRecurring: false,
+    isClosed: true,
+    isSubstitute: false
   },
   {
     id: 'h-3',
-    date: '2025-03-01',
-    name: '삼일절',
+    date: '2025-01-30',
+    name: '설날 대체공휴일',
     type: 'public',
-    isRecurring: true
+    isRecurring: false,
+    isClosed: true,
+    isSubstitute: true
   },
   {
     id: 'h-4',
-    date: '2025-05-05',
-    name: '어린이날',
+    date: '2025-03-01',
+    name: '삼일절',
     type: 'public',
-    isRecurring: true
+    isRecurring: true,
+    isClosed: true,
+    isSubstitute: false
   },
   {
     id: 'h-5',
-    date: '2025-06-06',
-    name: '현충일',
+    date: '2025-05-05',
+    name: '어린이날',
     type: 'public',
-    isRecurring: true
+    isRecurring: true,
+    isClosed: true,
+    isSubstitute: false
   },
   {
     id: 'h-6',
-    date: '2025-08-15',
-    name: '광복절',
+    date: '2025-06-06',
+    name: '현충일',
     type: 'public',
-    isRecurring: true
+    isRecurring: true,
+    isClosed: true,
+    isSubstitute: false
   },
   {
     id: 'h-7',
-    date: '2025-10-03',
-    name: '개천절',
+    date: '2025-08-15',
+    name: '광복절',
     type: 'public',
-    isRecurring: true
+    isRecurring: true,
+    isClosed: true,
+    isSubstitute: false
   },
   {
     id: 'h-8',
-    date: '2025-10-09',
-    name: '한글날',
+    date: '2025-10-03',
+    name: '개천절',
     type: 'public',
-    isRecurring: true
+    isRecurring: true,
+    isClosed: true,
+    isSubstitute: false
   },
   {
     id: 'h-9',
+    date: '2025-10-09',
+    name: '한글날',
+    type: 'public',
+    isRecurring: true,
+    isClosed: true,
+    isSubstitute: false
+  },
+  {
+    id: 'h-10',
     date: '2025-12-25',
     name: '크리스마스',
     type: 'custom',
     isRecurring: true,
+    isClosed: true,
+    isSubstitute: false,
     notes: '매장 휴무'
   }
 ];
+
+// Mock conflicts data and generation functions
+const generateMockConflicts = (): ConflictInfo[] => {
+  // 중복 예약이 있는 날짜들을 설정
+  const conflictDates = ['2025-09-20', '2025-09-25', '2025-10-05'];
+  
+  return conflictDates.map(date => ({
+    date,
+    conflicts: [
+      {
+        id: `conflict-${date}`,
+        date,
+        conflictType: 'time_overlap' as const,
+        reservations: ['1', '2'], // 충돌하는 예약 ID들
+        message: '같은 시간대에 중복 예약이 있습니다.',
+        severity: 'warning' as const,
+        createdAt: new Date().toISOString()
+      }
+    ]
+  }));
+};
+
+// Mock conflicts를 전역에서 사용할 수 있도록 생성
+const mockConflicts = generateMockConflicts();
 
 export const handlers = [
   // Designer API
@@ -908,5 +959,115 @@ export const handlers = [
     }
     mockHolidays.splice(index, 1);
     return HttpResponse.json({ success: true });
+  }),
+
+  // Extended Holiday API for Calendar
+  http.get('/api/holidays/:year', ({ params }) => {
+    const { year } = params;
+    const yearStr = year as string;
+    const yearHolidays = mockHolidays.filter(h => h.date.startsWith(yearStr));
+    
+    return HttpResponse.json({
+      success: true,
+      count: yearHolidays.length,
+      holidays: yearHolidays.map(h => ({
+        id: parseInt(h.id.split('-')[1]) || 0,
+        date: h.date,
+        name: h.name,
+        type: h.type,
+        is_recurring: h.isRecurring || false,
+        is_closed: h.isClosed,
+        is_substitute: h.isSubstitute,
+        description: h.notes
+      })),
+      year: parseInt(yearStr)
+    });
+  }),
+
+  http.get('/api/holidays/date/:date', ({ params }) => {
+    const { date } = params;
+    const holiday = mockHolidays.find(h => h.date === date);
+    
+    if (holiday) {
+      return HttpResponse.json({
+        success: true,
+        isHoliday: true,
+        holiday: {
+          id: parseInt(holiday.id.split('-')[1]) || 0,
+          date: holiday.date,
+          name: holiday.name,
+          type: holiday.type,
+          is_recurring: holiday.isRecurring || false,
+          is_closed: holiday.isClosed,
+          is_substitute: holiday.isSubstitute,
+          description: holiday.notes
+        }
+      });
+    } else {
+      return HttpResponse.json({
+        success: true,
+        isHoliday: false,
+        holiday: null
+      });
+    }
+  }),
+
+  http.get('/api/holidays/today', () => {
+    const today = new Date().toISOString().split('T')[0];
+    const holiday = mockHolidays.find(h => h.date === today);
+    
+    return HttpResponse.json({
+      success: true,
+      isHoliday: !!holiday,
+      today,
+      holiday: holiday ? {
+        id: parseInt(holiday.id.split('-')[1]) || 0,
+        date: holiday.date,
+        name: holiday.name,
+        type: holiday.type,
+        is_recurring: holiday.isRecurring || false,
+        is_closed: holiday.isClosed,
+        is_substitute: holiday.isSubstitute,
+        description: holiday.notes
+      } : null
+    });
+  }),
+
+  // Conflicts API
+  http.get('/api/reservations/conflicts', () => {
+    return HttpResponse.json(mockConflicts);
+  }),
+
+  http.get('/api/reservations/conflicts/:date', ({ params }) => {
+    const { date } = params;
+    const conflict = mockConflicts.find(c => c.date === date);
+    return HttpResponse.json(conflict || null);
+  }),
+
+  http.post('/api/reservations/check-detailed-conflicts', async ({ request }) => {
+    const data = await request.json() as any;
+    
+    // 간단한 충돌 체크 로직
+    const hasConflict = mockConflicts.some(c => 
+      c.date === data.date && 
+      c.conflicts.some(conflict => 
+        conflict.reservations.some(resId => resId !== data.excludeReservationId)
+      )
+    );
+
+    if (hasConflict) {
+      const conflict = mockConflicts.find(c => c.date === data.date);
+      return HttpResponse.json({
+        hasConflict: true,
+        conflicts: conflict?.conflicts || [],
+        success: true
+      });
+    } else {
+      return HttpResponse.json({
+        hasConflict: false,
+        conflicts: [],
+        success: true
+      });
+    }
   })
 ];
