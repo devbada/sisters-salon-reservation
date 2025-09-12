@@ -152,6 +152,87 @@ class HolidayService {
       description: modern.notes
     };
   }
+
+  /**
+   * 달력용 특정 년월 공휴일 데이터 조회
+   */
+  async getCalendarHolidays(year: number, month: number): Promise<{
+    success: boolean;
+    year: number;
+    month: number;
+    holidays: { [day: number]: { isHoliday: boolean; name: string; type: string; isClosed: boolean } };
+    count: number;
+    error?: string;
+  }> {
+    try {
+      const response = await apiClient.get(`/holidays/calendar/${year}/${month}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching calendar holidays for ${year}/${month}:`, error);
+      return {
+        success: false,
+        year,
+        month,
+        holidays: {},
+        count: 0,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  /**
+   * 다가오는 공휴일 조회
+   */
+  async getUpcomingHolidays(limit: number = 5): Promise<HolidayResponse> {
+    try {
+      const response = await apiClient.get(`/holidays/upcoming?limit=${limit}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching upcoming holidays:', error);
+      return {
+        success: false,
+        count: 0,
+        holidays: [],
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  /**
+   * 날짜 형식 검증 (YYYY-MM-DD)
+   */
+  private isValidDateFormat(date: string): boolean {
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    return dateRegex.test(date);
+  }
+
+  /**
+   * 오늘 날짜를 YYYY-MM-DD 형식으로 반환
+   */
+  getTodayDate(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  /**
+   * 공휴일 목록을 연도별로 그룹화
+   */
+  groupHolidaysByYear(holidays: LegacyBusinessHoliday[]): Map<number, LegacyBusinessHoliday[]> {
+    const yearMap = new Map<number, LegacyBusinessHoliday[]>();
+    
+    holidays.forEach(holiday => {
+      const year = parseInt(holiday.date.split('-')[0]);
+      if (!yearMap.has(year)) {
+        yearMap.set(year, []);
+      }
+      yearMap.get(year)!.push(holiday);
+    });
+    
+    return yearMap;
+  }
 }
 
 // 싱글톤 인스턴스 생성
