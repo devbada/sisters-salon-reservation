@@ -1,4 +1,4 @@
-import { apiClient } from './apiClient';
+import { apiClient } from './base';
 import { BusinessHoliday, LegacyBusinessHoliday } from '~/shared/lib/types';
 
 // Response types matching the backup implementation

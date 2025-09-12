@@ -131,7 +131,8 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
       
       const holiday = holidayMap.get(formattedDate);
       if (holiday && onHolidaySelect) {
-        onHolidaySelect(formattedDate, holiday);
+        const convertedHoliday = holidayService.convertLegacyToModern(holiday);
+        onHolidaySelect(formattedDate, convertedHoliday);
       }
       
       onDateSelect(formattedDate);

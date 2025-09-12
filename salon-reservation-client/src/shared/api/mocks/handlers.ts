@@ -481,13 +481,14 @@ const generateMockConflicts = (): ConflictInfo[] => {
     date,
     conflicts: [
       {
-        id: `conflict-${date}`,
-        date,
+        reservationId: '1',
         conflictType: 'time_overlap' as const,
-        reservations: ['1', '2'], // 충돌하는 예약 ID들
-        message: '같은 시간대에 중복 예약이 있습니다.',
-        severity: 'warning' as const,
-        createdAt: new Date().toISOString()
+        message: '같은 시간대에 중복 예약이 있습니다.'
+      },
+      {
+        reservationId: '2',
+        conflictType: 'time_overlap' as const,
+        message: '같은 시간대에 중복 예약이 있습니다.'
       }
     ]
   }));
@@ -1051,7 +1052,7 @@ export const handlers = [
     const hasConflict = mockConflicts.some(c => 
       c.date === data.date && 
       c.conflicts.some(conflict => 
-        conflict.reservations.some(resId => resId !== data.excludeReservationId)
+        conflict.reservationId !== data.excludeReservationId
       )
     );
 

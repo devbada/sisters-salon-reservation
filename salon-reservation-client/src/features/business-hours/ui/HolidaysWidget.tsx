@@ -67,6 +67,8 @@ export const HolidaysWidget: React.FC<HolidaysWidgetProps> = ({
         name: formData.name,
         type: formData.type,
         isRecurring: formData.isRecurring,
+        isClosed: true,
+        isSubstitute: false,
         notes: formData.notes || undefined
       };
 
@@ -121,7 +123,9 @@ export const HolidaysWidget: React.FC<HolidaysWidgetProps> = ({
           date: `${selectedYear}-${holiday.month.toString().padStart(2, '0')}-${holiday.day.toString().padStart(2, '0')}`,
           name: holiday.name,
           type: 'public' as const,
-          isRecurring: true
+          isRecurring: true,
+          isClosed: true,
+          isSubstitute: false
         }));
 
         for (const holiday of koreanHolidays) {

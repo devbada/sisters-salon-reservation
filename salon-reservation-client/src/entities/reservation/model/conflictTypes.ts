@@ -1,9 +1,10 @@
 // 예약 충돌 관련 타입 정의
+import { ReservationConflict } from './types';
 
 /**
- * 예약 충돌 정보
+ * 예약 충돌 정보 (확장형)
  */
-export interface ReservationConflict {
+export interface DetailedReservationConflict {
   /** 충돌 ID */
   id: string;
   
