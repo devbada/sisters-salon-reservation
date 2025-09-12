@@ -4,15 +4,31 @@ import './index.css';
 import App from './app/App';
 import reportWebVitals from './reportWebVitals';
 
+// MSW 시작 함수
+async function enableMocking() {
+  if (process.env.NODE_ENV !== 'development') {
+    return;
+  }
+
+  const { worker } = await import('./mocks/browser');
+
+  // Start the worker
+  return worker.start({
+    onUnhandledRequest: 'bypass',
+  });
+}
+
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+enableMocking().then(() => {
+  root.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+});
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

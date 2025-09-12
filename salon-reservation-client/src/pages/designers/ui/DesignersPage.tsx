@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { DesignerTableWidget } from '~/widgets/designer-table';
+import { DesignerForm } from '~/features/designer-management/ui/DesignerForm';
 import { useDesigners } from '~/features/designer-management';
-import type { Designer } from '~/entities/designer';
+import type { Designer, DesignerFormData } from '~/entities/designer';
 
 export const DesignersPage: React.FC = () => {
   const [editingDesigner, setEditingDesigner] = useState<Designer | null>(null);
   const [showForm, setShowForm] = useState(false);
   
-  const { deleteDesigner } = useDesigners();
+  const { createDesigner, updateDesigner, deleteDesigner, isLoading } = useDesigners();
+  
+  const availableServices = ['컷', '컷+염색', '펌', '트리트먼트', '스타일링', '케어'];
 
   const handleDesignerEdit = (designer: Designer) => {
     setEditingDesigner(designer);
@@ -37,18 +40,20 @@ export const DesignersPage: React.FC = () => {
     setEditingDesigner(null);
   };
 
-  const handleFormSubmit = async (designerData: Partial<Designer>) => {
+  const handleFormSubmit = async (formData: DesignerFormData) => {
     try {
       if (editingDesigner) {
-        // 수정 로직
-        console.log('디자이너 수정:', designerData);
+        // 수정 모드
+        const updatedDesigner = await updateDesigner(editingDesigner.id, formData);
+        console.log('디자이너 정보 수정 완료:', updatedDesigner);
       } else {
-        // 추가 로직
-        console.log('디자이너 추가:', designerData);
+        // 생성 모드
+        const newDesigner = await createDesigner(formData);
+        console.log('새 디자이너 등록 완료:', newDesigner);
       }
       handleFormClose();
     } catch (error) {
-      console.error('디자이너 저장 실패:', error);
+      console.error('디자이너 정보 처리 실패:', error);
     }
   };
 
@@ -62,99 +67,18 @@ export const DesignersPage: React.FC = () => {
 
       {/* Designer Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="glass-card p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="glass-card p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <h3 className="text-xl font-bold text-gray-800 mb-4">
               {editingDesigner ? '디자이너 정보 수정' : '새 디자이너 등록'}
             </h3>
-            
-            {/* 임시 폼 - DesignerForm 위젯이 생성되면 대체 */}
-            <form className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  이름 *
-                </label>
-                <input
-                  type="text"
-                  defaultValue={editingDesigner?.name || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  전문분야
-                </label>
-                <input
-                  type="text"
-                  defaultValue={editingDesigner?.specialization || ''}
-                  placeholder="예: 컷트, 펌, 염색"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  경력 (년)
-                </label>
-                <input
-                  type="number"
-                  defaultValue={editingDesigner?.experienceYears || ''}
-                  min="0"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  연락처
-                </label>
-                <input
-                  type="tel"
-                  defaultValue={editingDesigner?.phone || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  이메일
-                </label>
-                <input
-                  type="email"
-                  defaultValue={editingDesigner?.email || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
-              
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="isActive"
-                  defaultChecked={editingDesigner?.isActive ?? true}
-                  className="mr-2 h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                />
-                <label htmlFor="isActive" className="text-sm font-medium text-gray-700">
-                  활성화
-                </label>
-              </div>
-            </form>
-            
-            <div className="flex justify-end space-x-3 mt-6">
-              <button
-                onClick={handleFormClose}
-                className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
-              >
-                취소
-              </button>
-              <button
-                onClick={() => handleFormSubmit({})}
-                className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600"
-              >
-                {editingDesigner ? '수정' : '등록'}
-              </button>
-            </div>
+            <DesignerForm
+              onSubmit={handleFormSubmit}
+              onCancel={handleFormClose}
+              initialData={editingDesigner || undefined}
+              availableServices={availableServices}
+              isLoading={isLoading}
+            />
           </div>
         </div>
       )}

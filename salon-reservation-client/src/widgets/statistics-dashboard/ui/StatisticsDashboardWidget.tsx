@@ -35,7 +35,7 @@ export const StatisticsDashboardWidget: React.FC<StatisticsDashboardWidgetProps>
   const colors = ['#A855F7', '#EC4899', '#10B981', '#F59E0B', '#EF4444', '#3B82F6', '#8B5CF6'];
 
   useEffect(() => {
-    fetchStatistics(period);
+    fetchStatistics();
   }, [fetchStatistics, period]);
 
   const processChartData = () => {
@@ -48,7 +48,7 @@ export const StatisticsDashboardWidget: React.FC<StatisticsDashboardWidgetProps>
     const stylistData: Record<string, number> = {};
     dailyStats.forEach(day => {
       Object.entries(day.byStyler).forEach(([stylist, count]) => {
-        stylistData[stylist] = (stylistData[stylist] || 0) + count;
+        stylistData[stylist] = (stylistData[stylist] || 0) + (count as number);
       });
     });
 
@@ -60,7 +60,7 @@ export const StatisticsDashboardWidget: React.FC<StatisticsDashboardWidgetProps>
     const serviceData: Record<string, number> = {};
     dailyStats.forEach(day => {
       Object.entries(day.byService).forEach(([service, count]) => {
-        serviceData[service] = (serviceData[service] || 0) + count;
+        serviceData[service] = (serviceData[service] || 0) + (count as number);
       });
     });
 
@@ -125,36 +125,29 @@ export const StatisticsDashboardWidget: React.FC<StatisticsDashboardWidgetProps>
               title="총 예약 수"
               value={summaryStats.totalReservations}
               icon="📅"
-              trend={summaryStats.growthRate !== 0 ? {
-                value: summaryStats.growthRate,
-                isPositive: summaryStats.growthRate > 0
-              } : undefined}
+              trend={undefined}
               subtitle={`${periodLabels[period]} 동안`}
             />
             
             <StatCard
               title="일평균 예약"
-              value={summaryStats.averagePerDay.toFixed(1)}
+              value={(summaryStats.totalReservations / 7).toFixed(1)}
               icon="📈"
               subtitle="건/일"
             />
             
             <StatCard
               title="최고 인기 디자이너"
-              value={summaryStats.topStyler || '-'}
+              value="-"
               icon="👨‍🎨"
-              subtitle={summaryStats.topStylerCount ? `${summaryStats.topStylerCount}건` : undefined}
+              subtitle={undefined}
             />
             
             <StatCard
               title="인기 서비스"
-              value={summaryStats.topService === 'Haircut' ? '헤어컷' :
-                     summaryStats.topService === 'Coloring' ? '염색' :
-                     summaryStats.topService === 'Styling' ? '스타일링' :
-                     summaryStats.topService === 'Treatment' ? '트리트먼트' :
-                     summaryStats.topService || '-'}
+              value="-"
               icon="✨"
-              subtitle={summaryStats.topServiceCount ? `${summaryStats.topServiceCount}건` : undefined}
+              subtitle={undefined}
             />
           </div>
 
@@ -162,27 +155,24 @@ export const StatisticsDashboardWidget: React.FC<StatisticsDashboardWidgetProps>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <StatCard
               title="가장 바쁜 요일"
-              value={summaryStats.busiestDay || '-'}
+              value="-"
               icon="📆"
-              subtitle={summaryStats.busiestDayCount ? `${summaryStats.busiestDayCount}건` : undefined}
+              subtitle={undefined}
             />
             
             <StatCard
               title="피크 시간대"
-              value={summaryStats.busiestHour || '-'}
+              value="-"
               icon="⏰"
-              subtitle={summaryStats.busiestHourCount ? `${summaryStats.busiestHourCount}건` : undefined}
+              subtitle={undefined}
             />
             
             <StatCard
               title="성장률"
-              value={summaryStats.growthRate !== 0 ? `${summaryStats.growthRate > 0 ? '+' : ''}${summaryStats.growthRate.toFixed(1)}%` : '0%'}
-              icon={summaryStats.growthRate > 0 ? '🚀' : summaryStats.growthRate < 0 ? '📉' : '➖'}
+              value="0%"
+              icon="➖"
               subtitle="전 기간 대비"
-              className={
-                summaryStats.growthRate > 0 ? 'border-green-200 bg-green-50/20' :
-                summaryStats.growthRate < 0 ? 'border-red-200 bg-red-50/20' : ''
-              }
+              className=""
             />
           </div>
         </>

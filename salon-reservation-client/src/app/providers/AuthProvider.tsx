@@ -33,41 +33,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const isAuthenticated = !!user && !!token;
 
-  // 토큰이 있을 때 사용자 정보 가져오기
-  const fetchUser = useCallback(async () => {
-    if (!token) {
-      setLoading(false);
-      return;
-    }
-
-    try {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      const response = await axios.get('http://localhost:4000/api/auth/me');
-      setUser(response.data.user);
-    } catch (error) {
-      console.error('사용자 정보 가져오기 실패:', error);
-      // 토큰이 유효하지 않으면 제거
-      localStorage.removeItem('authToken');
-      setToken(null);
-      setUser(null);
-      delete axios.defaults.headers.common['Authorization'];
-    } finally {
-      setLoading(false);
-    }
-  }, [token]);
-
+  // 토큰이 있을 때 axios 헤더 설정
   useEffect(() => {
-    fetchUser();
-  }, [fetchUser]);
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    } else {
+      delete axios.defaults.headers.common['Authorization'];
+    }
+    setLoading(false);
+  }, [token]);
 
   const login = async (username: string, password: string) => {
     try {
-      const response = await axios.post('http://localhost:4000/api/auth/login', {
-        username,
+      const response = await axios.post('/api/auth/login', {
+        email: username, // MSW 핸들러에서 email로 받음
         password,
       });
 
-      const { token: newToken, user: newUser } = response.data;
+      const { token: newToken, user } = response.data;
+      const newUser = { 
+        id: user.id, 
+        username: user.name,
+        email: user.email 
+      };
       
       localStorage.setItem('authToken', newToken);
       setToken(newToken);
@@ -94,7 +82,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const checkAdmin = async (): Promise<boolean> => {
     try {
-      const response = await axios.get('http://localhost:4000/api/auth/check-admin');
+      const response = await axios.get('/api/auth/check-admin');
       return response.data.hasAdmin;
     } catch (error) {
       console.error('관리자 확인 실패:', error);
@@ -104,7 +92,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (username: string, password: string, email?: string) => {
     try {
-      const response = await axios.post('http://localhost:4000/api/auth/register', {
+      const response = await axios.post('/api/auth/register', {
         username,
         password,
         email,

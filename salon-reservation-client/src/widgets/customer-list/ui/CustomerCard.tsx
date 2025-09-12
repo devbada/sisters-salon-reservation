@@ -16,9 +16,9 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
   onEdit,
   onDelete,
 }) => {
-  const isBirthdayThisMonth = (birthdate?: string) => {
-    if (!birthdate) return false;
-    const birth = new Date(birthdate);
+  const isBirthdayThisMonth = (birthDate?: string) => {
+    if (!birthDate) return false;
+    const birth = new Date(birthDate);
     const today = new Date();
     return birth.getMonth() === today.getMonth();
   };
@@ -39,7 +39,7 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
   return (
     <div
       className={`bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow cursor-pointer ${
-        customer.vipStatus ? 'ring-2 ring-yellow-200' : ''
+        customer.isVip ? 'ring-2 ring-yellow-200' : ''
       }`}
       onClick={() => onSelect(customer)}
     >
@@ -49,10 +49,10 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
             <h3 className="text-lg font-semibold text-gray-900">
               {customer.name}
             </h3>
-            {isBirthdayThisMonth(customer.birthdate) && (
+            {isBirthdayThisMonth(customer.birthDate) && (
               <span className="text-pink-500" title="이번 달 생일">🎂</span>
             )}
-            <VipBadge vipStatus={customer.vipStatus} vipLevel={customer.vipLevel} />
+            <VipBadge vipStatus={customer.isVip} vipLevel={0} />
           </div>
           
           <div className="space-y-1 text-sm text-gray-600">
@@ -68,10 +68,10 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
               </div>
             )}
             
-            {customer.preferredStylist && (
+            {customer.preferences?.preferredDesigner && (
               <div className="flex items-center gap-2">
                 <span>💇</span>
-                <span>선호 디자이너: {customer.preferredStylist}</span>
+                <span>선호 디자이너: {customer.preferences.preferredDesigner}</span>
               </div>
             )}
             
@@ -80,9 +80,9 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
                 방문 {customer.totalVisits || 0}회
               </span>
               
-              {customer.lastVisitDate && (
+              {customer.lastVisit && (
                 <span className="text-xs text-gray-500">
-                  마지막 방문: {formatDistanceToNow(new Date(customer.lastVisitDate), { 
+                  마지막 방문: {formatDistanceToNow(new Date(customer.lastVisit), { 
                     addSuffix: true, 
                     locale: ko 
                   })}

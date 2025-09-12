@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PageRouter } from '~/pages';
 import { useAuth } from './providers';
+import { ErrorBoundary } from '~/shared/ui/ErrorBoundary';
 
 // 임시 컴포넌트들 - 나중에 실제 컴포넌트로 교체
 const AdminRegister: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
@@ -210,5 +211,9 @@ export const AppRouter: React.FC = () => {
   }
 
   // 인증된 경우 메인 애플리케이션
-  return <PageRouter />;
+  return (
+    <ErrorBoundary>
+      <PageRouter />
+    </ErrorBoundary>
+  );
 };

@@ -22,7 +22,6 @@ export const ReservationTableWidget: React.FC<ReservationTableWidgetProps> = ({
   isStatusUpdateLoading = false
 }) => {
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
-  const { conflicts } = useReservationStore();
 
   // Conflict detection logic
   const conflictMap = useMemo(() => {
@@ -33,7 +32,7 @@ export const ReservationTableWidget: React.FC<ReservationTableWidgetProps> = ({
     );
     
     activeReservations.forEach(reservation => {
-      const key = `${reservation.time}-${reservation.stylist}`;
+      const key = `${reservation.time}-${reservation.designerName}`;
       if (!map.has(key)) {
         map.set(key, []);
       }
@@ -51,7 +50,7 @@ export const ReservationTableWidget: React.FC<ReservationTableWidgetProps> = ({
   }, [reservations]);
 
   const getConflictInfo = (reservation: Reservation) => {
-    const key = `${reservation.time}-${reservation.stylist}`;
+    const key = `${reservation.time}-${reservation.designerName}`;
     const conflictingReservations = conflictMap.get(key);
     return conflictingReservations && conflictingReservations.length > 1;
   };
@@ -132,13 +131,13 @@ export const ReservationTableWidget: React.FC<ReservationTableWidgetProps> = ({
                       <td className="py-4 px-6 text-gray-700">
                         <span className="inline-flex items-center">
                           <span className="mr-1">✂️</span>
-                          {reservation.stylist}
+                          {reservation.designerName}
                         </span>
                       </td>
                       <td className="py-4 px-6 text-gray-700">
                         <span className="inline-flex items-center glass-card px-3 py-1 rounded-full text-sm text-gray-800">
                           <span className="mr-1">✨</span>
-                          {reservation.serviceType}
+                          {reservation.service}
                         </span>
                       </td>
                       <td className="py-4 px-6">

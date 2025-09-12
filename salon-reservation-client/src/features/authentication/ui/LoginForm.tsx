@@ -5,7 +5,7 @@ import { LoginCredentials } from '../model/types';
 
 export const LoginForm: React.FC = () => {
   const [formData, setFormData] = useState<LoginCredentials>({
-    email: '',
+    username: '',
     password: ''
   });
   const [error, setError] = useState('');
@@ -24,8 +24,8 @@ export const LoginForm: React.FC = () => {
     e.preventDefault();
     setError('');
     
-    if (!formData.email || !formData.password) {
-      setError('이메일과 비밀번호를 입력해주세요.');
+    if (!formData.username || !formData.password) {
+      setError('사용자명과 비밀번호를 입력해주세요.');
       return;
     }
 
@@ -71,17 +71,17 @@ export const LoginForm: React.FC = () => {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-white/90 mb-3">
-                📧 이메일
+              <label htmlFor="username" className="block text-sm font-semibold text-white/90 mb-3">
+                👤 사용자명
               </label>
               <input
-                id="email"
-                name="email"
-                type="email"
+                id="username"
+                name="username"
+                type="text"
                 required
                 className="w-full px-4 py-4 glass-login-input focus:outline-none"
-                placeholder="이메일을 입력하세요"
-                value={formData.email}
+                placeholder="사용자명을 입력하세요"
+                value={formData.username}
                 onChange={handleChange}
                 disabled={isLoading}
               />

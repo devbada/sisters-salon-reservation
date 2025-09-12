@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useBusinessHours } from '~/features/business-hours';
+import { RegularHoursWidget } from '~/features/business-hours/ui/RegularHoursWidget';
+import { SpecialHoursWidget } from '~/features/business-hours/ui/SpecialHoursWidget';
+import { HolidaysWidget } from '~/features/business-hours/ui/HolidaysWidget';
+import { PageLoadingScreen } from '~/shared/ui/LoadingSpinner';
 import type { BusinessHour, BusinessHoliday, SpecialHour } from '~/shared/lib/types';
 
 export const BusinessHoursPage: React.FC = () => {
@@ -7,40 +11,29 @@ export const BusinessHoursPage: React.FC = () => {
   
   const {
     businessHours,
-    isLoading: loading,
+    isLoading,
     error,
-    updateBusinessHour
+    updateBusinessHour,
+    specialHours,
+    holidays,
+    createSpecialHour,
+    updateSpecialHour,
+    deleteSpecialHour,
+    createHoliday,
+    updateHoliday,
+    deleteHoliday
   } = useBusinessHours();
-  
-  // TODO: Implement full business hours management
-  const specialHours: SpecialHour[] = [];
-  const holidays: BusinessHoliday[] = [];
-  const fetchBusinessHours = () => {};
-  const fetchSpecialHours = () => {};
-  const fetchHolidays = () => {};
-  const updateBusinessHours = updateBusinessHour;
-  const createSpecialHours = () => {};
-  const updateSpecialHours = () => {};
-  const deleteSpecialHours = () => {};
 
-  useEffect(() => {
-    const loadData = async () => {
-      await Promise.all([
-        fetchBusinessHours(),
-        fetchSpecialHours(),
-        fetchHolidays(),
-      ]);
-    };
-    loadData();
-  }, [fetchBusinessHours, fetchSpecialHours, fetchHolidays]);
+  const handleSaveRegularHours = async (hours: BusinessHour[]) => {
+    try {
+      await updateBusinessHour(hours);
+    } catch (error) {
+      console.error('Failed to save regular hours:', error);
+    }
+  };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-white/30 border-t-white"></div>
-        <span className="ml-4 text-gray-700">영업시간 정보를 불러오는 중...</span>
-      </div>
-    );
+  if (isLoading) {
+    return <PageLoadingScreen message="영업시간 정보를 불러오는 중..." />;
   }
 
   if (error) {
@@ -105,46 +98,35 @@ export const BusinessHoursPage: React.FC = () => {
       {/* Tab Content */}
       {activeTab === 'regular' && (
         <div className="glass-card p-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-6">정규 영업시간 설정</h2>
-          {/* 정규 영업시간 위젯이 생성되면 여기에 추가 */}
-          <div className="text-center py-12 text-gray-500">
-            정규 영업시간 관리 위젯 구현 예정
-            <div className="mt-4 text-sm">
-              - 요일별 영업시간 설정
-              - 휴무일 설정
-              - 브레이크 타임 설정
-            </div>
-          </div>
+          <RegularHoursWidget
+            businessHours={businessHours}
+            onSave={handleSaveRegularHours}
+            isLoading={isLoading}
+          />
         </div>
       )}
 
       {activeTab === 'special' && (
         <div className="glass-card p-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-6">특별 영업시간 관리</h2>
-          {/* 특별 영업시간 위젯이 생성되면 여기에 추가 */}
-          <div className="text-center py-12 text-gray-500">
-            특별 영업시간 관리 위젯 구현 예정
-            <div className="mt-4 text-sm">
-              - 특정 날짜 영업시간 변경
-              - 임시 휴무 설정
-              - 연장 운영 설정
-            </div>
-          </div>
+          <SpecialHoursWidget
+            specialHours={specialHours}
+            onAdd={createSpecialHour}
+            onUpdate={updateSpecialHour}
+            onDelete={deleteSpecialHour}
+            isLoading={isLoading}
+          />
         </div>
       )}
 
       {activeTab === 'holidays' && (
         <div className="glass-card p-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-6">공휴일 관리</h2>
-          {/* 공휴일 관리 위젯이 생성되면 여기에 추가 */}
-          <div className="text-center py-12 text-gray-500">
-            공휴일 관리 위젯 구현 예정
-            <div className="mt-4 text-sm">
-              - 공휴일 자동 가져오기
-              - 사용자 정의 휴일 추가
-              - 대체 공휴일 설정
-            </div>
-          </div>
+          <HolidaysWidget
+            holidays={holidays}
+            onAdd={createHoliday}
+            onUpdate={updateHoliday}
+            onDelete={deleteHoliday}
+            isLoading={isLoading}
+          />
         </div>
       )}
     </div>

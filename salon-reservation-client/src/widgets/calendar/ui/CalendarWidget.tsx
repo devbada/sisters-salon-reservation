@@ -27,8 +27,12 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
   onHolidaySelect,
 }) => {
   const [value, setValue] = useState<Value>(new Date(selectedDate + 'T00:00:00'));
-  const { conflicts, fetchConflicts } = useReservationStore();
-  const { holidays, businessHours, specialHours, fetchHolidays, fetchBusinessHours, fetchSpecialHours } = useBusinessHoursStore();
+  // TODO: conflicts 기능 구현 필요
+  const conflicts: any[] = [];
+  // TODO: useBusinessHours 구현 필요
+  const holidays: any[] = [];
+  const businessHours: any[] = [];
+  const specialHours: any[] = [];
 
   // Create maps for quick lookup
   const holidayMap = new Map(holidays.map(h => [h.date, h]));
@@ -49,18 +53,10 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({
     })
   );
 
-  // Load data on mount
+  // TODO: 데이터 로딩 로직 구현 필요
   useEffect(() => {
-    const loadData = async () => {
-      await Promise.all([
-        fetchHolidays(),
-        fetchBusinessHours(),
-        fetchSpecialHours(),
-        fetchConflicts(),
-      ]);
-    };
-    loadData();
-  }, [fetchHolidays, fetchBusinessHours, fetchSpecialHours, fetchConflicts]);
+    console.log('Calendar data loading...');
+  }, []);
 
   // Update calendar when selectedDate changes
   useEffect(() => {

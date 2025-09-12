@@ -33,7 +33,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange }) => {
             <div className="flex items-center space-x-4">
               <div className="text-sm text-gray-600 transition-colors duration-200">
                 <span className="font-medium text-gray-900">
-                  {user?.username}
+                  {user?.name}
                 </span> 님
               </div>
               

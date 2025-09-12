@@ -11,7 +11,7 @@ export interface User extends BaseEntity {
 export type UserRole = 'admin' | 'staff' | 'designer';
 
 export interface LoginCredentials {
-  email: string;
+  username: string;
   password: string;
 }
 

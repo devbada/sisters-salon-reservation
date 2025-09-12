@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { AppProviders } from './providers';
 import { AppRouter } from './AppRouter';
 import { initializeApp, trackPerformanceMetrics } from './lib';
+import { ToastContainer } from '~/shared/ui/Toast';
+import { GlobalLoadingOverlay } from '~/shared/ui/GlobalLoadingOverlay';
 import './App.css';
 
 const App: React.FC = () => {
@@ -84,6 +86,8 @@ const App: React.FC = () => {
   return (
     <AppProviders>
       <AppRouter />
+      <ToastContainer />
+      <GlobalLoadingOverlay />
     </AppProviders>
   );
 };

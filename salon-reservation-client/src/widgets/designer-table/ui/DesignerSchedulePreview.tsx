@@ -12,7 +12,7 @@ export const DesignerSchedulePreview: React.FC<DesignerSchedulePreviewProps> = (
   todayReservations = [],
 }) => {
   const designerReservations = todayReservations.filter(
-    reservation => reservation.stylist === designer.name
+    reservation => reservation.designerName === designer.name
   );
 
   const getNextAppointment = () => {
@@ -51,7 +51,7 @@ export const DesignerSchedulePreview: React.FC<DesignerSchedulePreviewProps> = (
                     {nextAppointment.time} - {nextAppointment.customerName}
                   </span>
                   <div className="text-xs text-blue-600">
-                    {nextAppointment.serviceType}
+                    {nextAppointment.service}
                   </div>
                 </div>
               </div>

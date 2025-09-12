@@ -28,24 +28,24 @@ export const ReservationTableRow: React.FC<ReservationTableRowProps> = ({
     return icons[serviceType as keyof typeof icons] || '✨';
   };
 
-  const getStylistIcon = (stylist: string) => {
+  const getStylistIcon = (designerName: string) => {
     const icons = {
       'John': '👨‍🎨',
       'Sarah': '👩‍🦰',
       'Michael': '👨‍🦱',
       'Emma': '👩‍🦳'
     };
-    return icons[stylist as keyof typeof icons] || '✂️';
+    return icons[designerName as keyof typeof icons] || '✂️';
   };
 
-  const getServiceDisplayName = (serviceType: string) => {
+  const getServiceDisplayName = (service: string) => {
     const names = {
       'Haircut': '헤어컷',
       'Coloring': '염색',
       'Styling': '스타일링',
       'Treatment': '트리트먼트'
     };
-    return names[serviceType as keyof typeof names] || serviceType;
+    return names[service as keyof typeof names] || service;
   };
 
   return (
@@ -69,14 +69,14 @@ export const ReservationTableRow: React.FC<ReservationTableRowProps> = ({
       </td>
       <td className="py-4 px-6 text-gray-700">
         <span className="inline-flex items-center">
-          <span className="mr-1">{getStylistIcon(reservation.stylist)}</span>
-          {reservation.stylist}
+          <span className="mr-1">{getStylistIcon(reservation.designerName)}</span>
+          {reservation.designerName}
         </span>
       </td>
       <td className="py-4 px-6 text-gray-700">
         <span className="inline-flex items-center glass-card px-3 py-1 rounded-full text-sm text-gray-800">
-          <span className="mr-1">{getServiceIcon(reservation.serviceType)}</span>
-          {getServiceDisplayName(reservation.serviceType)}
+          <span className="mr-1">{getServiceIcon(reservation.service)}</span>
+          {getServiceDisplayName(reservation.service)}
         </span>
       </td>
       <td className="py-4 px-6">

@@ -6,6 +6,7 @@ interface AuthActions {
   setToken: (token: string | null) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  logout: () => void;
   reset: () => void;
 }
 
@@ -37,6 +38,11 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
   setLoading: (isLoading) => set({ isLoading }),
   
   setError: (error) => set({ error }),
+  
+  logout: () => {
+    localStorage.removeItem('authToken');
+    set(initialState);
+  },
   
   reset: () => set(initialState),
 }));

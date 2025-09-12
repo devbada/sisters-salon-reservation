@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { CustomerListWidget } from '~/widgets/customer-list';
+import { CustomerForm, CustomerFormData } from '~/features/customer-management/ui/CustomerForm';
 import { useCustomers } from '~/features/customer-management';
+import { useDesigners } from '~/features/designer-management';
 import type { Customer } from '~/entities/customer';
 
 export const CustomersPage: React.FC = () => {
@@ -8,7 +10,11 @@ export const CustomersPage: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   
-  const { deleteCustomer } = useCustomers();
+  const { createCustomer, updateCustomer, deleteCustomer, isLoading } = useCustomers();
+  const { designers } = useDesigners();
+  
+  const designerNames = designers.filter(d => d.isActive).map(d => d.name);
+  const availableServices = ['컷', '컷+염색', '펌', '트리트먼트', '스타일링', '케어'];
 
   const handleCustomerSelect = (customer: Customer) => {
     setSelectedCustomer(customer);
@@ -40,6 +46,23 @@ export const CustomersPage: React.FC = () => {
   const handleFormClose = () => {
     setShowForm(false);
     setEditingCustomer(null);
+  };
+
+  const handleFormSubmit = async (formData: CustomerFormData) => {
+    try {
+      if (editingCustomer) {
+        // 수정 모드
+        const updatedCustomer = await updateCustomer(editingCustomer.id, formData);
+        console.log('고객 정보 수정 완료:', updatedCustomer);
+      } else {
+        // 생성 모드
+        const newCustomer = await createCustomer(formData);
+        console.log('새 고객 등록 완료:', newCustomer);
+      }
+      handleFormClose();
+    } catch (error) {
+      console.error('고객 정보 처리 실패:', error);
+    }
   };
 
   return (
@@ -81,21 +104,19 @@ export const CustomersPage: React.FC = () => {
 
       {/* Customer Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="glass-card p-6 max-w-md w-full mx-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="glass-card p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <h3 className="text-xl font-bold text-gray-800 mb-4">
               {editingCustomer ? '고객 정보 수정' : '새 고객 등록'}
             </h3>
-            {/* CustomerForm 위젯이 생성되면 여기에 추가 */}
-            <div className="text-center py-8 text-gray-500">
-              고객 폼 위젯 구현 예정
-            </div>
-            <button
-              onClick={handleFormClose}
-              className="mt-4 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
-            >
-              닫기
-            </button>
+            <CustomerForm
+              onSubmit={handleFormSubmit}
+              onCancel={handleFormClose}
+              initialData={editingCustomer || undefined}
+              designers={designerNames}
+              services={availableServices}
+              isLoading={isLoading}
+            />
           </div>
         </div>
       )}

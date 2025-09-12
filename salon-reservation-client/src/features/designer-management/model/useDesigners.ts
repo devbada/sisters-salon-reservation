@@ -53,11 +53,25 @@ export const useDesigners = () => {
     }
   };
 
+  const deleteDesigner = async (id: string) => {
+    try {
+      setIsLoading(true);
+      await designerApi.deleteDesigner(id);
+      setDesigners(prev => prev.filter(designer => designer.id !== id));
+    } catch (error) {
+      setError('디자이너 삭제에 실패했습니다.');
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     designers,
     isLoading,
     error,
     createDesigner,
     updateDesigner,
+    deleteDesigner,
   };
 };

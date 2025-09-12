@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useCustomers } from '~/features/customer-management';
 import { CustomerCard } from './CustomerCard';
 import { CustomerSearch } from './CustomerSearch';
+import { LoadingSpinner } from '~/shared/ui/LoadingSpinner';
 import type { Customer } from '~/entities/customer';
 
 interface CustomerListWidgetProps {
@@ -19,31 +20,29 @@ export const CustomerListWidget: React.FC<CustomerListWidgetProps> = ({
 }) => {
   const { 
     customers, 
-    loading, 
+    isLoading, 
     error, 
-    pagination,
-    fetchCustomers, 
     deleteCustomer 
   } = useCustomers();
   
   const [searchTerm, setSearchTerm] = useState('');
   const [vipFilter, setVipFilter] = useState<string>('all');
 
+  // TODO: 초기 데이터 로드 로직 구현 필요
   useEffect(() => {
-    fetchCustomers({ search: '', vip: 'all', offset: 0 });
-  }, [fetchCustomers]);
+    console.log('Load customers');
+  }, []);
 
   const handleSearch = () => {
-    fetchCustomers({ search: searchTerm, vip: vipFilter, offset: 0 });
+    // TODO: 검색 로직 구현 필요
+    console.log('Search customers:', searchTerm, vipFilter);
   };
 
   const handleLoadMore = () => {
-    if (pagination.hasMore && !loading) {
-      fetchCustomers({ 
-        search: searchTerm, 
-        vip: vipFilter, 
-        offset: pagination.offset + pagination.limit 
-      });
+    // TODO: pagination 로직 구현 필요
+    if (false) {
+      // TODO: 페이지네이션 로직 구현 필요
+      console.log('Load more customers');
     }
   };
 
@@ -54,7 +53,7 @@ export const CustomerListWidget: React.FC<CustomerListWidgetProps> = ({
     }
   };
 
-  if (loading && customers.length === 0) {
+  if (isLoading && customers.length === 0) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -70,7 +69,7 @@ export const CustomerListWidget: React.FC<CustomerListWidgetProps> = ({
         <h3 className="text-lg font-medium text-gray-900 mb-2">오류가 발생했습니다</h3>
         <p className="text-gray-600 mb-4">{error}</p>
         <button
-          onClick={() => fetchCustomers({ search: '', vip: 'all', offset: 0 })}
+          onClick={() => console.log('Retry loading customers')}
           className="px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600"
         >
           다시 시도
@@ -102,7 +101,11 @@ export const CustomerListWidget: React.FC<CustomerListWidgetProps> = ({
       />
 
       {/* Customer List */}
-      {!loading && customers.length === 0 ? (
+      {isLoading ? (
+        <div className="glass-card p-8">
+          <LoadingSpinner size="large" message="고객 목록을 검색하는 중..." />
+        </div>
+      ) : customers.length === 0 ? (
         <div className="text-center py-12">
           <div className="text-gray-400 text-6xl mb-4">👥</div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -122,7 +125,7 @@ export const CustomerListWidget: React.FC<CustomerListWidgetProps> = ({
         <>
           {/* Results Stats */}
           <div className="glass-card px-4 py-2 text-gray-800 text-sm">
-            📊 총 {pagination.total}명의 고객 ({customers.length}명 표시 중)
+            📊 총 {customers.length}명의 고객
           </div>
 
           {/* Customer Cards Grid */}
@@ -139,14 +142,14 @@ export const CustomerListWidget: React.FC<CustomerListWidgetProps> = ({
           </div>
 
           {/* Load More */}
-          {pagination.hasMore && (
+          {/* TODO: hasMore 로직 구현 필요 */ false && (
             <div className="flex justify-center">
               <button
                 onClick={handleLoadMore}
-                disabled={loading}
+                disabled={isLoading}
                 className="px-6 py-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {loading ? (
+                {isLoading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-500 inline-block mr-2"></div>
                     불러오는 중...

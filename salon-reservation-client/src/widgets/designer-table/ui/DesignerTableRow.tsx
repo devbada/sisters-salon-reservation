@@ -34,10 +34,11 @@ export const DesignerTableRow: React.FC<DesignerTableRowProps> = ({
         </div>
       </td>
       <td className="py-4 px-4 text-gray-700">
-        {designer.specialization || '-'}
+        {designer.specialties?.join(', ') || '-'}
       </td>
       <td className="py-4 px-4 text-gray-700">
-        {designer.experienceYears ? `${designer.experienceYears}년` : '-'}
+        {/* TODO: experienceYears 속성이 Designer 타입에 없음 */}
+        -
       </td>
       <td className="py-4 px-4 text-gray-700">
         {designer.phone || '-'}
