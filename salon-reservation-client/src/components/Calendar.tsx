@@ -391,6 +391,22 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
             </div>
           )}
         </div>
+
+        {/* 오늘날짜 버튼 */}
+        <div className="mt-4 text-center">
+          <button
+            onClick={() => {
+              const today = new Date();
+              const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+              setValue(today);
+              onDateSelect(todayStr);
+            }}
+            className="px-6 py-2 bg-white/20 backdrop-blur-sm rounded-full text-gray-700 hover:bg-white/30 hover:text-gray-800 transition-all duration-200 font-medium shadow-lg border border-white/20 hover:border-white/40"
+            aria-label="오늘 날짜로 이동"
+          >
+            📅 오늘날짜
+          </button>
+        </div>
       </div>
     </div>
   );
