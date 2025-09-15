@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { AppointmentData } from './AppointmentForm';
 import ReservationStatusBadge, { ReservationStatus } from './ReservationStatusBadge';
 import ReservationStatusModal from './ReservationStatusModal';
+import ConflictBadge from './ConflictBadge';
 
 interface ReservationTableProps {
   reservations: AppointmentData[];
@@ -22,6 +23,60 @@ const ReservationTable: React.FC<ReservationTableProps> = ({
 }) => {
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [selectedReservation, setSelectedReservation] = useState<AppointmentData | null>(null);
+  
+  // 중복 예약 감지 로직
+  const conflictMap = useMemo(() => {
+    const map = new Map<string, AppointmentData[]>();
+    
+    // 유효한 예약만 필터링 (pending, confirmed 상태)
+    const activeReservations = reservations.filter(reservation => 
+      ['pending', 'confirmed'].includes(reservation.status || 'pending')
+    );
+    
+    // 시간대+디자이너별로 그룹화
+    activeReservations.forEach(reservation => {
+      const key = `${reservation.time}-${reservation.stylist}`;
+      if (!map.has(key)) {
+        map.set(key, []);
+      }
+      map.get(key)!.push(reservation);
+    });
+    
+    // 중복이 있는 것만 반환
+    const conflicts = new Map<string, AppointmentData[]>();
+    map.forEach((reservationList, key) => {
+      if (reservationList.length > 1) {
+        conflicts.set(key, reservationList);
+      }
+    });
+    
+    return conflicts;
+  }, [reservations]);
+
+  // 특정 예약의 중복 정보 가져오기
+  const getConflictInfo = (reservation: AppointmentData) => {
+    const key = `${reservation.time}-${reservation.stylist}`;
+    const conflictingReservations = conflictMap.get(key);
+    
+    if (!conflictingReservations || conflictingReservations.length <= 1) {
+      return null;
+    }
+    
+    return {
+      conflictCount: conflictingReservations.length,
+      customerNames: conflictingReservations.map(r => r.customerName),
+      reservationIds: conflictingReservations.map(r => r._id || ''),
+      conflictInfo: {
+        date: reservation.date,
+        time: reservation.time,
+        stylist: reservation.stylist,
+        conflictCount: conflictingReservations.length,
+        reservationIds: conflictingReservations.map(r => r._id || ''),
+        customerNames: conflictingReservations.map(r => r.customerName)
+      }
+    };
+  };
+
   const getServiceIcon = (serviceType: string) => {
     const icons = {
       'Haircut': '💇‍♀️',
@@ -102,11 +157,17 @@ const ReservationTable: React.FC<ReservationTableProps> = ({
                     </tr>
                   </thead>
                   <tbody>
-                    {reservations.map((reservation, index) => (
-                      <tr 
-                        key={reservation._id || index} 
-                        className="border-b border-white/10 hover:bg-white/5 transition-colors duration-200"
-                      >
+                    {reservations.map((reservation, index) => {
+                      const conflictInfo = getConflictInfo(reservation);
+                      const hasConflict = conflictInfo !== null;
+                      
+                      return (
+                        <tr 
+                          key={reservation._id || index} 
+                          className={`border-b border-white/10 hover:bg-white/5 transition-colors duration-200 ${
+                            hasConflict ? 'conflict-table-row flash-conflict' : ''
+                          }`}
+                        >
                         <td className="py-4 px-6 text-gray-800 font-medium">
                           {reservation.customerName}
                         </td>
@@ -137,12 +198,24 @@ const ReservationTable: React.FC<ReservationTableProps> = ({
                           </span>
                         </td>
                         <td className="py-4 px-6">
-                          <ReservationStatusBadge 
-                            status={reservation.status || 'pending'} 
-                            notes={reservation.notes}
-                            statusUpdatedAt={reservation.status_updated_at}
-                            statusUpdatedBy={reservation.status_updated_by}
-                          />
+                          <div className="flex items-center space-x-2">
+                            <ReservationStatusBadge 
+                              status={reservation.status || 'pending'} 
+                              notes={reservation.notes}
+                              statusUpdatedAt={reservation.status_updated_at}
+                              statusUpdatedBy={reservation.status_updated_by}
+                            />
+                            {hasConflict && conflictInfo && (
+                              <ConflictBadge
+                                conflictCount={conflictInfo.conflictCount}
+                                conflictInfo={conflictInfo.conflictInfo}
+                                customerNames={conflictInfo.customerNames}
+                                reservationIds={conflictInfo.reservationIds}
+                                size="small"
+                                variant="warning"
+                              />
+                            )}
+                          </div>
                         </td>
                         <td className="py-4 px-6 text-center">
                           <div className="flex justify-center space-x-2">
@@ -169,8 +242,9 @@ const ReservationTable: React.FC<ReservationTableProps> = ({
                             </button>
                           </div>
                         </td>
-                      </tr>
-                    ))}
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -179,11 +253,17 @@ const ReservationTable: React.FC<ReservationTableProps> = ({
 
           {/* Mobile Card View */}
           <div className="lg:hidden space-y-4">
-            {reservations.map((reservation, index) => (
-              <div 
-                key={reservation._id || index}
-                className="glass-card p-6 hover:scale-[1.02] transition-all duration-300"
-              >
+            {reservations.map((reservation, index) => {
+              const conflictInfo = getConflictInfo(reservation);
+              const hasConflict = conflictInfo !== null;
+              
+              return (
+                <div 
+                  key={reservation._id || index}
+                  className={`glass-card p-6 hover:scale-[1.02] transition-all duration-300 ${
+                    hasConflict ? 'conflict-reservation flash-conflict' : ''
+                  }`}
+                >
                 <div className="flex justify-between items-start mb-4">
                   <h3 className="text-xl font-bold text-gray-800">
                     <span className="mr-2">👤</span>{reservation.customerName}
@@ -242,16 +322,29 @@ const ReservationTable: React.FC<ReservationTableProps> = ({
                     </div>
                   </div>
                   <div className="flex justify-between items-center">
-                    <ReservationStatusBadge 
-                      status={reservation.status || 'pending'} 
-                      notes={reservation.notes}
-                      statusUpdatedAt={reservation.status_updated_at}
-                      statusUpdatedBy={reservation.status_updated_by}
-                    />
+                    <div className="flex items-center space-x-2">
+                      <ReservationStatusBadge 
+                        status={reservation.status || 'pending'} 
+                        notes={reservation.notes}
+                        statusUpdatedAt={reservation.status_updated_at}
+                        statusUpdatedBy={reservation.status_updated_by}
+                      />
+                      {hasConflict && conflictInfo && (
+                        <ConflictBadge
+                          conflictCount={conflictInfo.conflictCount}
+                          conflictInfo={conflictInfo.conflictInfo}
+                          customerNames={conflictInfo.customerNames}
+                          reservationIds={conflictInfo.reservationIds}
+                          size="medium"
+                          variant="warning"
+                        />
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </div>
         </>
       )}

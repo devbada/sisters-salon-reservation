@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import axios from 'axios';
-import { AppointmentData } from './AppointmentForm';
+import { AppointmentData, ConflictInfo } from './AppointmentForm';
 import holidayService, { Holiday } from '../services/holidayService';
 
 interface BusinessHour {
@@ -50,6 +50,11 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
   const [specialHours, setSpecialHours] = useState<SpecialHour[]>([]);
   const [specialHoursMap, setSpecialHoursMap] = useState<Map<string, SpecialHour>>(new Map());
   const [specialHoursLoading, setSpecialHoursLoading] = useState(false);
+  
+  // 중복 예약 관련 state
+  const [conflicts, setConflicts] = useState<ConflictInfo[]>([]);
+  const [conflictDates, setConflictDates] = useState<Set<string>>(new Set());
+  const [conflictsLoading, setConflictsLoading] = useState(false);
   
   // 예약이 있는 날짜들을 추출
   const reservationDates = new Set(
@@ -163,6 +168,44 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
     fetchSpecialHours();
   }, []);
 
+  // 중복 예약 데이터 가져오기
+  useEffect(() => {
+    const fetchConflicts = async () => {
+      setConflictsLoading(true);
+      try {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          console.warn('No auth token found, skipping conflicts fetch');
+          return;
+        }
+
+        const response = await axios.get('http://localhost:4000/api/reservations/conflicts', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        const conflictData = response.data;
+        setConflicts(conflictData);
+        
+        // 중복 예약이 있는 날짜들을 Set으로 만들기
+        const conflictDatesSet = new Set<string>();
+        conflictData.forEach((conflict: ConflictInfo) => {
+          conflictDatesSet.add(conflict.date);
+        });
+        setConflictDates(conflictDatesSet);
+        
+        console.log('Fetched conflicts:', conflictData);
+      } catch (error) {
+        console.error('Failed to fetch conflicts:', error);
+      } finally {
+        setConflictsLoading(false);
+      }
+    };
+
+    fetchConflicts();
+  }, []);
+
   // selectedDate가 외부에서 변경될 때 달력도 업데이트
   useEffect(() => {
     setValue(new Date(selectedDate + 'T00:00:00'));
@@ -181,11 +224,19 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
       const hasReservation = reservationDates.has(dateStr);
       const holiday = holidayMap.get(dateStr);
       const specialHour = specialHoursMap.get(dateStr);
+      const hasConflict = conflictDates.has(dateStr);
       
       return (
         <div className="flex flex-col items-center justify-center min-h-[20px]">
+          {/* 중복 예약 경고 표시 - 최우선 */}
+          {hasConflict && (
+            <div className="text-lg mb-0.5 animate-bounce" title="중복 예약 있음">
+              ⚠️
+            </div>
+          )}
+          
           {/* 예약 표시 - 실제 예약이 있을 때만 표시 */}
-          {hasReservation && (
+          {hasReservation && !hasConflict && (
             <div className="w-2 h-2 bg-purple-500 rounded-full mb-0.5 reservation-dot"></div>
           )}
           
@@ -220,6 +271,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
       const classes = [];
       const holiday = holidayMap.get(dateStr);
       const specialHour = specialHoursMap.get(dateStr);
+      const hasConflict = conflictDates.has(dateStr);
       
       // 오늘 날짜
       const today = new Date();
@@ -228,9 +280,14 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
         classes.push('today-tile');
       }
       
-      // 예약이 있는 날짜 - 전체 예약 데이터에서 확인
+      // 중복 예약이 있는 날짜 - 최우선
+      if (hasConflict) {
+        classes.push('conflict-date');
+      }
+      
+      // 예약이 있는 날짜 - 전체 예약 데이터에서 확인 (중복이 없을 때만)
       const hasValidReservation = reservationDates.has(dateStr);
-      if (hasValidReservation) {
+      if (hasValidReservation && !hasConflict) {
         classes.push('has-reservation');
       }
       
@@ -265,13 +322,13 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
     return '';
   };
 
-  if (isLoading || holidaysLoading || businessHoursLoading) {
+  if (isLoading || holidaysLoading || businessHoursLoading || conflictsLoading) {
     return (
       <div className="glass-card p-6">
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-white/30 border-t-white"></div>
           <div className="ml-4 text-white">
-            {businessHoursLoading ? '영업시간 정보 로딩 중...' : holidaysLoading ? '공휴일 정보 로딩 중...' : '달력 로딩 중...'}
+            {conflictsLoading ? '중복 예약 정보 로딩 중...' : businessHoursLoading ? '영업시간 정보 로딩 중...' : holidaysLoading ? '공휴일 정보 로딩 중...' : '달력 로딩 중...'}
           </div>
         </div>
       </div>
@@ -310,10 +367,14 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
             weekday: 'long'
           })}
         </p>
-        <div className="flex items-center justify-center mt-2 space-x-4 text-sm">
+        <div className="flex items-center justify-center mt-2 space-x-4 text-sm flex-wrap gap-2">
           <div className="flex items-center">
             <div className="w-3 h-3 bg-purple-500 rounded-full mr-2"></div>
             <span className="text-gray-600">예약 있음</span>
+          </div>
+          <div className="flex items-center">
+            <div className="text-orange-500 mr-1 text-sm">⚠️</div>
+            <span className="text-gray-600">중복 예약</span>
           </div>
           <div className="flex items-center">
             <div className="w-3 h-3 border-2 border-purple-400 rounded-full mr-2"></div>
