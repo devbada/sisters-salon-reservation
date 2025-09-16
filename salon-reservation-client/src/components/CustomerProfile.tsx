@@ -13,18 +13,31 @@ interface CustomerProfileProps {
 }
 
 const CustomerProfile: React.FC<CustomerProfileProps> = ({
-  customer,
+  customer: initialCustomer,
   onBack,
   onEdit,
   onDelete,
   onUpdate
 }) => {
+  const [customer, setCustomer] = useState<Customer>(initialCustomer);
   const [visitHistory, setVisitHistory] = useState<CustomerHistoryResponse | null>(null);
-  const [notes, setNotes] = useState<CustomerNote[]>(customer.notes || []);
+  const [notes, setNotes] = useState<CustomerNote[]>(initialCustomer.notes || []);
   const [newNote, setNewNote] = useState('');
   const [newNoteImportant, setNewNoteImportant] = useState(false);
   const [loading, setLoading] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(true);
+
+  // 최신 고객 정보 조회
+  const fetchCustomerInfo = async () => {
+    try {
+      const response = await axios.get<Customer>(`/api/customers/${customer.id}`);
+      setCustomer(response.data);
+      setNotes(response.data.notes || []);
+      onUpdate(response.data);
+    } catch (error) {
+      console.error('고객 정보 조회 오류:', error);
+    }
+  };
 
   // 방문 이력 조회
   const fetchVisitHistory = async () => {
@@ -87,8 +100,9 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
   };
 
   useEffect(() => {
+    fetchCustomerInfo();
     fetchVisitHistory();
-  }, [customer.id]);
+  }, [initialCustomer.id]);
 
   // Escape 키로 뒤로가기
   useEffect(() => {
