@@ -54,7 +54,6 @@ interface AppointmentFormProps {
 }
 
 const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData, onCancelEdit, selectedDate }) => {
-  console.log('🔄 AppointmentForm 컴포넌트 렌더링 (최적화 후)');
   // 성능 최적화: 불필요한 console.log 제거
   const [formData, setFormData] = useState<AppointmentData>(() => ({
     customerName: '',

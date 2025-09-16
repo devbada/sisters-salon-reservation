@@ -23,7 +23,6 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
   stylists = ['John', 'Sarah', 'Michael', 'Emma'],
   serviceTypes = ['Haircut', 'Coloring', 'Styling', 'Treatment']
 }) => {
-  console.log('🔄 SearchFilter 컴포넌트 렌더링 (버튼 기반 검색)');
   // 검색 폼 상태 (입력용)
   const [searchForm, setSearchForm] = useState<FilterState>({
     searchTerm: '',
@@ -230,7 +229,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
       </div>
 
       {/* 검색 버튼 */}
-      <div className="mb-6 flex justify-center space-x-4">
+      <div className="mt-6 mb-6 flex justify-end space-x-4">
         <button
           onClick={handleSearch}
           className="glass-button px-6 py-3 bg-blue-500/20 hover:bg-blue-500/30 text-blue-700 font-semibold rounded-lg hover:scale-105 transition-all duration-200 flex items-center space-x-2"

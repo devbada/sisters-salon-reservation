@@ -41,7 +41,6 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
   isLoading = false,
   onHolidaySelect,
 }) => {
-  console.log('🔄 Calendar 컴포넌트 렌더링 (최적화 후)');
   // 성능 최적화: 불필요한 console.log 제거
   // selectedDate에서 직접 파생하여 불필요한 상태 업데이트 방지
   const value = useMemo<Value>(() => {

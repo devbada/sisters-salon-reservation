@@ -21,7 +21,6 @@ const ReservationTable: React.FC<ReservationTableProps> = ({
   selectedDate,
   isStatusUpdateLoading = false
 }) => {
-  console.log('🔄 ReservationTable 컴포넌트 렌더링 (최적화 후)');
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [selectedReservation, setSelectedReservation] = useState<AppointmentData | null>(null);
   
