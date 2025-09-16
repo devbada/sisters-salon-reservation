@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import AppointmentForm from './components/AppointmentForm';
 import ReservationTable from './components/ReservationTable';
@@ -35,17 +35,23 @@ function AppContent() {
     return today.toISOString().split('T')[0];
   });
 
+  // Create stable reference for addToast to avoid recreating callbacks
+  const addToastRef = useRef<(message: string, type?: ToastMessage['type']) => void>(() => {});
+
   // Toast message functions
   const addToast = useCallback((message: string, type: ToastMessage['type'] = 'info') => {
     const id = Math.random().toString(36).substr(2, 9);
     const newToast: ToastMessage = { id, message, type };
     setToasts(prev => [...prev, newToast]);
-    
+
     // Auto-remove toast after 5 seconds
     setTimeout(() => {
       setToasts(prev => prev.filter(toast => toast.id !== id));
     }, 5000);
   }, []);
+
+  // Update the ref whenever addToast changes
+  addToastRef.current = addToast;
 
   const removeToast = (id: string) => {
     setToasts(prev => prev.filter(toast => toast.id !== id));
@@ -80,40 +86,38 @@ function AppContent() {
   const fetchReservations = useCallback(async (date?: string) => {
     setIsLoading(true);
     try {
-      const url = date 
+      const url = date
         ? `http://localhost:4000/api/reservations?date=${date}`
         : 'http://localhost:4000/api/reservations';
-      
+
       const response = await axios.get(url);
       setReservations(response.data);
       setFilteredReservations(response.data);
     } catch (error: any) {
       console.error('Error fetching reservations:', error);
       if (error.response?.status === 401) {
-        addToast('로그인이 필요합니다.', 'error');
+        addToastRef.current?.('로그인이 필요합니다.', 'error');
       } else if (error.response?.status === 403) {
-        addToast('접근 권한이 없습니다.', 'error');
+        addToastRef.current?.('접근 권한이 없습니다.', 'error');
       } else {
-        addToast('서버 오류가 발생했습니다. 다시 시도해주세요.', 'error');
+        addToastRef.current?.('서버 오류가 발생했습니다. 다시 시도해주세요.', 'error');
       }
     } finally {
       setIsLoading(false);
     }
-  }, [addToast]);
+  }, []);
 
-  // Initial load with today's date
+  // Initial load - only run once on component mount
   useEffect(() => {
-    fetchReservations(selectedDate);
     fetchAllReservations();
     fetchActiveDesigners();
-  }, [fetchReservations, fetchAllReservations, fetchActiveDesigners, selectedDate]);
+    fetchReservations(selectedDate);
+  }, [fetchAllReservations, fetchActiveDesigners, fetchReservations]);
 
   // Fetch reservations when selected date changes
   useEffect(() => {
-    if (selectedDate) {
-      fetchReservations(selectedDate);
-    }
-  }, [fetchReservations, selectedDate]);
+    fetchReservations(selectedDate);
+  }, [selectedDate, fetchReservations]);
 
   const handleAppointmentSubmit = async (formData: AppointmentData) => {
     try {

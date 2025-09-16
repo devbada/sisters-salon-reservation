@@ -366,4 +366,4 @@ const ReservationTable: React.FC<ReservationTableProps> = ({
   );
 };
 
-export default ReservationTable;
+export default React.memo(ReservationTable);

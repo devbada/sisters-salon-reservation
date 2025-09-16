@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import axios from 'axios';
@@ -56,21 +56,23 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
   const [conflictDates, setConflictDates] = useState<Set<string>>(new Set());
   const [conflictsLoading, setConflictsLoading] = useState(false);
   
-  // 예약이 있는 날짜들을 추출
-  const reservationDates = new Set(
-    reservations.map(reservation => {
-      // 예약 날짜가 이미 YYYY-MM-DD 형식이라면 그대로 사용
-      if (typeof reservation.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(reservation.date)) {
-        return reservation.date;
-      }
-      // 그렇지 않으면 Date 객체로 변환 후 로컬 날짜 추출
-      const date = new Date(reservation.date);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    })
-  );
+  // 예약이 있는 날짜들을 추출 - useMemo로 최적화
+  const reservationDates = useMemo(() => {
+    return new Set(
+      reservations.map(reservation => {
+        // 예약 날짜가 이미 YYYY-MM-DD 형식이라면 그대로 사용
+        if (typeof reservation.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(reservation.date)) {
+          return reservation.date;
+        }
+        // 그렇지 않으면 Date 객체로 변환 후 로컬 날짜 추출
+        const date = new Date(reservation.date);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      })
+    );
+  }, [reservations]);
 
   // 날짜 선택 시 처리
   const handleDateChange = (newValue: Value) => {
@@ -396,4 +398,4 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
   );
 };
 
-export default CalendarComponent;
+export default React.memo(CalendarComponent);

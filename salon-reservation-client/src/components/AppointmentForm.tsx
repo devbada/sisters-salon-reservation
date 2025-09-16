@@ -614,4 +614,4 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
   );
 };
 
-export default AppointmentForm;
+export default React.memo(AppointmentForm);

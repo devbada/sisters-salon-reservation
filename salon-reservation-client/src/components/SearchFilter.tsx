@@ -276,4 +276,4 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
   );
 };
 
-export default SearchFilter;
+export default React.memo(SearchFilter);
