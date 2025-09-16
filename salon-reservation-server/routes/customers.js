@@ -301,18 +301,18 @@ router.get('/:id/history', (req, res) => {
       return res.status(404).json({ error: '고객을 찾을 수 없습니다.' });
     }
     
-    // 예약 기록을 방문 이력으로 조회 (customer_id로 직접 매칭)
+    // 예약 기록을 방문 이력으로 조회 (customer_id로 직접 매칭, completed 상태만)
     const history = db.prepare(`
       SELECT _id, date, time, stylist, serviceType, status, createdAt
-      FROM reservations 
-      WHERE customer_id = ?
+      FROM reservations
+      WHERE customer_id = ? AND status = 'completed'
       ORDER BY date DESC, time DESC
       LIMIT ? OFFSET ?
     `).all(id, parseInt(limit), parseInt(offset));
     
-    // 총 방문 횟수 조회
+    // 총 방문 횟수 조회 (completed 상태만)
     const { total } = db.prepare(`
-      SELECT COUNT(*) as total FROM reservations WHERE customer_id = ?
+      SELECT COUNT(*) as total FROM reservations WHERE customer_id = ? AND status = 'completed'
     `).get(id);
     
     res.json({
