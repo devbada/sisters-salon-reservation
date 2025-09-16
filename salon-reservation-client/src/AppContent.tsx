@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import AppointmentForm from './components/AppointmentForm';
 import ReservationTable from './components/ReservationTable';
@@ -35,21 +35,32 @@ function AppContent() {
     return today.toISOString().split('T')[0];
   });
 
+  // Create stable reference for addToast to avoid recreating callbacks
+  const addToastRef = useRef<(message: string, type?: ToastMessage['type']) => void>(() => {});
+
   // Toast message functions
   const addToast = useCallback((message: string, type: ToastMessage['type'] = 'info') => {
     const id = Math.random().toString(36).substr(2, 9);
     const newToast: ToastMessage = { id, message, type };
     setToasts(prev => [...prev, newToast]);
-    
+
     // Auto-remove toast after 5 seconds
     setTimeout(() => {
       setToasts(prev => prev.filter(toast => toast.id !== id));
     }, 5000);
   }, []);
 
+  // Update the ref whenever addToast changes
+  addToastRef.current = addToast;
+
   const removeToast = (id: string) => {
     setToasts(prev => prev.filter(toast => toast.id !== id));
   };
+
+  // 날짜 선택 콜백 메모이제이션
+  const handleDateSelect = useCallback((date: string) => {
+    setSelectedDate(date);
+  }, []);
 
   // Function to fetch all reservations for calendar markers
   const fetchAllReservations = useCallback(async () => {
@@ -76,46 +87,64 @@ function AppContent() {
     }
   }, []);
 
-  // Function to fetch reservations by date
-  const fetchReservations = useCallback(async (date?: string) => {
-    setIsLoading(true);
+  // Function to fetch reservations by date - 간단하고 안정적인 방법으로 변경
+  const fetchReservations = useCallback(async (date?: string, shouldSetLoading = false) => {
+    // 초기 로딩에서만 로딩 상태 변경
+    if (shouldSetLoading) {
+      setIsLoading(true);
+    }
+
     try {
-      const url = date 
+      const url = date
         ? `http://localhost:4000/api/reservations?date=${date}`
         : 'http://localhost:4000/api/reservations';
-      
+
       const response = await axios.get(url);
+
+      // 상태 업데이트를 배치로 처리
       setReservations(response.data);
       setFilteredReservations(response.data);
     } catch (error: any) {
       console.error('Error fetching reservations:', error);
       if (error.response?.status === 401) {
-        addToast('로그인이 필요합니다.', 'error');
+        addToastRef.current?.('로그인이 필요합니다.', 'error');
       } else if (error.response?.status === 403) {
-        addToast('접근 권한이 없습니다.', 'error');
+        addToastRef.current?.('접근 권한이 없습니다.', 'error');
       } else {
-        addToast('서버 오류가 발생했습니다. 다시 시도해주세요.', 'error');
+        addToastRef.current?.('서버 오류가 발생했습니다. 다시 시도해주세요.', 'error');
       }
     } finally {
-      setIsLoading(false);
+      if (shouldSetLoading) {
+        setIsLoading(false);
+      }
     }
-  }, [addToast]);
+  }, [addToastRef]); // addToastRef만 의존성으로 추가
 
-  // Initial load with today's date
+  // Initial load - only run once on component mount
   useEffect(() => {
-    fetchReservations(selectedDate);
-    fetchAllReservations();
-    fetchActiveDesigners();
-  }, [fetchReservations, fetchAllReservations, fetchActiveDesigners, selectedDate]);
+    const initialLoad = async () => {
+      setIsLoading(true);
+      try {
+        await fetchAllReservations();
+        await fetchActiveDesigners();
+        await fetchReservations(selectedDate);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    initialLoad();
+  }, []); // 빈 의존성 배열로 무한 리렌더링 방지
 
-  // Fetch reservations when selected date changes
+  // Fetch reservations when selected date changes - 디바운스 적용
   useEffect(() => {
-    if (selectedDate) {
+    const timeoutId = setTimeout(() => {
       fetchReservations(selectedDate);
-    }
-  }, [fetchReservations, selectedDate]);
+    }, 50); // 50ms 디바운스로 연속 클릭 방지
 
-  const handleAppointmentSubmit = async (formData: AppointmentData) => {
+    return () => clearTimeout(timeoutId);
+  }, [selectedDate, fetchReservations]); // fetchReservations 의존성 추가
+
+  const handleAppointmentSubmit = useCallback(async (formData: AppointmentData) => {
     try {
       if (editingIndex !== null && editingData) {
         // Update existing reservation via API
@@ -136,12 +165,12 @@ function AppContent() {
       }
     } catch (error: any) {
       console.error('Error with reservation:', error);
-      
+
       if (error.response) {
         // Server responded with error status
         const statusCode = error.response.status;
         const errorMessage = error.response.data?.error || error.response.data?.message;
-        
+
         if (statusCode === 400) {
           addToast(`입력 오류: ${errorMessage}`, 'error');
         } else if (statusCode === 401) {
@@ -165,19 +194,19 @@ function AppContent() {
         addToast('예약 처리 중 오류가 발생했습니다.', 'error');
       }
     }
-  };
+  }, [editingIndex, editingData, selectedDate, addToast, fetchAllReservations]);
 
-  const handleEdit = (reservation: AppointmentData, index: number) => {
+  const handleEdit = useCallback((reservation: AppointmentData, index: number) => {
     setEditingIndex(index);
     setEditingData(reservation);
-  };
+  }, []);
 
-  const handleCancelEdit = () => {
+  const handleCancelEdit = useCallback(() => {
     setEditingIndex(null);
     setEditingData(null);
-  };
+  }, []);
 
-  const handleDelete = async (index: number) => {
+  const handleDelete = useCallback(async (index: number) => {
     const reservation = reservations[index];
     if (window.confirm(`${reservation.customerName}님의 예약을 삭제하시겠습니까?`)) {
       try {
@@ -202,9 +231,9 @@ function AppContent() {
         }
       }
     }
-  };
+  }, [reservations, addToast, fetchAllReservations, selectedDate]);
 
-  const handleStatusChange = async (reservationId: string, newStatus: ReservationStatus, reason?: string, notes?: string) => {
+  const handleStatusChange = useCallback(async (reservationId: string, newStatus: ReservationStatus, reason?: string, notes?: string) => {
     setIsStatusUpdateLoading(true);
     try {
       const requestData: any = { status: newStatus };
@@ -212,19 +241,19 @@ function AppContent() {
       if (notes) requestData.notes = notes;
 
       const response = await axios.patch(`http://localhost:4000/api/reservations/${reservationId}/status`, requestData);
-      
+
       addToast(response.data.message || '예약 상태가 성공적으로 변경되었습니다.', 'success');
-      
+
       // Refresh the reservations
       await fetchReservations(selectedDate);
       await fetchAllReservations();
     } catch (error: any) {
       console.error('Error updating reservation status:', error);
-      
+
       if (error.response) {
         const statusCode = error.response.status;
         const errorMessage = error.response.data?.error || error.response.data?.message;
-        
+
         if (statusCode === 400) {
           addToast(`상태 변경 오류: ${errorMessage}`, 'error');
         } else if (statusCode === 401) {
@@ -242,7 +271,21 @@ function AppContent() {
     } finally {
       setIsStatusUpdateLoading(false);
     }
-  };
+  }, [selectedDate, addToast, fetchAllReservations]);
+
+  // 안정적인 edit 핸들러 메모이제이션
+  const handleEditReservation = useCallback((reservation: AppointmentData, index: number) => {
+    // Find the original index in the reservations array
+    const originalIndex = reservations.findIndex(r => r._id === reservation._id);
+    handleEdit(reservation, originalIndex);
+  }, [reservations, handleEdit]);
+
+  // 안정적인 delete 핸들러 메모이제이션
+  const handleDeleteReservation = useCallback((index: number) => {
+    // Find the original index in the reservations array
+    const originalIndex = reservations.findIndex(r => r._id === filteredReservations[index]._id);
+    handleDelete(originalIndex);
+  }, [reservations, filteredReservations, handleDelete]);
 
   if (isLoading) {
     return (
@@ -329,7 +372,7 @@ function AppContent() {
               </h2>
               <CalendarComponent
                 selectedDate={selectedDate}
-                onDateSelect={setSelectedDate}
+                onDateSelect={handleDateSelect}
                 reservations={allReservations}
                 isLoading={isLoading}
               />
@@ -362,16 +405,8 @@ function AppContent() {
           <div className="w-[80%] mx-auto">
             <ReservationTable
               reservations={filteredReservations}
-              onEdit={(reservation, index) => {
-                // Find the original index in the reservations array
-                const originalIndex = reservations.findIndex(r => r._id === reservation._id);
-                handleEdit(reservation, originalIndex);
-              }}
-              onDelete={(index) => {
-                // Find the original index in the reservations array
-                const originalIndex = reservations.findIndex(r => r._id === filteredReservations[index]._id);
-                handleDelete(originalIndex);
-              }}
+              onEdit={handleEditReservation}
+              onDelete={handleDeleteReservation}
               onStatusChange={handleStatusChange}
               selectedDate={selectedDate}
               isStatusUpdateLoading={isStatusUpdateLoading}
