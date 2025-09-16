@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import axios from 'axios';
 import AppointmentForm from './components/AppointmentForm';
 import ReservationTable from './components/ReservationTable';
@@ -61,6 +61,17 @@ function AppContent() {
   const handleDateSelect = useCallback((date: string) => {
     setSelectedDate(date);
   }, []);
+
+  // 필터링 결과 업데이트 콜백 메모이제이션
+  const handleFilteredResults = useCallback((filteredData: AppointmentData[]) => {
+    setFilteredReservations(filteredData);
+  }, []);
+
+  // activeDesigners 메모이제이션으로 불필요한 리렌더링 방지
+  const memoizedActiveDesigners = useMemo(() => activeDesigners, [activeDesigners]);
+
+  // reservations 배열 메모이제이션으로 참조 안정성 확보
+  const memoizedReservations = useMemo(() => reservations, [reservations]);
 
   // Function to fetch all reservations for calendar markers
   const fetchAllReservations = useCallback(async () => {
@@ -135,14 +146,14 @@ function AppContent() {
     initialLoad();
   }, []); // 빈 의존성 배열로 무한 리렌더링 방지
 
-  // Fetch reservations when selected date changes - 디바운스 적용
+  // Fetch reservations when selected date changes - 의존성 제거로 안정화
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       fetchReservations(selectedDate);
-    }, 50); // 50ms 디바운스로 연속 클릭 방지
+    }, 100); // 100ms 디바운스로 안정성 향상
 
     return () => clearTimeout(timeoutId);
-  }, [selectedDate, fetchReservations]); // fetchReservations 의존성 추가
+  }, [selectedDate]); // fetchReservations 의존성 제거
 
   const handleAppointmentSubmit = useCallback(async (formData: AppointmentData) => {
     try {
@@ -395,9 +406,9 @@ function AppContent() {
           {/* Search and Filter */}
           <div className="w-[80%] mx-auto">
             <SearchFilter
-              reservations={reservations}
-              onFilteredResults={setFilteredReservations}
-              stylists={activeDesigners}
+              reservations={memoizedReservations}
+              onFilteredResults={handleFilteredResults}
+              stylists={memoizedActiveDesigners}
             />
           </div>
 
