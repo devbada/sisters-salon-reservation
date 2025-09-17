@@ -21,6 +21,7 @@ interface CustomerSearchInputProps {
   autoFocus?: boolean;
   tabIndex?: number;
   error?: string;
+  id?: string;
 }
 
 const CustomerSearchInput: React.FC<CustomerSearchInputProps> = ({
@@ -33,7 +34,8 @@ const CustomerSearchInput: React.FC<CustomerSearchInputProps> = ({
   disabled = false,
   autoFocus = false,
   tabIndex,
-  error
+  error,
+  id
 }) => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -198,6 +200,7 @@ const CustomerSearchInput: React.FC<CustomerSearchInputProps> = ({
     <div className="relative">
       <input
         ref={inputRef}
+        id={id}
         type="text"
         value={value}
         onChange={handleInputChange}
@@ -205,8 +208,8 @@ const CustomerSearchInput: React.FC<CustomerSearchInputProps> = ({
         onFocus={handleInputFocus}
         placeholder={placeholder}
         className={`w-full px-4 py-3 glass-input focus:outline-none focus:ring-2 transition-all duration-300 ${
-          error 
-            ? 'border-red-400 focus:ring-red-400' 
+          error
+            ? 'border-red-400 focus:ring-red-400'
             : 'focus:ring-purple-400 focus:border-transparent hover:bg-white/15'
         } ${className}`}
         disabled={disabled}
