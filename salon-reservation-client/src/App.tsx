@@ -1,16 +1,19 @@
 import React from 'react';
+import { HashRouter } from 'react-router-dom';
 import './App.css';
 import { AuthProvider } from './contexts/AuthContext';
 import AppWrapper from './components/AppWrapper';
-import AppContent from './AppContent';
+import AppLayout from './components/AppLayout';
 
 function App() {
   return (
-    <AuthProvider>
-      <AppWrapper>
-        <AppContent />
-      </AppWrapper>
-    </AuthProvider>
+    <HashRouter>
+      <AuthProvider>
+        <AppWrapper>
+          <AppLayout />
+        </AppWrapper>
+      </AuthProvider>
+    </HashRouter>
   );
 }
 
