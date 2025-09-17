@@ -6,14 +6,55 @@ describe('Business Hours API', () => {
   let authToken;
 
   beforeEach(async () => {
+    // 데이터베이스 초기화 확인
+    const db = require('../../db/database');
+
+    // Clean up previous test data
+    try {
+      db.prepare('DELETE FROM administrators WHERE username = ?').run('testadmin');
+    } catch (error) {
+      // Ignore error if table doesn't exist or record doesn't exist
+    }
+
+    // 기본 business_hours 데이터가 없으면 삽입
+    const businessHoursCount = db.prepare('SELECT COUNT(*) as count FROM business_hours').get();
+    if (businessHoursCount.count === 0) {
+      const insertDefaultHours = db.prepare(`
+        INSERT INTO business_hours (day_of_week, open_time, close_time, is_closed, break_start, break_end)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `);
+
+      // Default business hours for all 7 days
+      const defaultHours = [
+        [0, '09:00', '18:00', 0, '12:00', '13:00'], // Sunday
+        [1, '09:00', '18:00', 0, '12:00', '13:00'], // Monday
+        [2, '09:00', '18:00', 0, '12:00', '13:00'], // Tuesday
+        [3, '09:00', '18:00', 0, '12:00', '13:00'], // Wednesday
+        [4, '09:00', '18:00', 0, '12:00', '13:00'], // Thursday
+        [5, '09:00', '18:00', 0, '12:00', '13:00'], // Friday
+        [6, '09:00', '18:00', 0, '12:00', '13:00']  // Saturday
+      ];
+
+      defaultHours.forEach(hours => {
+        insertDefaultHours.run(...hours);
+      });
+    }
+
     // 관리자 생성 및 로그인
-    await request(app)
+    const registerResponse = await request(app)
       .post('/api/auth/register')
       .send({ username: 'testadmin', password: 'TestPass123!' });
+
+    // Registration should succeed
+    expect(registerResponse.status).toBe(201);
 
     const loginResponse = await request(app)
       .post('/api/auth/login')
       .send({ username: 'testadmin', password: 'TestPass123!' });
+
+    // Login should succeed
+    expect(loginResponse.status).toBe(200);
+    expect(loginResponse.body.token).toBeDefined();
 
     authToken = loginResponse.body.token;
   });

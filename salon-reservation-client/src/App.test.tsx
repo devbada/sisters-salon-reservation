@@ -9,12 +9,31 @@ import DesignerTable from './components/DesignerTable';
 jest.mock('axios', () => ({
   get: jest.fn((url) => {
     if (url.includes('designers')) {
-      return Promise.resolve({ 
+      return Promise.resolve({
         data: [
           { _id: '1', name: '김민수', specialization: '헤어컷 전문', is_active: true },
           { _id: '2', name: '이영희', specialization: '염색 전문', is_active: true }
         ]
       });
+    }
+    if (url.includes('business-hours')) {
+      return Promise.resolve({
+        data: [
+          { day_of_week: 0, open_time: '09:00', close_time: '18:00', break_start: '12:00', break_end: '13:00' },
+          { day_of_week: 1, open_time: '09:00', close_time: '18:00', break_start: '12:00', break_end: '13:00' },
+          { day_of_week: 2, open_time: '09:00', close_time: '18:00', break_start: '12:00', break_end: '13:00' },
+          { day_of_week: 3, open_time: '09:00', close_time: '18:00', break_start: '12:00', break_end: '13:00' },
+          { day_of_week: 4, open_time: '09:00', close_time: '18:00', break_start: '12:00', break_end: '13:00' },
+          { day_of_week: 5, open_time: '09:00', close_time: '18:00', break_start: '12:00', break_end: '13:00' },
+          { day_of_week: 6, open_time: '09:00', close_time: '18:00', break_start: '12:00', break_end: '13:00' }
+        ]
+      });
+    }
+    if (url.includes('holidays')) {
+      return Promise.resolve({ data: [] });
+    }
+    if (url.includes('special')) {
+      return Promise.resolve({ data: [] });
     }
     return Promise.resolve({ data: [] });
   }),
@@ -24,12 +43,21 @@ jest.mock('axios', () => ({
 }));
 
 describe('AppointmentForm Component', () => {
-  test('renders all form fields', () => {
+  test('renders all form fields', async () => {
     render(<AppointmentForm onSubmit={jest.fn()} selectedDate="2025-09-05" />);
-    
+
     expect(screen.getByLabelText(/고객 이름/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/시간/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/헤어 디자이너/i)).toBeInTheDocument();
+
+    // Wait for business hours to load and time field to appear
+    await waitFor(() => {
+      expect(screen.getByLabelText(/시간/i)).toBeInTheDocument();
+    }, { timeout: 3000 });
+
+    // Wait for designers to load
+    await waitFor(() => {
+      expect(screen.getByLabelText(/헤어 디자이너/i)).toBeInTheDocument();
+    }, { timeout: 3000 });
+
     expect(screen.getByLabelText(/서비스 유형/i)).toBeInTheDocument();
   });
 

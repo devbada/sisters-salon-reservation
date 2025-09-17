@@ -54,14 +54,18 @@ interface AppointmentFormProps {
 }
 
 const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData, onCancelEdit, selectedDate }) => {
-  const [formData, setFormData] = useState<AppointmentData>({
+  // 성능 최적화: 불필요한 console.log 제거
+  const [formData, setFormData] = useState<AppointmentData>(() => ({
     customerName: '',
     customerPhone: '',
     date: selectedDate || new Date().toISOString().split('T')[0],
     time: '',
     stylist: '',
     serviceType: '',
-  });
+  }));
+
+  // 날짜 변경을 위한 별도 ref - 불필요한 리렌더링 방지
+  const selectedDateRef = useRef(selectedDate);
 
   const [errors, setErrors] = useState<Partial<AppointmentData>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -147,11 +151,23 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
   }, [initialData]);
 
   // Update date when selectedDate changes (from calendar)
+  // 중요: 날짜만 업데이트하고 다른 필드는 유지
   useEffect(() => {
-    setFormData(prevData => ({
-      ...prevData,
-      date: selectedDate || new Date().toISOString().split('T')[0]
-    }));
+    // selectedDate가 유효하고 이전 값과 다를 때만 업데이트
+    if (selectedDate && selectedDate !== selectedDateRef.current) {
+      selectedDateRef.current = selectedDate;
+
+      setFormData(prevData => {
+        // 날짜가 실제로 다를 때만 업데이트, 다른 필드는 절대 건드리지 않음
+        if (prevData.date !== selectedDate) {
+          return {
+            ...prevData,
+            date: selectedDate
+          };
+        }
+        return prevData;
+      });
+    }
   }, [selectedDate]);
 
   // 중복 예약 체크 함수
@@ -195,14 +211,21 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
     }
   };
 
-  // 시간, 날짜, 디자이너 변경 시 중복 체크
+  // 시간과 디자이너 변경 시만 중복 체크 (날짜 변경은 제외하여 성능 향상)
   useEffect(() => {
+    // 시간과 디자이너가 모두 설정된 경우에만 중복 체크 실행
+    if (!formData.time || !formData.stylist) {
+      setConflictInfo(null);
+      setShowConflictWarning(false);
+      return;
+    }
+
     const timeoutId = setTimeout(() => {
       checkForConflicts(formData.date, formData.time, formData.stylist);
-    }, 500); // 500ms 디바운싱
+    }, 1000); // 1000ms로 디바운싱 시간 증가
 
     return () => clearTimeout(timeoutId);
-  }, [formData.date, formData.time, formData.stylist, initialData?._id]);
+  }, [formData.time, formData.stylist, initialData?._id]); // formData.date 제거
 
   const validateForm = (): boolean => {
     const newErrors: Partial<AppointmentData> = {};
@@ -326,14 +349,14 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
       await onSubmit(formData);
       // Reset form after successful submission (only for new appointments)
       if (!initialData) {
-        setFormData({
+        setFormData(prevData => ({
           customerName: '',
           customerPhone: '',
-          date: selectedDate || new Date().toISOString().split('T')[0],
+          date: prevData.date, // 현재 선택된 날짜 유지
           time: '',
           stylist: '',
           serviceType: '',
-        });
+        }));
         setErrors({});
         setConflictInfo(null);
         setShowConflictWarning(false);
@@ -364,12 +387,13 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
             👤 고객 이름
           </label>
           <CustomerSearchInput
+            id="customerName"
             value={formData.customerName}
             onChange={(value) => setFormData(prev => ({ ...prev, customerName: value }))}
             onCustomerSelect={(customer) => {
               if (customer) {
-                setFormData(prev => ({ 
-                  ...prev, 
+                setFormData(prev => ({
+                  ...prev,
                   customerName: customer.name,
                   customerPhone: customer.phone
                 }));
@@ -614,4 +638,32 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
   );
 };
 
-export default AppointmentForm;
+// AppointmentForm의 불필요한 리렌더링을 방지하는 비교 함수
+const arePropsEqual = (prevProps: AppointmentFormProps, nextProps: AppointmentFormProps) => {
+  // initialData가 변경되었는지 확인 (수정 모드 진입/해제 시에만 리렌더링)
+  if (prevProps.initialData?._id !== nextProps.initialData?._id) {
+    return false;
+  }
+
+  // initialData가 있을 때 (수정 모드)는 모든 데이터 변경에 대해 리렌더링
+  if (prevProps.initialData && nextProps.initialData) {
+    // 수정 모드에서는 initialData의 내용이 변경되면 리렌더링
+    if (JSON.stringify(prevProps.initialData) !== JSON.stringify(nextProps.initialData)) {
+      return false;
+    }
+  }
+
+  // 함수 props 확인 - 안정적인 참조를 위해 useCallback 사용 확인
+  if (prevProps.onSubmit !== nextProps.onSubmit || prevProps.onCancelEdit !== nextProps.onCancelEdit) {
+    return false;
+  }
+
+  // selectedDate 변경 시에만 리렌더링 (정상적인 동작)
+  if (prevProps.selectedDate !== nextProps.selectedDate) {
+    return false;
+  }
+
+  return true;
+};
+
+export default React.memo(AppointmentForm, arePropsEqual);

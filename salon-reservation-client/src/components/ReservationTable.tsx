@@ -13,9 +13,9 @@ interface ReservationTableProps {
   isStatusUpdateLoading?: boolean;
 }
 
-const ReservationTable: React.FC<ReservationTableProps> = ({ 
-  reservations, 
-  onEdit, 
+const ReservationTable: React.FC<ReservationTableProps> = ({
+  reservations,
+  onEdit,
   onDelete,
   onStatusChange,
   selectedDate,
@@ -366,4 +366,4 @@ const ReservationTable: React.FC<ReservationTableProps> = ({
   );
 };
 
-export default ReservationTable;
+export default React.memo(ReservationTable);
