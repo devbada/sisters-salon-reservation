@@ -387,12 +387,13 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
             👤 고객 이름
           </label>
           <CustomerSearchInput
+            id="customerName"
             value={formData.customerName}
             onChange={(value) => setFormData(prev => ({ ...prev, customerName: value }))}
             onCustomerSelect={(customer) => {
               if (customer) {
-                setFormData(prev => ({ 
-                  ...prev, 
+                setFormData(prev => ({
+                  ...prev,
                   customerName: customer.name,
                   customerPhone: customer.phone
                 }));
