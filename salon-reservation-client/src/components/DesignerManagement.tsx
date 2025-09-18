@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import { apiClient } from '../shared/api/base';
 import DesignerForm, { DesignerData } from './DesignerForm';
 import DesignerTable from './DesignerTable';
 
@@ -37,9 +37,7 @@ const DesignerManagement: React.FC = () => {
     setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:4000/api/designers', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await apiClient.get('/api/designers');
       setDesigners(response.data);
     } catch (error: any) {
       console.error('Error fetching designers:', error);
@@ -61,8 +59,8 @@ const DesignerManagement: React.FC = () => {
   const handleCreateDesigner = async (formData: DesignerData) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(
-        'http://localhost:4000/api/designers',
+      const response = await apiClient.post(
+        '/api/designers',
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -87,8 +85,8 @@ const DesignerManagement: React.FC = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.put(
-        `http://localhost:4000/api/designers/${editingDesigner._id}`,
+      const response = await apiClient.put(
+        `/api/designers/${editingDesigner._id}`,
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -118,9 +116,7 @@ const DesignerManagement: React.FC = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:4000/api/designers/${designer._id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await apiClient.delete(`/api/designers/${designer._id}`);
       
       setDesigners(prev => prev.filter(d => d._id !== designer._id));
       addToast(`${designer.name} 디자이너가 성공적으로 삭제되었습니다.`, 'success');

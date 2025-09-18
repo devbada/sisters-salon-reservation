@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import axios from 'axios';
+import { apiClient } from '../shared/api/base';
 import AppointmentForm from '../components/AppointmentForm';
 import ReservationTable from '../components/ReservationTable';
 import CalendarComponent from '../components/Calendar';
@@ -60,7 +60,7 @@ const ReservationsPage: React.FC = () => {
 
   const fetchAllReservations = useCallback(async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/reservations');
+      const response = await apiClient.get('/api/reservations');
       setAllReservations(response.data);
     } catch (error: any) {
       console.error('Error fetching all reservations:', error);
@@ -69,7 +69,7 @@ const ReservationsPage: React.FC = () => {
 
   const fetchActiveDesigners = useCallback(async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/designers');
+      const response = await apiClient.get('/api/designers');
       const activeDesignerNames = response.data
         .filter((designer: any) => designer.is_active)
         .map((designer: any) => designer.name);
@@ -87,10 +87,10 @@ const ReservationsPage: React.FC = () => {
 
     try {
       const url = date
-        ? `http://localhost:4000/api/reservations?date=${date}`
-        : 'http://localhost:4000/api/reservations';
+        ? `/api/reservations?date=${date}`
+        : '/api/reservations';
 
-      const response = await axios.get(url);
+      const response = await apiClient.get(url);
 
       setReservations(response.data);
       setFilteredReservations(response.data);
@@ -135,14 +135,14 @@ const ReservationsPage: React.FC = () => {
   const handleAppointmentSubmit = useCallback(async (formData: AppointmentData) => {
     try {
       if (editingIndex !== null && editingData) {
-        await axios.put(`http://localhost:4000/api/reservations/${editingData._id}`, formData);
+        await apiClient.put(`/api/reservations/${editingData._id}`, formData);
         setEditingIndex(null);
         setEditingData(null);
         addToast('예약이 성공적으로 수정되었습니다!', 'success');
         await fetchReservations(selectedDate);
         await fetchAllReservations();
       } else {
-        await axios.post('http://localhost:4000/api/reservations', formData);
+        await apiClient.post('/api/reservations', formData);
         addToast('예약이 성공적으로 완료되었습니다!', 'success');
         await fetchReservations(selectedDate);
         await fetchAllReservations();
@@ -191,7 +191,7 @@ const ReservationsPage: React.FC = () => {
     const reservation = reservations[index];
     if (window.confirm(`${reservation.customerName}님의 예약을 삭제하시겠습니까?`)) {
       try {
-        await axios.delete(`http://localhost:4000/api/reservations/${reservation._id}`);
+        await apiClient.delete(`/api/reservations/${reservation._id}`);
         addToast('예약이 성공적으로 삭제되었습니다.', 'success');
         await fetchReservations(selectedDate);
         await fetchAllReservations();
@@ -219,7 +219,7 @@ const ReservationsPage: React.FC = () => {
       if (reason) requestData.reason = reason;
       if (notes) requestData.notes = notes;
 
-      const response = await axios.patch(`http://localhost:4000/api/reservations/${reservationId}/status`, requestData);
+      const response = await apiClient.patch(`/api/reservations/${reservationId}/status`, requestData);
 
       addToast(response.data.message || '예약 상태가 성공적으로 변경되었습니다.', 'success');
 
