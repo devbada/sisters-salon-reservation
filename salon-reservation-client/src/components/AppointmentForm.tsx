@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import { apiClient } from '../shared/api/base';
 import { 
   fetchBusinessHoursData,
   generateAvailableTimeSlots,
@@ -102,9 +102,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
     const fetchDesigners = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:4000/api/designers', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await apiClient.get('/api/designers');
         setDesigners(response.data.filter((designer: Designer) => designer.is_active));
       } catch (error) {
         console.error('Error fetching designers:', error);
@@ -186,7 +184,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
         return;
       }
 
-      const response = await axios.post('http://localhost:4000/api/reservations/check-conflict', {
+      const response = await apiClient.post('/api/reservations/check-conflict', {
         date,
         time,
         stylist,

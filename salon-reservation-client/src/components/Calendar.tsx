@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import axios from 'axios';
+import { apiClient } from '../shared/api/base';
 import { AppointmentData, ConflictInfo } from './AppointmentForm';
 import holidayService, { Holiday } from '../services/holidayService';
 
@@ -159,7 +159,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
     const fetchBusinessHours = async () => {
       setBusinessHoursLoading(true);
       try {
-        const response = await axios.get('http://localhost:4000/api/business-hours');
+        const response = await apiClient.get('/api/business-hours');
         setBusinessHours(response.data);
         dataLoadedRef.current.businessHours = true;
       } catch (error) {
@@ -179,7 +179,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
     const fetchSpecialHours = async () => {
       setSpecialHoursLoading(true);
       try {
-        const response = await axios.get('http://localhost:4000/api/business-hours/special');
+        const response = await apiClient.get('/api/business-hours/special');
         setSpecialHours(response.data);
 
         // 특별 영업시간 맵 생성
@@ -214,11 +214,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
           return;
         }
 
-        const response = await axios.get('http://localhost:4000/api/reservations/conflicts', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const response = await apiClient.get('/api/reservations/conflicts');
 
         const conflictData = response.data;
         setConflicts(conflictData);

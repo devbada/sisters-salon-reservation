@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
+import { apiClient } from '../shared/api/base';
 
 export interface Holiday {
   id: number;
@@ -77,7 +75,7 @@ class HolidayService {
   private baseURL: string;
 
   constructor() {
-    this.baseURL = `${API_BASE_URL}/api/holidays`;
+    this.baseURL = '/api/holidays';
   }
 
   /**
@@ -92,7 +90,7 @@ class HolidayService {
       if (year) params.append('year', year.toString());
       if (limit) params.append('limit', limit.toString());
 
-      const response = await axios.get(`${this.baseURL}?${params.toString()}`);
+      const response = await apiClient.get(`${this.baseURL}?${params.toString()}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching holidays:', error);
@@ -112,7 +110,7 @@ class HolidayService {
    */
   async getHolidaysByYear(year: number): Promise<HolidayResponse> {
     try {
-      const response = await axios.get(`${this.baseURL}/${year}`);
+      const response = await apiClient.get(`${this.baseURL}/${year}`);
       return response.data;
     } catch (error) {
       console.error(`Error fetching holidays for ${year}:`, error);
@@ -133,7 +131,7 @@ class HolidayService {
    */
   async getHolidayByDate(date: string): Promise<{ success: boolean; isHoliday: boolean; holiday: Holiday | null; error?: string }> {
     try {
-      const response = await axios.get(`${this.baseURL}/date/${date}`);
+      const response = await apiClient.get(`${this.baseURL}/date/${date}`);
       return response.data;
     } catch (error) {
       console.error(`Error checking holiday for ${date}:`, error);
@@ -152,7 +150,7 @@ class HolidayService {
    */
   async getTodaysHoliday(): Promise<TodayHolidayResponse> {
     try {
-      const response = await axios.get(`${this.baseURL}/today`);
+      const response = await apiClient.get(`${this.baseURL}/today`);
       return response.data;
     } catch (error) {
       console.error('Error checking today holiday:', error);
@@ -173,7 +171,7 @@ class HolidayService {
    */
   async getUpcomingHolidays(limit: number = 5): Promise<HolidayResponse> {
     try {
-      const response = await axios.get(`${this.baseURL}/upcoming?limit=${limit}`);
+      const response = await apiClient.get(`${this.baseURL}/upcoming?limit=${limit}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching upcoming holidays:', error);
@@ -201,7 +199,7 @@ class HolidayService {
     error?: string;
   }> {
     try {
-      const response = await axios.get(`${this.baseURL}/calendar/${year}/${month}`);
+      const response = await apiClient.get(`${this.baseURL}/calendar/${year}/${month}`);
       return response.data;
     } catch (error) {
       console.error(`Error fetching calendar holidays for ${year}/${month}:`, error);
@@ -222,7 +220,7 @@ class HolidayService {
    */
   async getSyncStatus(): Promise<SyncStatusResponse> {
     try {
-      const response = await axios.get(`${this.baseURL}/sync/status`);
+      const response = await apiClient.get(`${this.baseURL}/sync/status`);
       return response.data;
     } catch (error) {
       console.error('Error fetching sync status:', error);
@@ -262,7 +260,7 @@ class HolidayService {
   }> {
     try {
       const data = year ? { year } : {};
-      const response = await axios.post(`${this.baseURL}/sync`, data);
+      const response = await apiClient.post(`${this.baseURL}/sync`, data);
       return response.data;
     } catch (error) {
       console.error('Error syncing holidays:', error);

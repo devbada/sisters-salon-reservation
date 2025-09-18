@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { apiClient } from '../shared/api/base';
 
 interface BusinessHour {
   id?: number;
@@ -49,9 +49,9 @@ const BusinessHoursManagement: React.FC = () => {
       const headers = { Authorization: `Bearer ${token}` };
 
       const [hoursRes, holidaysRes, specialRes] = await Promise.all([
-        axios.get('http://localhost:4000/api/business-hours', { headers }),
-        axios.get('http://localhost:4000/api/business-hours/holidays', { headers }),
-        axios.get('http://localhost:4000/api/business-hours/special', { headers })
+        apiClient.get('/api/business-hours'),
+        apiClient.get('/api/business-hours/holidays'),
+        apiClient.get('/api/business-hours/special')
       ]);
 
       setBusinessHours(hoursRes.data);
@@ -86,8 +86,8 @@ const BusinessHoursManagement: React.FC = () => {
         breakEnd: hour.break_end
       }));
       
-      await axios.put(
-        'http://localhost:4000/api/business-hours',
+      await apiClient.put(
+        '/api/business-hours',
         { businessHours: formattedBusinessHours },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -103,8 +103,8 @@ const BusinessHoursManagement: React.FC = () => {
   const addHoliday = async (holiday: Omit<Holiday, 'id'>) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(
-        'http://localhost:4000/api/business-hours/holidays',
+      const response = await apiClient.post(
+        '/api/business-hours/holidays',
         holiday,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -119,9 +119,8 @@ const BusinessHoursManagement: React.FC = () => {
   const deleteHoliday = async (id: number) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(
-        `http://localhost:4000/api/business-hours/holidays/${id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      await apiClient.delete(
+        `/api/business-hours/holidays/${id}`
       );
       
       setHolidays(prev => prev.filter(holiday => holiday.id !== id));
@@ -418,8 +417,8 @@ const SpecialHoursManager: React.FC<SpecialHoursManagerProps> = ({ specialHours,
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.post(
-        'http://localhost:4000/api/business-hours/special',
+      await apiClient.post(
+        '/api/business-hours/special',
         {
           ...newSpecialHour,
           open_time: newSpecialHour.open_time || null,
@@ -448,9 +447,8 @@ const SpecialHoursManager: React.FC<SpecialHoursManagerProps> = ({ specialHours,
   const deleteSpecialHour = async (id: number) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(
-        `http://localhost:4000/api/business-hours/special/${id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      await apiClient.delete(
+        `/api/business-hours/special/${id}`
       );
       onRefresh();
     } catch (err) {
