@@ -1,6 +1,28 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+function getAPIBaseURL(): string {
+  const hostname = window.location.hostname;
+
+  // 가상 도메인 사용시 자동 매핑
+  if (hostname === 'sisters-salon.local') {
+    return 'http://api.sisters-salon.local:4000';
+  }
+
+  // localhost 접속시
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'http://localhost:4000';
+  }
+
+  // 환경변수가 설정되어 있으면 사용
+  if (process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL;
+  }
+
+  // 기타 IP 접속시 같은 호스트의 4000 포트 사용
+  return `http://${hostname}:4000`;
+}
+
+const API_BASE_URL = getAPIBaseURL();
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
