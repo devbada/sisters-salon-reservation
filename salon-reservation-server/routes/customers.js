@@ -5,7 +5,7 @@ const { authenticateToken } = require('../middleware/auth');
 const { v4: uuidv4 } = require('uuid');
 
 // 고객 목록 조회 (검색 및 필터링 지원)
-router.get('/', (req, res) => {
+router.get('/', authenticateToken, (req, res) => {
   try {
     const { search, vip, sortBy = 'name', order = 'ASC', limit = 50, offset = 0 } = req.query;
     
@@ -76,7 +76,7 @@ router.get('/', (req, res) => {
 });
 
 // 고객 상세 조회
-router.get('/:id', (req, res) => {
+router.get('/:id', authenticateToken, (req, res) => {
   try {
     const { id } = req.params;
     
@@ -290,7 +290,7 @@ router.delete('/:id', authenticateToken, (req, res) => {
 });
 
 // 고객 방문 이력 조회
-router.get('/:id/history', (req, res) => {
+router.get('/:id/history', authenticateToken, (req, res) => {
   try {
     const { id } = req.params;
     const { limit = 20, offset = 0 } = req.query;
