@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const db = require('../db/database');
 const HolidayService = require('../services/holidayService');
 const holidayScheduler = require('../schedulers/holidayScheduler');
+const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
 // Holiday service instance
 const holidayService = new HolidayService();
@@ -208,7 +210,7 @@ router.get('/sync/status', async (req, res) => {
  * POST /api/holidays/sync
  * 수동 공휴일 동기화 실행
  */
-router.post('/sync', async (req, res) => {
+router.post('/sync', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const { year } = req.body;
     
@@ -243,7 +245,7 @@ router.post('/sync', async (req, res) => {
  * PUT /api/holidays/:id/close
  * 특정 공휴일의 휴무 설정 변경
  */
-router.put('/:id/close', (req, res) => {
+router.put('/:id/close', authenticateToken, requireAdmin, (req, res) => {
   try {
     const holidayId = parseInt(req.params.id);
     const { isClosed } = req.body;
