@@ -34,14 +34,17 @@ export function getBusinessHoursForDate(
   holidays: Holiday[],
   specialHours: SpecialHour[]
 ): BusinessHour | SpecialHour | null {
-  const dateObj = new Date(date + 'T00:00:00');
+  // 시간대 문제를 방지하기 위해 년/월/일 직접 파싱
+  const [year, month, day] = date.split('-').map(Number);
+  const dateObj = new Date(year, month - 1, day);
   const dayOfWeek = dateObj.getDay();
   
   // 1. 휴일 확인
   const isHoliday = holidays.some(holiday => {
     if (holiday.is_recurring) {
       // 매년 반복되는 휴일 (월-일만 비교)
-      const holidayDate = new Date(holiday.date + 'T00:00:00');
+      const [hYear, hMonth, hDay] = holiday.date.split('-').map(Number);
+      const holidayDate = new Date(hYear, hMonth - 1, hDay);
       return (
         dateObj.getMonth() === holidayDate.getMonth() &&
         dateObj.getDate() === holidayDate.getDate()
