@@ -45,7 +45,8 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
   // selectedDate에서 직접 파생하여 불필요한 상태 업데이트 방지
   const value = useMemo<Value>(() => {
     try {
-      return new Date(selectedDate + 'T00:00:00');
+      const [year, month, day] = selectedDate.split('-').map(Number);
+      return new Date(year, month - 1, day);
     } catch {
       return new Date();
     }
@@ -388,12 +389,16 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
       </div>
       <div className="mt-4 text-center">
         <p className="text-gray-700 font-medium">
-          선택한 날짜: {new Date(selectedDate + 'T00:00:00').toLocaleDateString('ko-KR', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            weekday: 'long'
-          })}
+          선택한 날짜: {(() => {
+            const [year, month, day] = selectedDate.split('-').map(Number);
+            const dateObj = new Date(year, month - 1, day);
+            return dateObj.toLocaleDateString('ko-KR', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              weekday: 'long'
+            });
+          })()}
         </p>
         <div className="flex items-center justify-center mt-2 space-x-4 text-sm flex-wrap gap-2">
           <div className="flex items-center">
