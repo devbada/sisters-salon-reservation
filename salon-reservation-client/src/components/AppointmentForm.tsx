@@ -101,7 +101,6 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
   useEffect(() => {
     const fetchDesigners = async () => {
       try {
-        const token = localStorage.getItem('token');
         const response = await apiClient.get('/api/designers');
         setDesigners(response.data.filter((designer: Designer) => designer.is_active));
       } catch (error) {

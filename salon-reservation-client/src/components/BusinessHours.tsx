@@ -45,8 +45,6 @@ const BusinessHoursManagement: React.FC = () => {
   const fetchAllData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
-      const headers = { Authorization: `Bearer ${token}` };
 
       const [hoursRes, holidaysRes, specialRes] = await Promise.all([
         apiClient.get('/api/business-hours'),
@@ -67,7 +65,6 @@ const BusinessHoursManagement: React.FC = () => {
 
   const updateBusinessHour = async (dayOfWeek: number, updates: Partial<BusinessHour>) => {
     try {
-      const token = localStorage.getItem('token');
       
       // 현재 모든 영업시간 데이터를 가져와서 특정 요일만 업데이트
       const updatedBusinessHours = businessHours.map(hour => {
@@ -88,8 +85,7 @@ const BusinessHoursManagement: React.FC = () => {
       
       await apiClient.put(
         '/api/business-hours',
-        { businessHours: formattedBusinessHours },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { businessHours: formattedBusinessHours }
       );
       
       // 상태 업데이트
@@ -102,11 +98,9 @@ const BusinessHoursManagement: React.FC = () => {
 
   const addHoliday = async (holiday: Omit<Holiday, 'id'>) => {
     try {
-      const token = localStorage.getItem('token');
       const response = await apiClient.post(
         '/api/business-hours/holidays',
-        holiday,
-        { headers: { Authorization: `Bearer ${token}` } }
+        holiday
       );
       
       setHolidays(prev => [...prev, response.data]);
@@ -118,7 +112,6 @@ const BusinessHoursManagement: React.FC = () => {
 
   const deleteHoliday = async (id: number) => {
     try {
-      const token = localStorage.getItem('token');
       await apiClient.delete(
         `/api/business-hours/holidays/${id}`
       );
@@ -416,7 +409,6 @@ const SpecialHoursManager: React.FC<SpecialHoursManagerProps> = ({ specialHours,
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
       await apiClient.post(
         '/api/business-hours/special',
         {
@@ -426,7 +418,6 @@ const SpecialHoursManager: React.FC<SpecialHoursManagerProps> = ({ specialHours,
           break_start: newSpecialHour.break_start || null,
           break_end: newSpecialHour.break_end || null
         },
-        { headers: { Authorization: `Bearer ${token}` } }
       );
       
       setNewSpecialHour({
@@ -446,7 +437,6 @@ const SpecialHoursManager: React.FC<SpecialHoursManagerProps> = ({ specialHours,
 
   const deleteSpecialHour = async (id: number) => {
     try {
-      const token = localStorage.getItem('token');
       await apiClient.delete(
         `/api/business-hours/special/${id}`
       );
