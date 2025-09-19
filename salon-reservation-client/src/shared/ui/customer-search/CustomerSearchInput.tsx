@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { apiClient } from '~/shared/api/base';
 import { useDebounce } from '~/shared/lib/useDebounce';
-import type { LegacyCustomer, LegacyCustomerSearchResponse } from '~/entities/customer';
+import type { Customer, CustomerListResponse } from '../../../types/customer';
 
 interface CustomerSearchInputProps {
   value: string;
   onChange: (value: string) => void;
-  onCustomerSelect: (customer: LegacyCustomer | null) => void;
+  onCustomerSelect: (customer: Customer | null) => void;
   onKeyDown?: (e: React.KeyboardEvent) => void;
   placeholder?: string;
   className?: string;
@@ -28,7 +28,7 @@ export const CustomerSearchInput: React.FC<CustomerSearchInputProps> = ({
   tabIndex,
   error
 }) => {
-  const [customers, setCustomers] = useState<LegacyCustomer[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -50,7 +50,7 @@ export const CustomerSearchInput: React.FC<CustomerSearchInputProps> = ({
 
     setIsLoading(true);
     try {
-      const response = await apiClient.get<LegacyCustomerSearchResponse>('/customers', {
+      const response = await apiClient.get<CustomerListResponse>('/customers', {
         params: {
           search: searchTerm,
           limit: 10 // 최대 10개까지만 표시
@@ -99,7 +99,7 @@ export const CustomerSearchInput: React.FC<CustomerSearchInputProps> = ({
   }, []);
 
   // 고객 선택 처리
-  const handleCustomerSelect = (customer: LegacyCustomer) => {
+  const handleCustomerSelect = (customer: Customer) => {
     onChange(customer.name);
     onCustomerSelect(customer);
     setShowDropdown(false);

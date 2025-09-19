@@ -1,2 +1,0 @@
-// Reservation model placeholder
-export {};
