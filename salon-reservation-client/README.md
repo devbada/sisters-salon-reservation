@@ -17,12 +17,40 @@ React와 TypeScript로 구현된 헤어 살롱 예약 시스템의 프론트엔�
 
 ## ✨ 주요 기능
 
+### 🎯 예약 관리
 - **예약 생성**: 고객 정보, 날짜, 시간, 스타일리스트, 서비스 유형 입력
-- **예약 조회**: 모든 예약을 테이블 형태로 표시
+- **예약 조회**: 모든 예약을 테이블 형태로 표시, 필터링 및 검색
 - **예약 수정**: 기존 예약 정보 업데이트
 - **예약 삭제**: 예약 제거
+- **달력 뷰**: 월별 예약 현황 시각화
+- **충돌 감지**: 중복 예약 방지 및 알림
+
+### 👥 고객 관리
+- **고객 등록**: 새 고객 정보 입력
+- **고객 검색**: 이름/전화번호로 빠른 검색
+- **고객 프로필**: 방문 이력 및 상세 정보 관리
+- **고객 목록**: 전체 고객 데이터 조회
+
+### 💇‍♀️ 스타일리스트 관리
+- **스타일리스트 등록**: 새 스타일리스트 추가
+- **스타일리스트 관리**: 정보 수정 및 삭제
+- **성과 통계**: 스타일리스트별 예약 현황
+
+### 📊 비즈니스 관리
+- **영업시간 설정**: 요일별 영업시간 및 휴무일 관리
+- **통계 대시보드**: 예약 현황, 매출 분석, 인기 서비스
+- **관리자 기능**: 시스템 설정 및 사용자 관리
+
+### 🛡️ 보안 및 인증
+- **JWT 토큰 인증**: 안전한 로그인 시스템
+- **보호된 라우트**: 인증이 필요한 페이지 접근 제어
+- **세션 관리**: 자동 로그아웃 및 토큰 갱신
+
+### 📱 사용자 경험
 - **반응형 디자인**: 모바일 및 데스크탑 최적화
 - **실시간 폼 검증**: 입력 데이터 유효성 검사
+- **로딩 상태**: 비동기 작업 진행 상황 표시
+- **에러 처리**: 사용자 친화적 오류 메시지
 
 ## 📁 프로젝트 구조
 
@@ -32,15 +60,32 @@ salon-reservation-client/
 │   ├── index.html
 │   └── ...
 ├── src/
-│   ├── components/         # React 컴포넌트
-│   │   ├── AppointmentForm.tsx    # 예약 폼 컴포넌트
-│   │   └── ReservationTable.tsx   # 예약 테이블 컴포넌트
-│   ├── App.tsx            # 메인 앱 컴포넌트
-│   ├── App.css            # 스타일 파일
-│   ├── index.tsx          # 앱 진입점
-│   └── ...
-├── tailwind.config.js     # Tailwind CSS 설정
-├── postcss.config.js      # PostCSS 설정
+│   ├── components/         # React 컴포넌트 (25개)
+│   │   ├── AdminRegister.tsx      # 관리자 등록
+│   │   ├── AppLayout.tsx          # 앱 레이아웃
+│   │   ├── AppointmentForm.tsx    # 예약 폼
+│   │   ├── BusinessHours.tsx      # 영업시간 관리
+│   │   ├── Calendar.tsx           # 예약 달력
+│   │   ├── CustomerForm.tsx       # 고객 등록/수정
+│   │   ├── CustomerList.tsx       # 고객 목록
+│   │   ├── CustomerManagement.tsx # 고객 관리
+│   │   ├── DesignerForm.tsx       # 스타일리스트 등록/수정
+│   │   ├── DesignerManagement.tsx # 스타일리스트 관리
+│   │   ├── LoginForm.tsx          # 로그인 폼
+│   │   ├── ReservationTable.tsx   # 예약 테이블
+│   │   ├── StatisticsDashboard.tsx # 통계 대시보드
+│   │   └── ...
+│   ├── pages/              # 페이지 컴포넌트
+│   ├── shared/             # 공유 리소스
+│   │   ├── api/            # API 클라이언트
+│   │   ├── ui/             # 공통 UI 컴포넌트
+│   │   └── lib/            # 유틸리티
+│   ├── types/              # TypeScript 타입 정의
+│   ├── utils/              # 비즈니스 로직 유틸리티
+│   ├── App.tsx             # 메인 앱 컴포넌트
+│   └── index.tsx           # 앱 진입점
+├── tailwind.config.js      # Tailwind CSS 설정
+├── postcss.config.js       # PostCSS 설정
 └── package.json
 ```
 
