@@ -7,54 +7,42 @@
 ```
 docs/todo/
 ├── README.md                           # 이 파일 - 전체 가이드
-├── security-jwt-environment.md         # 🚨 Critical: JWT 보안 강화
-├── security-rate-limiting.md           # 🚨 Critical: API Rate Limiting
-├── ~~feature-reservation-status.md~~   # ✅ COMPLETED: 예약 상태 관리
-├── feature-internationalization.md     # 📈 Medium: 다국어 지원
-├── testing-automation.md               # 🔥 High: 자동화된 테스트
-├── customer-management.md              # 📊 High: 고객 관리 시스템
-├── ~~dark-mode.md~~                    # ✅ Completed: 다크모드  
-└── ~~statistics-dashboard.md~~         # ✅ Completed: 통계 대시보드
+├── fix-calendar-component-flicker.md   # 🔥 High: 캘린더 깜빡임 최적화
+├── migrate-to-fsd/                     # 📈 Medium: FSD 아키텍처 마이그레이션
+│   ├── 00-overview.md                  # 개요 및 전략
+│   ├── 01-analysis.md                  # 현재 구조 분석
+│   ├── 02-setup.md                     # 기반 구조 설정
+│   ├── 03-shared-layer.md              # Shared 계층 구성
+│   ├── 04-entities-layer.md            # Entities 계층 구성
+│   ├── 05-features-layer.md            # Features 계층 구성
+│   ├── 06-widgets-layer.md             # Widgets 계층 구성
+│   ├── 07-pages-layer.md               # Pages 계층 구성
+│   ├── 08-app-layer.md                 # App 계층 구성
+│   └── 09-cleanup.md                   # 정리 및 검증
+└── ~~feature-double-booking-indicator.md~~  # ✅ COMPLETED: 중복 예약 표시
 ```
 
 ## 🎯 우선순위 분류
 
-### 🚨 Critical (즉시 해결 필요)
-1. **[security-jwt-environment.md](./security-jwt-environment.md)**
-   - JWT 시크릿 하드코딩 제거
-   - 환경 변수 기반 보안 강화
-   - ⏱️ 2-4시간
+### 🔥 High (핵심 기능 개선)
+1. **[fix-calendar-component-flicker.md](./fix-calendar-component-flicker.md)**
+   - 캘린더 컴포넌트 깜빡임 최적화
+   - 불필요한 리렌더링 방지
+   - ⏱️ 4-6시간
 
-2. **[security-rate-limiting.md](./security-rate-limiting.md)**
-   - API 무차별 대입 공격 방지
-   - 로그인 시도 제한 구현
-   - ⏱️ 1-2시간
-
-### 🔥 High (핵심 비즈니스)
-3. **[testing-automation.md](./testing-automation.md)**
-   - 자동화된 테스트 수트 구축
-   - 85% 코드 커버리지 달성
-   - ⏱️ 16-20시간
-
-4. **~~[feature-reservation-status.md](./feature-reservation-status.md)~~** ✅ COMPLETED
-   - ~~예약 상태 관리 (대기/확정/완료/취소)~~
-   - ~~상태 변경 히스토리 추적~~
-   - ⏱️ 8-12시간 → **완료됨 (2025-09-08)**
-
-5. **[customer-management.md](./customer-management.md)**
-   - 고객 정보 체계 구축
-   - 고객 히스토리 관리
-   - ⏱️ 10-14시간
-
-### 📈 Medium (사용성 개선)
-6. **[feature-internationalization.md](./feature-internationalization.md)**
-   - 다국어 지원 (한/영/일/중)
-   - 현지화 (날짜, 시간, 통화)
-   - ⏱️ 12-16시간
+### 📈 Medium (아키텍처 개선)
+2. **[migrate-to-fsd/](./migrate-to-fsd/)**
+   - FSD(Feature-Sliced Design) 아키텍처 마이그레이션
+   - 코드 구조 개선 및 유지보수성 향상
+   - ⏱️ 40-60시간 (단계별 진행)
 
 ### ✅ Completed (완료됨)
-- **[dark-mode.md](./dark-mode.md)** - 다크모드 시스템
-- **[statistics-dashboard.md](./statistics-dashboard.md)** - 통계 대시보드
+- **~~[feature-double-booking-indicator.md](./feature-double-booking-indicator.md)~~** - 중복 예약 표시 기능 ✅ 완료 (2025-09-10)
+- **~~[security-jwt-environment.md](./security-jwt-environment.md)~~** - JWT 환경변수 보안 강화 ✅ 완료
+- **~~[security-rate-limiting.md](./security-rate-limiting.md)~~** - API Rate Limiting 구현 ✅ 완료
+- **~~[feature-hash-routing-navigation.md](./feature-hash-routing-navigation.md)~~** - 해시 라우팅 네비게이션 ✅ 완료
+- **~~[fix-date-timezone-business-hours-bug.md](./fix-date-timezone-business-hours-bug.md)~~** - 날짜 시간대 버그 수정 ✅ 완료
+- **~~[api-virtual-domain-configuration.md](./api-virtual-domain-configuration.md)~~** - 가상 도메인 API 설정 ✅ 완료
 
 ## 📋 작업 진행 방법
 
