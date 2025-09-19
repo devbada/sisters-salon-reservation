@@ -133,12 +133,12 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
 
   // Update available time slots when date or business hours change
   useEffect(() => {
-    if (businessHoursLoading || !selectedDate) return;
+    if (businessHoursLoading || !formData.date) return;
 
-    const businessHour = getBusinessHoursForDate(selectedDate, businessHours, holidays, specialHours);
+    const businessHour = getBusinessHoursForDate(formData.date, businessHours, holidays, specialHours);
     const slots = generateAvailableTimeSlots(businessHour);
     setAvailableTimeSlots(slots);
-  }, [selectedDate, businessHours, holidays, specialHours, businessHoursLoading]);
+  }, [formData.date, businessHours, holidays, specialHours, businessHoursLoading]);
 
   // Update form data when initialData changes (for editing)
   useEffect(() => {
@@ -287,17 +287,62 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
   const handleDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     const formattedDate = formatDateInput(value);
-    
+
     setFormData(prev => ({
       ...prev,
       date: formattedDate,
     }));
-    
+
     // Clear error for date field
     if (errors.date) {
       setErrors(prevErrors => ({
         ...prevErrors,
         date: undefined,
+      }));
+    }
+  };
+
+  const handleDateInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+
+    // 날짜 형식이 완전하지 않으면 검증하지 않음
+    if (value.length !== 10) return;
+
+    // 날짜 유효성 검증
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(value)) return;
+
+    const [year, month, day] = value.split('-').map(Number);
+    const inputDate = new Date(year, month - 1, day);
+
+    // 유효한 날짜인지 확인
+    if (inputDate.getFullYear() !== year ||
+        inputDate.getMonth() !== month - 1 ||
+        inputDate.getDate() !== day) {
+      setErrors(prevErrors => ({
+        ...prevErrors,
+        date: '유효하지 않은 날짜입니다'
+      }));
+      return;
+    }
+
+    // 과거 날짜 확인
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (inputDate < today) {
+      setErrors(prevErrors => ({
+        ...prevErrors,
+        date: '과거 날짜는 선택할 수 없습니다'
+      }));
+      return;
+    }
+
+    // 휴무일 확인
+    if (!businessHoursLoading && !isBusinessDay(value, businessHours, holidays, specialHours)) {
+      setErrors(prevErrors => ({
+        ...prevErrors,
+        date: '선택하신 날짜는 휴무일입니다'
       }));
     }
   };
@@ -441,10 +486,11 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
                 name="date"
                 value={formData.date}
                 onChange={handleDateInputChange}
+                onBlur={handleDateInputBlur}
                 onKeyDown={(e) => handleKeyDown(e, timeSelectRef)}
                 className={`w-full px-4 py-3 glass-input focus:outline-none focus:ring-2 transition-all duration-300 ${
-                  errors.date 
-                    ? 'border-red-400 focus:ring-red-400' 
+                  errors.date
+                    ? 'border-red-400 focus:ring-red-400'
                     : 'focus:ring-purple-400 focus:border-transparent hover:bg-white/15'
                 }`}
                 placeholder="YYYY-MM-DD (예: 20241225)"
@@ -463,13 +509,17 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
                      }
                    }}>
                 <p className="text-gray-800 font-medium">
-                  {formData.date ? 
-                    new Date(formData.date + 'T00:00:00').toLocaleDateString('ko-KR', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                      weekday: 'long'
-                    }) : '날짜를 선택하세요'
+                  {formData.date ?
+                    (() => {
+                      const [year, month, day] = formData.date.split('-').map(Number);
+                      const dateObj = new Date(year, month - 1, day);
+                      return dateObj.toLocaleDateString('ko-KR', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        weekday: 'long'
+                      });
+                    })() : '날짜를 선택하세요'
                   }
                 </p>
                 <p className="text-sm text-gray-600 mt-1">
@@ -501,7 +551,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit, initialData
               <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-400 border-t-transparent mr-2"></div>
               <span className="text-gray-500">영업시간 로딩 중...</span>
             </div>
-          ) : !isBusinessDay(selectedDate, businessHours, holidays, specialHours) ? (
+          ) : !isBusinessDay(formData.date, businessHours, holidays, specialHours) ? (
             <div className="w-full px-4 py-3 glass-input bg-red-50 border border-red-300 rounded-lg">
               <p className="text-red-700 text-sm">🚫 선택하신 날짜는 휴무일입니다.</p>
             </div>
